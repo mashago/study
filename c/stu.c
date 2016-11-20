@@ -1775,7 +1775,7 @@ int test58()
 		perror("test58:stat1");
 		return -1;
 	}
-	printf("1 file_stat.st_size=%lld\n", file_stat.st_size);
+	printf("1 file_stat.st_size=%lld\n", (long long)file_stat.st_size);
 
 	if (file_stat.st_size > 30)
 	{
@@ -1790,7 +1790,7 @@ int test58()
 			perror("test58:stat2");
 			return -1;
 		}
-		printf("2 file_stat.st_size=%lld\n", file_stat.st_size);
+		printf("2 file_stat.st_size=%lld\n", (long long)file_stat.st_size);
 
 		// remove
 		if (remove(filename2) < 0)
@@ -1803,7 +1803,7 @@ int test58()
 			perror("test58:stat3");
 			return -1;
 		}
-		printf("3 file_stat.st_size=%lld\n", file_stat.st_size);
+		printf("3 file_stat.st_size=%lld\n", (long long)file_stat.st_size);
 	}
 
 	// access not exists file
@@ -1860,7 +1860,7 @@ int test61()
 	// or
 	// uuid = (((int64_t)guildId) << 32) + charId;
 	
-	printf("uuid=%lld\n", uuid);
+	printf("uuid=%lld\n", (long long)uuid);
 
 	int32_t tmp = 0;
 	tmp = 1 << 1;

@@ -26,7 +26,7 @@ clean:
 	rm -rf *.dSYM
 
 test:	test.c
-	gcc $(CFLAG) -o test test.c
+	gcc $(CFLAG) -o test test.c -lm
 
 ppp:	pthread_test.c
 	gcc $(CFLAG) -o ppp pthread_test.c -lpthread
