@@ -51,3 +51,8 @@ end
 
 -- for test5
 test5array = {"masha", "peter", 12}
+
+-- for test7
+function func_t7(x)
+	return c_str_upper(x); -- call c fucntion
+end

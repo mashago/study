@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <math.h>
 #include <time.h>
+#include <ctype.h>
 
 #include <lua.h> // include lua_xxx function, base api
 #include <lauxlib.h> // include luaL_xxx function
@@ -880,6 +881,82 @@ int test6()
 	return 0;
 } // test6 end
 
+
+static int str_upper(lua_State *L)
+{
+	size_t l;
+	size_t i;
+
+	// lua string buffer
+	luaL_Buffer b;
+
+	// get input string
+	const char *s = luaL_checklstring(L, 1, &l);
+
+	// init lua string buffer
+	luaL_buffinit(L, &b);
+
+	for (i = 0; i < l; i++)
+	{
+		// add char into buffer
+		luaL_addchar(&b, toupper((unsigned char)(s[i])));
+	}
+
+	// push buffer into stack
+	luaL_pushresult(&b);
+
+	return 1;
+}
+
+int test7()
+{
+	int ret;
+	ret = 0;
+	const char *file = "test1.lua";
+
+	lua_State *L = luaL_newstate();
+	luaL_openlibs(L);
+
+	do
+	{
+		if (luaL_dofile(L, file))
+		{
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			break;
+		}
+
+		lua_pushcfunction(L, str_upper);
+		lua_setglobal(L, "c_str_upper");
+
+
+		lua_getglobal(L, "func_t7");
+		if (!lua_isfunction(L, -1))
+		{
+			fprintf(stderr, "%s is not a function\n", "func_t7");
+			lua_pop(L, 1);
+			break;
+		}
+
+		const char *buffer = "Hello World 123";
+		lua_pushstring(L, buffer);
+		if (lua_pcall(L, 1, 1, 0) != 0)
+		{
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			break;
+		}
+
+		const char *result = lua_tostring(L, -1);
+		printf("result=%s\n", result);
+
+	} while (0);
+
+	lua_close(L);
+
+	return 0;
+} // test7 end
+
 int test_tmp()
 {
 	/*
@@ -917,6 +994,7 @@ testcase_t test_list[] =
 ,	test4
 ,	test5
 ,	test6
+,	test7
 };
 
 int main(int argc, char **argv) 
