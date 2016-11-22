@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <math.h>
+#include <time.h>
 
 #include <lua.h> // include lua_xxx function, base api
 #include <lauxlib.h> // include luaL_xxx function
@@ -731,6 +732,45 @@ int test4()
 	return 0;
 } // test4 end
 
+static void print_array(lua_State *L)
+{
+	if (!lua_istable(L, -1))
+	{
+		fprintf(stderr, "-1 not a table\n");
+		return;
+	}
+
+	int size = lua_objlen(L, -1);
+	for (int i = 1; i <= size; i++)
+	{
+		lua_pushnumber(L, i);
+		lua_gettable(L, -2);
+
+		int type = lua_type(L, -1);
+		switch (type)
+		{
+		case LUA_TNIL:
+			printf("nil");
+			break;
+		case LUA_TBOOLEAN:
+			printf(lua_toboolean(L, -1) ? "true" : "false");
+			break;
+		case LUA_TNUMBER:
+			printf("%g", lua_tonumber(L, -1));
+			break;
+		case LUA_TSTRING:
+			printf("%s", lua_tostring(L, -1));
+			break;
+		default:
+			printf("%s", lua_typename(L, -1));
+			break;
+		}
+		printf("  ");
+		lua_pop(L, 1);
+	}
+	printf("\n");
+}
+
 int test5()
 {
 	int ret;
@@ -740,6 +780,7 @@ int test5()
 	lua_State *L = luaL_newstate();
 	luaL_openlibs(L);
 
+	// get and set from a table array
 	do
 	{
 		if (luaL_dofile(L, file))
@@ -757,9 +798,13 @@ int test5()
 			lua_pop(L, 1);
 			break;
 		}
+		int size = lua_objlen(L, -1);
+		printf("size=%d\n", size);
+		print_array(L);
 
-		lua_pushinteger(L, 1);
-		lua_gettable(L, -2);
+		int index = 1;
+		lua_pushinteger(L, index);
+		lua_rawget(L, -2);
 		if (!lua_isstring(L, -1))
 		{
 			fprintf(stderr, "-1 not a string\n");
@@ -767,9 +812,25 @@ int test5()
 			break;
 		}
 		const char *value = lua_tostring(L, -1);
-		printf("value=%s\n", value);
+		printf("[%d]value=%s\n", index, value);
+		lua_pop(L, 1);
 
+		index = 2;
+		lua_rawgeti(L, -1, index);
+		if (!lua_isstring(L, -1))
+		{
+			fprintf(stderr, "-1 not a string\n");
+			lua_pop(L, 1);
+			break;
+		}
+		value = lua_tostring(L, -1);
+		printf("[%d]value=%s\n", index, value);
+		lua_pop(L, 1);
 
+		// set into array
+		lua_pushstring(L, "hello");
+		lua_rawseti(L, -2, size+1);
+		print_array(L);
 
 	} while (0);
 
@@ -777,6 +838,47 @@ int test5()
 
 	return 0;
 } // test5 end
+
+int test6()
+{
+	int ret;
+	ret = 0;
+	const char *file = "test1.lua";
+
+	lua_State *L = luaL_newstate();
+	luaL_openlibs(L);
+
+	// handle string
+	do
+	{
+		if (luaL_dofile(L, file))
+		{
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			break;
+		}
+
+		const char *tablename = "test6array";
+		lua_newtable(L);
+
+		int index = 1;
+		const char *v1 = "qwerty123456";
+		lua_pushlstring(L, v1+2, 5);
+		lua_rawseti(L, -2, index++);
+
+		lua_pushfstring(L, "%s-%d", "masha", time(NULL));
+		lua_rawseti(L, -2, index++);
+
+		print_array(L);
+
+		lua_setglobal(L, tablename);
+
+	} while (0);
+
+	lua_close(L);
+
+	return 0;
+} // test6 end
 
 int test_tmp()
 {
@@ -814,6 +916,7 @@ testcase_t test_list[] =
 ,	test3
 ,	test4
 ,	test5
+,	test6
 };
 
 int main(int argc, char **argv) 
