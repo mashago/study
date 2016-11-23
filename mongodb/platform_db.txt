@@ -1,0 +1,43 @@
+1.database:
+ice_platform_db
+
+2.table:
+ice_account_info
+ice_player_register
+
+mysql> desc ice_account_info;
++----------------+-------------+------+-----+---------+-------+
+| Field          | Type        | Null | Key | Default | Extra |
++----------------+-------------+------+-----+---------+-------+
+| account_openid | varchar(40) | NO   | PRI | NULL    |       |
+| account_skey   | varchar(40) | YES  |     | NULL    |       |
+| account_info   | blob        | YES  |     | NULL    |       |
+| account_create | bigint(20)  | YES  |     | NULL    |       |
+| account_login  | bigint(20)  | YES  |     | NULL    |       |
++----------------+-------------+------+-----+---------+-------+
+
+mysql> desc ice_player_register;
++-------------+-------------+------+-----+---------+-------+
+| Field       | Type        | Null | Key | Default | Extra |
++-------------+-------------+------+-----+---------+-------+
+| player_name | varchar(45) | NO   | PRI | NULL    |       |
+| player_id   | bigint(20)  | NO   |     | NULL    |       |
+| account     | varchar(45) | NO   |     | NULL    |       |
+| game_server | int(11)     | NO   |     | 1       |       |
+| is_del      | char(1)     | NO   |     | 1       |       |
++-------------+-------------+------+-----+---------+-------+
+
+3.mongodb command:
+use ice_platform_db
+db.createCollection("ice_account_info")
+db.ice_account_info.ensureIndex({"account_openid":1},{"unique":true})
+db.ice_account_info.ensureIndex({"account_create":1})
+db.ice_account_info.ensureIndex({"account_login":1})
+
+db.createCollection("ice_player_register")
+db.ice_player_register.ensureIndex({"player_name":1},{"unique":true})
+db.ice_player_register.ensureIndex({"player_id":1})
+db.ice_player_register.ensureIndex({"account":1})
+
+
+

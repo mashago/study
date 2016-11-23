@@ -1,0 +1,37 @@
+
+package MashaProto;
+
+/* 
+proto type:
+	bool
+,	double
+,	float
+,	int32
+,	uint32
+,	int64
+,	uint64
+,	string
+,	bytes
+,	enum
+,	message
+*/
+
+enum Color
+{
+	NONE	= 0;
+	BLACK	= 1;
+	RED		= 2;
+	GARY	= 4;
+}
+
+message Person
+{
+	required int32		id			= 1;
+	required string		name		= 2;
+	optional int32		age			= 3 [default = 100];
+	repeated int32		numList		= 4;
+	repeated string		strList		= 5;
+	required Color		color		= 6;
+	// optional int32      tmp         = 4; // cannot add new param in middle index
+	optional int32      tmp         = 7; // add new param in last index is ok
+}
