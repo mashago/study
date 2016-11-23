@@ -392,7 +392,7 @@ int test1()
 
 		// 2. set field
 		key = "g";
-		lua_setfield(L, -2, key); // same as lua_pushstring(key) + lua_insert(-2) + lua_settable()
+		lua_setfield(L, -2, key); // assert table in -2, logic same as lua_pushstring(key) + lua_insert(-2) + lua_settable()
 
 		//////////////////////////////////////
 
@@ -539,7 +539,7 @@ int test3()
 
 		// 1. push c function into lua
 		lua_pushcfunction(L, l_sin);
-		// 2. name it
+		// 2. define it in lua global environment, therefore lua can get this function
 		lua_setglobal(L, "mysin");
 
 
@@ -632,7 +632,8 @@ int test4()
 		const char *libname = "cfunc4";
 		if (strcmp(version, "Lua 5.1") == 0)
 		{
-			// register c function list as a table into lua, table will stay in stack
+			// core logic
+			// register c function array as a function table into lua, table will stay in stack
 			luaL_register(L, libname, cfunc4_list);
 		}
 
@@ -733,6 +734,7 @@ int test4()
 	return 0;
 } // test4 end
 
+
 static void print_array(lua_State *L)
 {
 	if (!lua_istable(L, -1))
@@ -774,6 +776,7 @@ static void print_array(lua_State *L)
 
 int test5()
 {
+	// get and set from a table array
 	int ret;
 	ret = 0;
 	const char *file = "test1.lua";
@@ -781,7 +784,6 @@ int test5()
 	lua_State *L = luaL_newstate();
 	luaL_openlibs(L);
 
-	// get and set from a table array
 	do
 	{
 		if (luaL_dofile(L, file))
@@ -842,6 +844,7 @@ int test5()
 
 int test6()
 {
+	// handle string
 	int ret;
 	ret = 0;
 	const char *file = "test1.lua";
@@ -849,7 +852,6 @@ int test6()
 	lua_State *L = luaL_newstate();
 	luaL_openlibs(L);
 
-	// handle string
 	do
 	{
 		if (luaL_dofile(L, file))
@@ -910,6 +912,7 @@ static int str_upper(lua_State *L)
 
 int test7()
 {
+	// test lua string buffer
 	int ret;
 	ret = 0;
 	const char *file = "test1.lua";
@@ -957,6 +960,341 @@ int test7()
 	return 0;
 } // test7 end
 
+int test8()
+{
+	// registry
+	int ret;
+	ret = 0;
+	const char *file = "test1.lua";
+
+	lua_State *L = luaL_newstate();
+	luaL_openlibs(L);
+
+	do
+	{
+		if (luaL_dofile(L, file))
+		{
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			break;
+		}
+
+		const char *key;
+		const char *value;
+
+		key = "my_global_variable1";
+		value = "helloworld1";
+		lua_pushstring(L, value);
+		// set string key and value into registry index
+		// use registry like a global table
+		lua_setfield(L, LUA_REGISTRYINDEX, key);
+
+		key = "my_global_variable2";
+		value = "helloworld2";
+		lua_pushstring(L, value);
+		lua_setfield(L, LUA_REGISTRYINDEX, key);
+
+		// get value from registry index
+		key = "my_global_variable1";
+		lua_getfield(L, LUA_REGISTRYINDEX, key);
+		value = lua_tostring(L, -1);
+		printf("key=%s value=%s\n", key, value);
+		lua_pop(L, 1);
+
+		key = "my_global_variable2";
+		lua_getfield(L, LUA_REGISTRYINDEX, key);
+		value = lua_tostring(L, -1);
+		printf("key=%s value=%s\n", key, value);
+		lua_pop(L, 1);
+
+		printf("\n");
+
+		value = "helloworld3";
+		lua_pushstring(L, value);
+		// save value into a unique key, return a key
+		int r = luaL_ref(L, LUA_REGISTRYINDEX);
+		printf("r=%d\n", r);
+
+		lua_rawgeti(L, LUA_REGISTRYINDEX, r);
+		value = lua_tostring(L, -1);
+		printf("r=%d value=%s\n", r, value);
+		printf("top=%d\n", lua_gettop(L));
+		lua_pop(L, 1);
+
+		// release the unique key and value
+		luaL_unref(L, LUA_REGISTRYINDEX, r);
+		lua_rawgeti(L, LUA_REGISTRYINDEX, r);
+		if (lua_isnil(L, -1))
+		{
+			printf("r=%d already release\n",r);
+		}
+		printf("top=%d\n", lua_gettop(L));
+		lua_pop(L, 1);
+
+		printf("\n");
+
+		static char skey = 'k';
+		value = "helloworld4";
+		// use a pointer address as a unique key
+		lua_pushlightuserdata(L, (void *)&skey);
+		lua_pushstring(L, value);
+		lua_settable(L, LUA_REGISTRYINDEX);
+
+		lua_pushlightuserdata(L, (void *)&skey);
+		lua_gettable(L, LUA_REGISTRYINDEX);
+		value = lua_tostring(L, -1);
+		printf("key=%p value=%s\n", &skey, value);
+		lua_pop(L, 1);
+
+
+	} while (0);
+
+	lua_close(L);
+
+	return 0;
+}
+
+static int replace_environment(lua_State *L)
+{
+	const char *paramname;
+	const char *val;
+
+	paramname = "test9val";
+	lua_getglobal(L, paramname);
+	val = lua_tostring(L, -1);
+	printf("paramname=%s val=%s\n", paramname, val);
+	lua_pop(L, 1);
+
+	lua_newtable(L);
+	// use a new environment
+	lua_replace(L, LUA_ENVIRONINDEX); // not work....
+
+	paramname = "test9val";
+	lua_getglobal(L, paramname);
+	if (lua_isnil(L, -1))
+	{
+		printf("paramname=%s is nil\n", paramname);
+	}
+	else
+	{
+		val = lua_tostring(L, -1);
+		printf("paramname=%s val=%s\n", paramname, val);
+	}
+	lua_pop(L, 1);
+
+	return 0;
+}
+
+int test9()
+{
+	int ret;
+	ret = 0;
+	const char *file = "test1.lua";
+
+	lua_State *L = luaL_newstate();
+	luaL_openlibs(L);
+
+	do
+	{
+		if (luaL_dofile(L, file))
+		{
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			break;
+		}
+
+		lua_cpcall(L, replace_environment, 0);
+
+	} while (0);
+
+	lua_close(L);
+
+	return 0;
+}
+
+
+// c closure function
+static int counter(lua_State *L)
+{
+	// get upvalue 1 fake index, and get it
+	int val = lua_tointeger(L, lua_upvalueindex(1));
+
+	// push ++value to stack
+	lua_pushinteger(L, ++val);
+
+	//  copy it
+	lua_pushvalue(L, -1);
+
+	// update upvalue
+	lua_replace(L, lua_upvalueindex(1));
+	return 1;
+}
+
+static int newCounter(lua_State *L)
+{
+	// push upvalue initial value
+	lua_pushinteger(L, 0);
+
+	// push c closure, pass function and upvalue num
+	lua_pushcclosure(L, &counter, 1);
+	return 1;
+}
+
+int test10()
+{
+	// closure
+	int ret;
+	ret = 0;
+	const char *file = "test1.lua";
+
+	lua_State *L = luaL_newstate();
+	luaL_openlibs(L);
+
+	do
+	{
+		if (luaL_dofile(L, file))
+		{
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			break;
+		}
+
+		lua_pushcfunction(L, newCounter);
+		lua_setglobal(L, "c_new_counter");
+
+		const char *funcname = "func_t10";
+		lua_getglobal(L, funcname);
+		if (!lua_isfunction(L, -1))
+		{
+			fprintf(stderr, "%s not a function\n", funcname);
+			lua_pop(L, 1);
+			break;
+		}
+
+		int x = 5;
+		lua_pushinteger(L, x);
+		if (lua_pcall(L, 1, 1, 0) != 0)
+		{
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			break;
+		}
+
+		if (!lua_isnumber(L, -1))
+		{
+			fprintf(stderr, "reuslt not a integer\n");
+			lua_pop(L, 1);
+			break;
+		}
+
+		int result = lua_tointeger(L, -1);
+		printf("result = %d\n", result);
+		lua_pop(L, 1);
+
+	} while (0);
+
+	lua_close(L);
+
+	return 0;
+}
+
+
+// c closure function
+static int t_tuple(lua_State *L)
+{
+	// get optional input int, if not exists, return specified value
+	int op = luaL_optint(L, 1, 0);
+	if (op == 0)
+	{
+		int i;
+		// use lua_isnone() check if upvalueindex is ok
+		for (i = 1; !lua_isnone(L, lua_upvalueindex(i)); i++)
+		{
+			// push upvalue into stack to return
+			lua_pushvalue(L, lua_upvalueindex(i));
+		}
+		return i - 1;
+	}
+	else
+	{
+		// check op is positive, else raise a error
+		luaL_argcheck(L, 0 < op, 1, "index out of range");
+		if (lua_isnone(L, lua_upvalueindex(op)))
+		{
+			return 0;
+		}
+		// push upvalue into stack to return
+		lua_pushvalue(L, lua_upvalueindex(op));
+		return 1;
+	}
+}
+
+static int t_new(lua_State *L)
+{
+	lua_pushcclosure(L, t_tuple, lua_gettop(L));
+	return 1;
+}
+
+static const struct luaL_Reg tuplelib [] =
+{
+	{"new", t_new}
+,	{NULL, NULL}
+};
+
+int test11()
+{
+	int ret;
+	ret = 0;
+	const char *file = "test1.lua";
+
+	lua_State *L = luaL_newstate();
+	luaL_openlibs(L);
+
+	do
+	{
+		if (luaL_dofile(L, file))
+		{
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			break;
+		}
+
+		lua_getglobal(L, "_VERSION");
+		const char * pv = lua_tostring(L, -1);
+		char version[50];
+		snprintf(version, sizeof(version), "%s", pv);
+		lua_pop(L, 1);
+		// printf("version=%s\n", version);
+
+		if (strcmp(version, "Lua 5.1") == 0)
+		{
+			// core logic
+			// register c function array as a function table into lua, table will stay in stack
+			luaL_register(L, "tuple", tuplelib);
+		}
+
+		lua_getglobal(L, "func_t11");
+		if (!lua_isfunction(L, -1))
+		{
+			fprintf(stderr, "%s is not a function\n", "func_t_11");
+			lua_pop(L, 1);
+			break;
+		}
+
+		if (lua_pcall(L, 0, 0, 0) != 0)
+		{
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			break;
+		}
+
+	} while (0);
+
+	lua_close(L);
+
+	return 0;
+}
+
 int test_tmp()
 {
 	/*
@@ -995,6 +1333,10 @@ testcase_t test_list[] =
 ,	test5
 ,	test6
 ,	test7
+,	test8
+,	test9
+,	test10
+,	test11
 };
 
 int main(int argc, char **argv) 
@@ -1012,7 +1354,7 @@ int main(int argc, char **argv)
 		if (!strcmp(argv[1], "all")) {
 			printf("stu:run_all_case\n");
 			for (int i=0; i<maxcase; i++) {
-				printf("stu:RUN testcase[%d]\n", i);
+				printf("\nstu:RUN testcase[%d]\n", i);
 				ret = test_list[i]();
 				if (ret != 0) {
 					printf("stu:case[%d] %d\n", i, ret);	

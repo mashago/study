@@ -18,7 +18,7 @@ end
 
 -- for test3
 function func_t3(x)
-	-- will call c function
+	-- get c function, which already push into global
 	if mysin == nil then
 		return -1
 	end
@@ -28,6 +28,7 @@ end
 -- for test4
 function func_t4(x, y, op)
 
+	-- cfunc4 is c function list register name
 	if cfunc4 == nil then
 		return -1
 	end
@@ -35,7 +36,7 @@ function func_t4(x, y, op)
 	local result = 0
 	local func
 	if op == "add" then
-		func = cfunc4.add
+		func = cfunc4.add -- get c function
 	elseif op == "sub" then
 		func = cfunc4.sub
 	elseif op == "times" then
@@ -54,5 +55,31 @@ test5array = {"masha", "peter", 12}
 
 -- for test7
 function func_t7(x)
-	return c_str_upper(x); -- call c fucntion
+	return c_str_upper(x) -- call c fucntion
 end
+
+-- for test9
+test9val = "masha"
+
+-- for test10
+function func_t10(x)
+	local counter = c_new_counter() -- call c function, get a c closure
+	local t = 0
+	if counter == nil then
+		return 0
+	end
+	x = x or 10
+	for i=1, x, 1 do
+		t = counter() -- call c closure
+	end
+	return t
+end
+
+function func_t11()
+	local t1 = tuple.new(10, "masha", {}, 3) -- c lib tuple, call new function, create a c closure
+	print(t1(1)) -- call c closure
+	print(t1(2))
+	print(t1())
+	print(t1(5))
+end
+
