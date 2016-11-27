@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <limits.h>
 
 // #include "xxx.h" // local location
 
@@ -1887,6 +1888,105 @@ int test61()
 	return 0;
 }
 
+#define BITS_PER_WORD (CHAR_BIT * sizeof(unsigned int))
+#define I_WORD(i) ((unsigned int)(i) / BITS_PER_WORD)
+#define I_BIT(i) (1 << ((unsigned int)(i) % BITS_PER_WORD))
+typedef struct NumArray
+{
+	int size;
+	unsigned int value[1];
+} NumArray;
+
+int get_bit(const NumArray *ptr, int index)
+{
+	if (index >= ptr->size)
+	{
+		return -1;
+	}
+
+	return ptr->value[I_WORD(index)] & I_BIT(index);
+}
+
+int set_bit(NumArray *ptr, int index, int flag)
+{
+	if (index >= ptr->size)
+	{
+		return -1;
+	}
+
+	if (flag)
+	{
+		ptr->value[I_WORD(index)] |= I_BIT(index);
+	}
+	else
+	{
+		ptr->value[I_WORD(index)] &= ~I_BIT(index);
+	}
+	return 0;
+}
+
+int test62()
+{
+	printf("BITS_PER_WORD=%lu\n", BITS_PER_WORD);
+
+	const int MAX_SIZE = 64;
+	int mem_size = sizeof(NumArray) + I_WORD(MAX_SIZE-1) + sizeof(unsigned int);
+	NumArray *ptr = calloc(1, mem_size);
+	ptr->size = MAX_SIZE;
+
+	for (int i = 0; i < ptr->size; i++)
+	{
+		printf("%c", get_bit(ptr, i) ? '1' : '0');
+	}
+	printf("\n");
+
+	int index = 0;
+	int flag = 0;
+
+	index = 0;
+	flag = 1;
+	set_bit(ptr, index, flag);
+
+	index = 1;
+	flag = 1;
+	set_bit(ptr, index, flag);
+
+	index = 0;
+	flag = get_bit(ptr, index);
+	printf("index=%d flag=%c\n", index, flag ? '1' : '0');
+	
+	index = 1;
+	flag = get_bit(ptr, index);
+	printf("index=%d flag=%c\n", index, flag ? '1' : '0');
+	
+	index = 2;
+	flag = get_bit(ptr, index);
+	printf("index=%d flag=%c\n", index, flag ? '1' : '0');
+	
+	index = 1;
+	flag = 0;
+	set_bit(ptr, index, flag);
+	
+	index = MAX_SIZE-1;
+	flag = 1;
+	set_bit(ptr, index, flag);
+	
+	index = MAX_SIZE;
+	flag = 1;
+	set_bit(ptr, index, flag);
+
+	for (int i = 0; i < ptr->size; i++)
+	{
+		printf("%c", get_bit(ptr, i) ? '1' : '0');
+	}
+	printf("\n");
+
+
+	free(ptr);
+
+	return 0;
+}
+
 int test_tmp()
 {
 	/*
@@ -1962,6 +2062,7 @@ testcase_t test_list[] =
 ,	test59
 ,	test60
 ,	test61
+,	test62
 };
 
 int main(int argc, char * argv[]) 
