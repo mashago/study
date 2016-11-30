@@ -15,6 +15,7 @@
 #include <string>
 #include <sstream>
 #include <queue>
+#include <list>
 
 #include "stu.h"
 #include "stock.h"
@@ -2395,6 +2396,190 @@ int test66()
 	return 0;
 }
 
+struct KnowledgeRankNode
+{
+	int charId;
+	int score;
+	int time;
+};
+
+bool updateKnowledgeRank(std::list<KnowledgeRankNode> &rankList, KnowledgeRankNode &node, int &removeId)
+{
+	const int RANK_MAX = 10;
+    bool isUpdate = false;
+    removeId = 0;
+    do
+    {
+        // 1. empty rank, just add
+        if (rankList.size() == 0)
+        {
+            rankList.push_back(node);
+            isUpdate = true;
+            break;
+        }
+
+		// 2. score small then NO.Last, break
+		if (rankList.size() >= RANK_MAX)
+		{
+			auto back = rankList.back();
+			if (node.score < back.score)
+			{
+				break;
+			}
+		}
+
+        auto iter = rankList.begin();
+        // 3. insert or replace
+        for (;iter != rankList.end();)
+        {
+			// find myself in rank
+            if ((*iter).charId == node.charId)
+            {
+				if ((*iter).score >= node.score)
+				{
+					// old record score bigger, do nothing, just return
+					return true;
+				}
+				// update old record, and return
+				(*iter).score = node.score;
+				(*iter).time = node.time;
+				return true;
+            }
+
+			// big score, continue
+            if ((*iter).score > node.score)
+            {
+                iter++;
+                continue;
+            }
+
+			// same score, older record, continue
+			if ((*iter).score == node.score && (*iter).time <= node.time)
+			{
+				iter++;
+				continue;
+			}
+
+            // insert new record
+            rankList.insert(iter, node);
+            isUpdate = true;
+			iter++;
+            break;
+        }
+
+        // 4. remove duplicate
+        for (;iter != rankList.end();)
+        {
+            if ((*iter).charId == node.charId)
+            {
+                // remove old duplicate record
+                iter = rankList.erase(iter);
+                continue;
+            }
+			iter++;
+        }
+
+        // 5. if size>max, pop last
+        if (rankList.size() > RANK_MAX)
+        {
+            removeId = rankList.back().charId;
+            rankList.pop_back();
+			break;
+        }
+
+		// 6. if not add new record, and still has space in rank, add it
+		if (!isUpdate && rankList.size() < RANK_MAX)
+		{
+			rankList.push_back(node);
+			isUpdate = true;
+		}
+
+    } while (false);
+
+	return isUpdate;
+}
+
+void printKnowledgeRank(const std::list<KnowledgeRankNode> &rankList)
+{
+	printf("size=%zu\n", rankList.size());
+	for (auto iter = rankList.begin(); iter != rankList.end(); iter++)
+	{
+		printf("c=%3d s=%3d t=%3d\n", (*iter).charId, (*iter).score, (*iter).time);
+	}
+	printf("\n");
+}
+
+int test67() 
+{
+	std::list<KnowledgeRankNode> rankList;
+
+	KnowledgeRankNode node;
+	int removeId = 0;
+
+	node.charId = 1;
+	node.score = 100;
+	node.time = 0;
+	updateKnowledgeRank(rankList, node, removeId);
+	printKnowledgeRank(rankList);
+
+	node.charId = 1;
+	node.score = 101;
+	node.time = 0;
+	updateKnowledgeRank(rankList, node, removeId);
+	printKnowledgeRank(rankList);
+
+	node.charId = 3;
+	node.score = 100;
+	updateKnowledgeRank(rankList, node, removeId);
+
+	node.charId = 2;
+	node.score = 100;
+	updateKnowledgeRank(rankList, node, removeId);
+
+	node.charId = 2;
+	node.score = 101;
+	updateKnowledgeRank(rankList, node, removeId);
+
+	printKnowledgeRank(rankList);
+
+	printf("-----------------------------\n");
+
+	rankList.clear();
+	srand(time(NULL));
+	const int MAX_RECORD = 30;
+	const int CHARID_RANGE = 20;
+	const int SCORE_RANGE = 20;
+	const int TIME_RANGE = 3;
+	std::list<KnowledgeRankNode> recordList;
+	std::set<int> numSet;
+	for (int i = 0; i < MAX_RECORD; i++)
+	{
+		node.charId = rand() % CHARID_RANGE + 1;
+		node.score = rand() % SCORE_RANGE + 1;
+		node.time = rand() % TIME_RANGE + 1;
+		recordList.push_back(node);
+		numSet.insert(node.charId);
+	}
+	printf("recordList: %zu\n", recordList.size());
+	for (auto iter = recordList.begin(); iter != recordList.end(); iter++)
+	{
+		printf("c=%3d s=%3d t=%3d\n", iter->charId, iter->score, iter->time);
+	}
+	printf("numSet.size()=%zu\n\n", numSet.size());
+
+	for (auto iter = recordList.begin(); iter != recordList.end(); iter++)
+	{
+		bool isUpdate = updateKnowledgeRank(rankList, *iter, removeId);
+		if (removeId)
+		{
+			printf("removeId=%d\n", removeId);
+		}
+	}
+	printKnowledgeRank(rankList);
+
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -2473,6 +2658,7 @@ testcase_t test_list[] =
 ,	test64
 ,	test65
 ,	test66
+,	test67
 };
 
 int main(int argc, char *argv[]) 
