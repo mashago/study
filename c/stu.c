@@ -15,6 +15,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <limits.h>
+#include <math.h>
 
 // #include "xxx.h" // local location
 
@@ -1987,6 +1988,96 @@ int test62()
 	return 0;
 }
 
+int get_power(int flag, int type, int tmax)
+{
+	return flag / (int)pow(10, tmax - 1 - type) % 2;
+}
+
+int test63()
+{
+
+	int flag = 0;
+	int power = 0;
+	int type = 1; 
+	int tmax = 4;
+
+	flag = 0;
+	printf("flag=%.3d\n", flag);
+	for (int i = 1; i < tmax; i++)
+	{
+		power = get_power(flag, i, tmax);
+		printf("type=%d power=%d\n", i, power);
+	}
+
+	flag = 1;
+	printf("flag=%.3d\n", flag);
+	for (int i = 1; i < tmax; i++)
+	{
+		power = get_power(flag, i, tmax);
+		printf("type=%d power=%d\n", i, power);
+	}
+
+	flag = 10;
+	printf("flag=%.3d\n", flag);
+	for (int i = 1; i < tmax; i++)
+	{
+		power = get_power(flag, i, tmax);
+		printf("type=%d power=%d\n", i, power);
+	}
+
+	flag = 100;
+	printf("flag=%.3d\n", flag);
+	for (int i = 1; i < tmax; i++)
+	{
+		power = get_power(flag, i, tmax);
+		printf("type=%d power=%d\n", i, power);
+	}
+
+	flag = 11;
+	printf("flag=%.3d\n", flag);
+	for (int i = 1; i < tmax; i++)
+	{
+		power = get_power(flag, i, tmax);
+		printf("type=%d power=%d\n", i, power);
+	}
+
+	flag = 100;
+	printf("flag=%.3d\n", flag);
+	for (int i = 1; i < tmax; i++)
+	{
+		power = get_power(flag, i, tmax);
+		printf("type=%d power=%d\n", i, power);
+	}
+
+	flag = 101;
+	printf("flag=%.3d\n", flag);
+	for (int i = 1; i < tmax; i++)
+	{
+		power = get_power(flag, i, tmax);
+		printf("type=%d power=%d\n", i, power);
+	}
+
+	flag = 110;
+	printf("flag=%.3d\n", flag);
+	for (int i = 1; i < tmax; i++)
+	{
+		power = get_power(flag, i, tmax);
+		printf("type=%d power=%d\n", i, power);
+	}
+
+	flag = 111;
+	printf("flag=%.3d\n", flag);
+	for (int i = 1; i < tmax; i++)
+	{
+		power = get_power(flag, i, tmax);
+		printf("type=%d power=%d\n", i, power);
+	}
+
+	return 0;
+}
+
+
+
 int test_tmp()
 {
 	/*
@@ -2063,6 +2154,7 @@ testcase_t test_list[] =
 ,	test60
 ,	test61
 ,	test62
+,	test63
 };
 
 int main(int argc, char * argv[]) 

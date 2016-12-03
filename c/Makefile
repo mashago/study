@@ -41,7 +41,7 @@ usock:	socket_unix.c
 	gcc $(CFLAG) -o usock socket_unix.c -lpthread
 
 stu:	stu.c
-	gcc $(CFLAG) -o stu stu.c
+	gcc $(CFLAG) -o stu stu.c -lm
 
 two:	stu.c empty.c
 	gcc $(CFLAG) -o stu stu.c empty.c
