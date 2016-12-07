@@ -717,6 +717,10 @@ function test15()
 end
 
 function trim(s)
+	-- ^ is begin from 
+	-- %s is space. * is match repeated 0 or many times, prefer longer
+	-- . is char. - is match repeated 0 or many times, prefer shorter
+	-- $ is end with
 	return (string.match(s, "^%s*(.-)%s*$"))
 end
 
@@ -799,6 +803,7 @@ function test17()
 	local buffer = ""
 
 	-- replace from string
+	-- %w is letters and integer
 	buffer = "$player is best"
 	buffer = string.gsub(buffer, "$%w+", "masha")
 	print("1 buffer=[" .. buffer .. "]")

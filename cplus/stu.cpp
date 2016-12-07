@@ -2580,6 +2580,46 @@ int test67()
 	return 0;
 }
 
+struct guild
+{
+	int guildId;
+	int createTime;
+	int fakeId;
+	friend bool operator< (const guild &g1, const guild &g2)
+	{
+		return g1.createTime < g2.createTime;
+	}
+};
+
+int test68() 
+{
+	// int ret;
+	
+	srand(time(NULL));
+	std::vector<guild> guildVec;
+	const int MAX_GUILD = 100;
+	for (int i = 1; i <= MAX_GUILD; i++)
+	{
+		guild g;
+		g.guildId = i;
+		g.createTime = rand() % 1000000;
+		guildVec.push_back(g);
+	}
+
+	std::sort(guildVec.begin(), guildVec.end());
+
+	int fakeId = 1;
+	for (auto iter = guildVec.begin(); iter != guildVec.end(); iter++)
+	{
+		iter->fakeId = fakeId++;
+		printf("guildId=%d createTime=%d fakeId=%d\n", iter->guildId, iter->createTime, iter->fakeId);
+	}
+
+
+	// ret = 0;
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -2659,6 +2699,7 @@ testcase_t test_list[] =
 ,	test65
 ,	test66
 ,	test67
+,	test68
 };
 
 int main(int argc, char *argv[]) 
