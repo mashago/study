@@ -1538,6 +1538,18 @@ int test44()
 	std::cout << "numStr8=" << numStr << " num=" << num << std::endl;
 
 
+	numStr = "000";
+	num = atoi(numStr.c_str());
+	std::cout << "numStr=" << numStr << " num=" << num << std::endl;
+
+	numStr = "001";
+	num = atoi(numStr.c_str());
+	std::cout << "numStr=" << numStr << " num=" << num << std::endl;
+
+	numStr = "010";
+	num = atoi(numStr.c_str());
+	std::cout << "numStr=" << numStr << " num=" << num << std::endl;
+
 	// ret = 0;
 	return 0;
 }
@@ -2620,6 +2632,25 @@ int test68()
 	return 0;
 }
 
+int test69() 
+{
+	char buffer[] = "abc";
+	const char *buffer2 = "abcd";
+	const char *empty_string = "";
+
+	int result = strcmp(buffer, empty_string);
+	printf("result=%d [%s] [%s]\n", result, buffer, empty_string);
+
+	result = strcmp(buffer2, empty_string);
+	printf("result=%d [%s] [%s]\n", result, buffer2, empty_string);
+
+	result = -1;
+	result = !result;
+	printf("result=%d\n", result);
+
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -2700,6 +2731,7 @@ testcase_t test_list[] =
 ,	test66
 ,	test67
 ,	test68
+,	test69
 };
 
 int main(int argc, char *argv[]) 
