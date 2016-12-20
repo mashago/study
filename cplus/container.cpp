@@ -875,6 +875,70 @@ int test_map()
 	}
 	cout << endl;
 
+	{
+	cout << endl;
+	std::map<int32_t, std::string> m6;
+	m6.insert(std::make_pair(1, "a"));
+	m6.insert(std::make_pair(3, "c"));
+	// m6.insert(std::make_pair(5, "e"));
+	m6.insert(std::make_pair(2, "b"));
+	m6.insert(std::make_pair(4, "d"));
+	m6.insert(std::make_pair(6, "f"));
+	cout << "m6.size()=" << m6.size() << endl;
+	cout << "m6:\n";
+	for (auto iter=m6.begin(); iter!=m6.end(); iter++)
+	{
+		printf("key=%d value=%s\n", iter->first, iter->second.c_str());
+	}
+	cout << endl;
+	int32_t key = 2;
+	auto iter = m6.lower_bound(key);
+	if (iter != m6.end() && iter->first == key)
+	{
+		printf("lower_bound(%d) found value=%s\n", key, iter->second.c_str());
+	}
+	else
+	{
+		printf("lower_bound(%d) not found\n", key);
+		if (iter != m6.end())
+		{
+			printf("lower_bound(%d) value=%s\n", key, iter->second.c_str());
+		}
+	}
+
+	key = 5;
+	iter = m6.lower_bound(key);
+	if (iter != m6.end() && iter->first == key)
+	{
+		printf("lower_bound(%d) found value=%s\n", key, iter->second.c_str());
+	}
+	else
+	{
+		printf("lower_bound(%d) not found\n", key);
+		if (iter != m6.end())
+		{
+			printf("lower_bound(%d) value=%s\n", key, iter->second.c_str());
+		}
+	}
+
+	key = 7;
+	iter = m6.lower_bound(key);
+	if (iter != m6.end() && iter->first == key)
+	{
+		printf("lower_bound(%d) found value=%s\n", key, iter->second.c_str());
+	}
+	else
+	{
+		printf("lower_bound(%d) not found\n", key);
+		if (iter != m6.end())
+		{
+			printf("lower_bound(%d) value=%s\n", key, iter->second.c_str());
+		}
+	}
+
+
+	}
+
 	return 0;
 }
 

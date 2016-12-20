@@ -1958,7 +1958,7 @@ int test54()
 	int b = 2;
 	int c = 3;
 
-	if (a == 1 || b == 2 && c != 3)
+	if (a == 1 || (b == 2 && c != 3))
 	{
 		printf("match\n");
 	}
@@ -2036,7 +2036,7 @@ int test56()
 	int num_list[10];
 
 	int *ptr = num_list + 5;
-	printf("offset=%d\n", ptr - num_list);
+	printf("offset=%ld\n", ptr - num_list);
 
 	struct tmp_t
 	{
@@ -2047,7 +2047,7 @@ int test56()
 
 	tmp_t t_list[10];
 	tmp_t *ptr2 = &t_list[5];
-	printf("offset=%d\n", ptr2 - t_list);
+	printf("offset=%ld\n", ptr2 - t_list);
 
 	return 0;
 }
@@ -2095,7 +2095,7 @@ struct a_t
 int test58() 
 {
 	
-	printf("sizeof(a_t) = %d\n", sizeof(a_t));
+	printf("sizeof(a_t) = %zu\n", sizeof(a_t));
 	return 0;
 }
 
@@ -2431,7 +2431,7 @@ bool updateKnowledgeRank(std::list<KnowledgeRankNode> &rankList, KnowledgeRankNo
         }
 
 		// 2. score small then NO.Last, break
-		if (rankList.size() >= RANK_MAX)
+		if ((int32_t)rankList.size() >= RANK_MAX)
 		{
 			auto back = rankList.back();
 			if (node.score < back.score)
@@ -2492,7 +2492,7 @@ bool updateKnowledgeRank(std::list<KnowledgeRankNode> &rankList, KnowledgeRankNo
         }
 
         // 5. if size>max, pop last
-        if (rankList.size() > RANK_MAX)
+        if ((int32_t)rankList.size() > RANK_MAX)
         {
             removeId = rankList.back().charId;
             rankList.pop_back();
@@ -2500,7 +2500,7 @@ bool updateKnowledgeRank(std::list<KnowledgeRankNode> &rankList, KnowledgeRankNo
         }
 
 		// 6. if not add new record, and still has space in rank, add it
-		if (!isUpdate && rankList.size() < RANK_MAX)
+		if (!isUpdate && (int32_t)rankList.size() < RANK_MAX)
 		{
 			rankList.push_back(node);
 			isUpdate = true;
@@ -2582,7 +2582,7 @@ int test67()
 	for (auto iter = recordList.begin(); iter != recordList.end(); iter++)
 	{
 		bool isUpdate = updateKnowledgeRank(rankList, *iter, removeId);
-		if (removeId)
+		if (isUpdate && removeId)
 		{
 			printf("removeId=%d\n", removeId);
 		}
@@ -2647,6 +2647,121 @@ int test69()
 	result = -1;
 	result = !result;
 	printf("result=%d\n", result);
+
+	return 0;
+}
+
+class MemoryPool
+{
+public:
+	MemoryPool *next;
+};
+
+class MyNewObj
+{
+public:
+	MyNewObj() : v1(0), v2(0) {};
+	~MyNewObj() {};
+
+	void * operator new(size_t size);
+	void operator delete(void *p, size_t size);
+
+	int v1;
+	int v2;
+private:
+	static MemoryPool *memPool;
+	static void expandMemoryPool();
+};
+
+MemoryPool * MyNewObj::memPool = NULL;
+
+void MyNewObj::expandMemoryPool()
+{
+	size_t size = (sizeof(MyNewObj) > sizeof(MemoryPool *)) ? sizeof(MyNewObj) : sizeof(MemoryPool *);
+	MemoryPool *runner = (MemoryPool *) new char[size];
+	memPool = runner;
+	enum { EXPAND_SIZE = 32 };
+	for (int i = 0; i < EXPAND_SIZE; i++)
+	{
+		runner->next = (MemoryPool *) new char[size];
+		runner = runner->next;
+	}
+	runner->next = NULL;
+};
+
+void * MyNewObj::operator new(size_t size)
+{
+	// TODO lock
+	if (NULL == memPool)
+	{
+		expandMemoryPool();
+	}
+	MemoryPool *head = memPool;
+	memPool = head->next;
+
+	return head;
+};
+
+void MyNewObj::operator delete(void *p, size_t size)
+{
+	// TODO lock
+	MemoryPool *head = (MemoryPool *)p;
+	head->next = memPool;
+	memPool = head;
+};
+
+class MyNewObj2
+{
+public:
+	MyNewObj2() : v1(0), v2(0) {};
+	~MyNewObj2() {};
+
+	int v1;
+	int v2;
+private:
+	static MemoryPool *memPool;
+};
+
+int test70() 
+{
+	enum { TEST_COUNT = 1000000 };
+	struct timeval startTime, endTime;
+
+	gettimeofday(&startTime,NULL);
+	for (int i = 0; i < TEST_COUNT; i++)
+	{
+		MyNewObj *ptr1 = new MyNewObj();
+		MyNewObj *ptr2 = new MyNewObj();
+		MyNewObj *ptr3 = new MyNewObj();
+		MyNewObj *ptr4 = new MyNewObj();
+		MyNewObj *ptr5 = new MyNewObj();
+		delete ptr1;
+		delete ptr2;
+		delete ptr3;
+		delete ptr4;
+		delete ptr5;
+	}
+	gettimeofday(&endTime,NULL);
+
+	printf("diff=%lfms\n", endTime.tv_sec * 1000 + (double)endTime.tv_usec / 1000 - startTime.tv_sec * 1000 - (double)startTime.tv_usec / 1000);
+
+	gettimeofday(&startTime,NULL);
+	for (int i = 0; i < TEST_COUNT; i++)
+	{
+		MyNewObj2 *ptr1 = new MyNewObj2();
+		MyNewObj2 *ptr2 = new MyNewObj2();
+		MyNewObj2 *ptr3 = new MyNewObj2();
+		MyNewObj2 *ptr4 = new MyNewObj2();
+		MyNewObj2 *ptr5 = new MyNewObj2();
+		delete ptr1;
+		delete ptr2;
+		delete ptr3;
+		delete ptr4;
+		delete ptr5;
+	}
+	gettimeofday(&endTime,NULL);
+
+	printf("diff=%lfms\n", endTime.tv_sec * 1000 + (double)endTime.tv_usec / 1000 - startTime.tv_sec * 1000 - (double)startTime.tv_usec / 1000);
 
 	return 0;
 }
@@ -2732,6 +2847,7 @@ testcase_t test_list[] =
 ,	test67
 ,	test68
 ,	test69
+,	test70
 };
 
 int main(int argc, char *argv[]) 
