@@ -30,10 +30,10 @@ static void print_list(redisContext *c, const std::string key)
 		return;
 	}
 	printf("LRANGE: type=%d key=%s start=%d stop=%d elements=%lu\n", reply->type, key.c_str(), start, stop, reply->elements);
-	for (int i = 0; i < reply->elements; i++)
+	for (size_t i = 0; i < reply->elements; i++)
 	{
 		redisReply *r = reply->element[i];
-		printf("[%d] str=%s\n", i, r->str);
+		printf("[%zu] str=%s\n", i, r->str);
 	}
 	freeReplyObject(reply);
 	printf("\n");
@@ -46,7 +46,7 @@ static void test(redisContext *c)
 	do
 	{
 		const std::string key = "mylist";
-		std::string value = "L" + std::to_string(counter);
+		std::string value = "L" + std::to_string((long long int)counter);
 		redisReply *reply = (redisReply *)redisCommand(c, "LPUSH %s %s", key.c_str(), value.c_str());
 		if (reply == NULL)
 		{
@@ -56,7 +56,7 @@ static void test(redisContext *c)
 		printf("LPUSH: type=%d key=%s integer=%lld\n", reply->type, key.c_str(), reply->integer);
 		freeReplyObject(reply);
 
-		value = "R" + std::to_string(counter);
+		value = "R" + std::to_string((long long int)counter);
 		reply = (redisReply *)redisCommand(c, "RPUSH %s %s", key.c_str(), value.c_str());
 		if (reply == NULL)
 		{
@@ -115,10 +115,10 @@ static void test(redisContext *c)
 			return;
 		}
 		printf("LRANGE: type=%d key=%s start=%d stop=%d elements=%lu\n", reply->type, key.c_str(), start, stop, reply->elements);
-		for (int i = 0; i < reply->elements; i++)
+		for (size_t i = 0; i < reply->elements; i++)
 		{
 			redisReply *r = reply->element[i];
-			printf("[%d] str=%s\n", i, r->str);
+			printf("[%zu] str=%s\n", i, r->str);
 		}
 		freeReplyObject(reply);
 
@@ -129,10 +129,10 @@ static void test(redisContext *c)
 			return;
 		}
 		printf("LRANGE: type=%d key=%s start=%d stop=%d elements=%lu\n", reply->type, key.c_str(), start, stop, reply->elements);
-		for (int i = 0; i < reply->elements; i++)
+		for (size_t i = 0; i < reply->elements; i++)
 		{
 			redisReply *r = reply->element[i];
-			printf("[%d] str=%s\n", i, r->str);
+			printf("[%zu] str=%s\n", i, r->str);
 		}
 		freeReplyObject(reply);
 

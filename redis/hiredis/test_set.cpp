@@ -29,10 +29,10 @@ static void print_set(redisContext *c, const std::string key)
 		return;
 	}
 	printf("SMEMBERS: type=%d key=%s elements=%lu\n", reply->type, key.c_str(), reply->elements);
-	for (int i = 0; i < reply->elements; i++)
+	for (size_t i = 0; i < reply->elements; i++)
 	{
 		redisReply *r = reply->element[i];
-		printf("[%d] str=%s\n", i, r->str);
+		printf("[%zu] str=%s\n", i, r->str);
 	}
 	freeReplyObject(reply);
 	printf("\n");
@@ -45,7 +45,7 @@ static void test(redisContext *c)
 	do
 	{
 		const std::string key = "myset";
-		std::string value = "N" + std::to_string(counter);
+		std::string value = "N" + std::to_string((long long int)counter);
 		redisReply *reply = (redisReply *)redisCommand(c, "SADD %s %s", key.c_str(), value.c_str());
 		if (reply == NULL)
 		{
@@ -81,10 +81,10 @@ static void test(redisContext *c)
 			return;
 		}
 		printf("SMEMBERS: type=%d key=%s elements=%lu\n", reply->type, key.c_str(), reply->elements);
-		for (int i = 0; i < reply->elements; i++)
+		for (size_t i = 0; i < reply->elements; i++)
 		{
 			redisReply *r = reply->element[i];
-			printf("[%d] str=%s\n", i, r->str);
+			printf("[%zu] str=%s\n", i, r->str);
 		}
 		freeReplyObject(reply);
 		printf("\n");
@@ -117,7 +117,7 @@ static void test(redisContext *c)
 	do
 	{
 		const std::string key = "myset2";
-		std::string value = "N" + std::to_string(counter);
+		std::string value = "N" + std::to_string((long long int)counter);
 		redisReply *reply = (redisReply *)redisCommand(c, "SADD %s %s", key.c_str(), value.c_str());
 		if (reply == NULL)
 		{
@@ -141,10 +141,10 @@ static void test(redisContext *c)
 			return;
 		}
 		printf("SDIFF: type=%d key=%s key2=%s elements=%lu\n", reply->type, key.c_str(), key2.c_str(), reply->elements);
-		for (int i = 0; i < reply->elements; i++)
+		for (size_t i = 0; i < reply->elements; i++)
 		{
 			redisReply *r = reply->element[i];
-			printf("[%d] str=%s\n", i, r->str);
+			printf("[%zu] str=%s\n", i, r->str);
 		}
 		freeReplyObject(reply);
 		printf("\n");
@@ -158,10 +158,10 @@ static void test(redisContext *c)
 			return;
 		}
 		printf("SDIFF: type=%d key=%s key2=%s elements=%lu\n", reply->type, key.c_str(), key2.c_str(), reply->elements);
-		for (int i = 0; i < reply->elements; i++)
+		for (size_t i = 0; i < reply->elements; i++)
 		{
 			redisReply *r = reply->element[i];
-			printf("[%d] str=%s\n", i, r->str);
+			printf("[%zu] str=%s\n", i, r->str);
 		}
 		freeReplyObject(reply);
 		printf("\n");
@@ -177,10 +177,10 @@ static void test(redisContext *c)
 			return;
 		}
 		printf("SINTER: type=%d key=%s key2=%s elements=%lu\n", reply->type, key.c_str(), key2.c_str(), reply->elements);
-		for (int i = 0; i < reply->elements; i++)
+		for (size_t i = 0; i < reply->elements; i++)
 		{
 			redisReply *r = reply->element[i];
-			printf("[%d] str=%s\n", i, r->str);
+			printf("[%zu] str=%s\n", i, r->str);
 		}
 		freeReplyObject(reply);
 		printf("\n");
@@ -196,10 +196,10 @@ static void test(redisContext *c)
 			return;
 		}
 		printf("SUNION: type=%d key=%s key2=%s elements=%lu\n", reply->type, key.c_str(), key2.c_str(), reply->elements);
-		for (int i = 0; i < reply->elements; i++)
+		for (size_t i = 0; i < reply->elements; i++)
 		{
 			redisReply *r = reply->element[i];
-			printf("[%d] str=%s\n", i, r->str);
+			printf("[%zu] str=%s\n", i, r->str);
 		}
 		freeReplyObject(reply);
 		printf("\n");
@@ -252,10 +252,10 @@ static void test(redisContext *c)
 			return;
 		}
 		printf("SRANDMEMBER: type=%d key=%s elements=%lu\n", reply->type, key.c_str(), reply->elements);
-		for (int i = 0; i < reply->elements; i++)
+		for (size_t i = 0; i < reply->elements; i++)
 		{
 			redisReply *r = reply->element[i];
-			printf("[%d] str=%s\n", i, r->str);
+			printf("[%zu] str=%s\n", i, r->str);
 		}
 		freeReplyObject(reply);
 
@@ -266,10 +266,10 @@ static void test(redisContext *c)
 			return;
 		}
 		printf("SRANDMEMBER: type=%d key=%s elements=%lu\n", reply->type, key.c_str(), reply->elements);
-		for (int i = 0; i < reply->elements; i++)
+		for (size_t i = 0; i < reply->elements; i++)
 		{
 			redisReply *r = reply->element[i];
-			printf("[%d] str=%s\n", i, r->str);
+			printf("[%zu] str=%s\n", i, r->str);
 		}
 		freeReplyObject(reply);
 

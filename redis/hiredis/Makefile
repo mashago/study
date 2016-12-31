@@ -1,7 +1,8 @@
 default: platform test_string test_hash test_list test_set test_zset test_lua
 
 CXX:=g++
-CPPFLAG:=-Wall
+CPPFLAG:=-Wall --std=c++0x
+LIB_PATH:=-L /usr/local/lib
 LIB:=-lhiredis
 
 OS:=$(shell uname -sm)

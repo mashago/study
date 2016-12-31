@@ -64,10 +64,10 @@ static void test(redisContext *c)
 			return;
 		}
 		printf("Script: type=%d key=%s elements=%lu\n", reply->type, key.c_str(), reply->elements);
-		for (int i = 0; i < reply->elements; i++)
+		for (size_t i = 0; i < reply->elements; i++)
 		{
 			redisReply *r = reply->element[i];
-			printf("[%d] str=%s\n", i, r->str);
+			printf("[%zu] str=%s\n", i, r->str);
 		}
 		freeReplyObject(reply);
 
@@ -79,20 +79,10 @@ static void test(redisContext *c)
 	do
 	{
 		std::string key = "luazset";
-		std::string member = "masha" + std::to_string(counter);
-		/*
+		std::string member = "masha" + std::to_string((long long int)counter);
 		std::string script = "\
-			local rank = redis.call('ZRANK', KEYS[1], ARGV[1]) \
-			if rank == nil then \
-				rank = redis.call('ZCARD', KEYS[1]) + 1 \
-				redis.call('ZADD', KEYS[1], rank, ARGV[1]) \
-			end \
-			return rank \
-			";
-		*/
-		std::string script = "\
-			local rank = redis.call('ZRANK', KEYS[1], ARGV[1]) \
-			if rank == nil then \
+			local rank = redis.call('ZSCORE', KEYS[1], ARGV[1]) \
+			if rank == false then \
 				rank = redis.call('ZCARD', KEYS[1]) + 1 \
 				redis.call('ZADD', KEYS[1], rank, ARGV[1]) \
 			end \

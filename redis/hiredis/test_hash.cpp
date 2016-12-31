@@ -98,10 +98,10 @@ static void test(redisContext *c)
 			return;
 		}
 		printf("HMGET: type=%d key=%s elements=%lu\n", reply->type, key.c_str(), reply->elements);
-		for (int i = 0; i < reply->elements; i++)
+		for (size_t i = 0; i < reply->elements; i++)
 		{
 			redisReply *r = reply->element[i];
-			printf("[%d] str=%s\n", i, r->str);
+			printf("[%zu] str=%s\n", i, r->str);
 		}
 		freeReplyObject(reply);
 		printf("\n");
@@ -116,10 +116,10 @@ static void test(redisContext *c)
 			return;
 		}
 		printf("HGETALL: type=%d key=%s elements=%lu\n", reply->type, key.c_str(), reply->elements);
-		for (int i = 0; i < reply->elements; i++)
+		for (size_t i = 0; i < reply->elements; i++)
 		{
 			redisReply *r = reply->element[i];
-			printf("[%d] str=%s\n", i, r->str);
+			printf("[%zu] str=%s\n", i, r->str);
 		}
 		freeReplyObject(reply);
 		printf("\n");

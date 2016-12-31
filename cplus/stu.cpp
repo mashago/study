@@ -2724,44 +2724,47 @@ private:
 
 int test70() 
 {
-	enum { TEST_COUNT = 1000000 };
+	enum { OBJ_COUNT = 1000 };
+	enum { LOOP_NUM = 1000 };
 	struct timeval startTime, endTime;
 
-	gettimeofday(&startTime,NULL);
-	for (int i = 0; i < TEST_COUNT; i++)
 	{
-		MyNewObj *ptr1 = new MyNewObj();
-		MyNewObj *ptr2 = new MyNewObj();
-		MyNewObj *ptr3 = new MyNewObj();
-		MyNewObj *ptr4 = new MyNewObj();
-		MyNewObj *ptr5 = new MyNewObj();
-		delete ptr1;
-		delete ptr2;
-		delete ptr3;
-		delete ptr4;
-		delete ptr5;
+		MyNewObj **objList = new MyNewObj*[OBJ_COUNT];
+		gettimeofday(&startTime,NULL);
+		for (int x = 0; x < LOOP_NUM; x++)
+		{
+			for (int i = 0; i < OBJ_COUNT; i++)
+			{
+				objList[i] = new MyNewObj();
+			}
+			for (int i = 0; i < OBJ_COUNT; i++)
+			{
+				delete objList[i];
+			}
+		}
+		gettimeofday(&endTime,NULL);
+		printf("use mempool cost=%lfms\n", endTime.tv_sec * 1000 + (double)endTime.tv_usec / 1000 - startTime.tv_sec * 1000 - (double)startTime.tv_usec / 1000);
+		delete [] objList;
 	}
-	gettimeofday(&endTime,NULL);
 
-	printf("diff=%lfms\n", endTime.tv_sec * 1000 + (double)endTime.tv_usec / 1000 - startTime.tv_sec * 1000 - (double)startTime.tv_usec / 1000);
-
-	gettimeofday(&startTime,NULL);
-	for (int i = 0; i < TEST_COUNT; i++)
 	{
-		MyNewObj2 *ptr1 = new MyNewObj2();
-		MyNewObj2 *ptr2 = new MyNewObj2();
-		MyNewObj2 *ptr3 = new MyNewObj2();
-		MyNewObj2 *ptr4 = new MyNewObj2();
-		MyNewObj2 *ptr5 = new MyNewObj2();
-		delete ptr1;
-		delete ptr2;
-		delete ptr3;
-		delete ptr4;
-		delete ptr5;
+		MyNewObj2 **objList = new MyNewObj2*[OBJ_COUNT];
+		gettimeofday(&startTime,NULL);
+		for (int x = 0; x < LOOP_NUM; x++)
+		{
+			for (int i = 0; i < OBJ_COUNT; i++)
+			{
+				objList[i] = new MyNewObj2();
+			}
+			for (int i = 0; i < OBJ_COUNT; i++)
+			{
+				delete objList[i];
+			}
+		}
+		gettimeofday(&endTime,NULL);
+		printf("not use mempool cost=%lfms\n", endTime.tv_sec * 1000 + (double)endTime.tv_usec / 1000 - startTime.tv_sec * 1000 - (double)startTime.tv_usec / 1000);
+		delete [] objList;
 	}
-	gettimeofday(&endTime,NULL);
-
-	printf("diff=%lfms\n", endTime.tv_sec * 1000 + (double)endTime.tv_usec / 1000 - startTime.tv_sec * 1000 - (double)startTime.tv_usec / 1000);
 
 	return 0;
 }
