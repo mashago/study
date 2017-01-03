@@ -21,11 +21,8 @@ class Superb : public Grand
 {
 public:
 	Superb(int h=0) : Grand(h) { };
-#ifdef CPP11
+	// add override, devied
 	void speak() const override { std::cout << "I am Superb class" << std::endl; };
-#else
-	void speak() const { std::cout << "I am Superb class" << std::endl; };
-#endif
 	virtual void say() const { std::cout << "Superb get int=" << value() << std::endl; };
 };
 

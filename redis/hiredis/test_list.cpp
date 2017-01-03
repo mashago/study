@@ -46,7 +46,7 @@ static void test(redisContext *c)
 	do
 	{
 		const std::string key = "mylist";
-		std::string value = "L" + std::to_string((long long int)counter);
+		std::string value = "L" + std::to_string(counter);
 		redisReply *reply = (redisReply *)redisCommand(c, "LPUSH %s %s", key.c_str(), value.c_str());
 		if (reply == NULL)
 		{
@@ -56,7 +56,7 @@ static void test(redisContext *c)
 		printf("LPUSH: type=%d key=%s integer=%lld\n", reply->type, key.c_str(), reply->integer);
 		freeReplyObject(reply);
 
-		value = "R" + std::to_string((long long int)counter);
+		value = "R" + std::to_string(counter);
 		reply = (redisReply *)redisCommand(c, "RPUSH %s %s", key.c_str(), value.c_str());
 		if (reply == NULL)
 		{

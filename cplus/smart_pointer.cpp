@@ -166,12 +166,10 @@ void case4()
 	Car car4(43);
 	std::shared_ptr<Car> p(&car4, self_delete);
 
-#ifdef CPP11
 	// shared_ptr handle list, have to init with delete function
 	auto del_func = [](Car *list){ delete [] list; };
 	std::shared_ptr<Car> car_list(new Car[10], del_func);
 	// car_list[0].show(); // not support []... have to get inner pointer
-#endif
 
 }
 

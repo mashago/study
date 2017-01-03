@@ -24,5 +24,5 @@ wrapper:	wrapper.cpp
 	g++ $(CFLAG) -o wrapper wrapper.cpp
 
 TaskThreadTest:	TaskThreadTest.cpp 
-	g++ $(CFLAG) -o $@ $^
+	g++ $(CFLAG) -o $@ $^ -pthread
 

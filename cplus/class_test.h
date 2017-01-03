@@ -6,17 +6,9 @@
 class Simple
 {
 public:
-#ifdef CPP11
-	int a = 10;
-#else
-	int a;
-#endif
+	int a = 10; // work since c++11
 
-#ifdef CPP11
-	const int b = 20;
-#else
-	const int b;
-#endif
+	const int b = 20; // work since c++11
 
 	// static int c = 30; // error: non-const static data member must be initialized out of line
 	static int c; // static member will uniqle in all class object and extend class object
@@ -29,23 +21,13 @@ public:
 	// static const double f = 60.1; // error: in-class initializer for static data member of type 'const double'
 	static const double f;
 
-#ifdef CPP11
 	const std::string g = "hello"; // c++11 can init non-static const member in class
-#else
-	const std::string g;
-#endif
 	// static const std::string str1 = "xxx"; // cannot init static member of non-integer in class 
 	static const std::string str1;
 
-#ifdef CPP11
 	Simple() {};
 	Simple(int val) : a(val) {};
 	explicit Simple(std::string val) : g(val) {};
-#else
-	Simple() : a(0), b(0) {};
-	Simple(int val) : a(val), b(0) {};
-	explicit Simple(std::string val) : a(0), b(0), g(val) {};
-#endif
 
 	// Simple(const Simple &s) = delete;
 	Simple & operator=(const Simple &) = delete;

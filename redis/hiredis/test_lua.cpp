@@ -79,7 +79,7 @@ static void test(redisContext *c)
 	do
 	{
 		std::string key = "luazset";
-		std::string member = "masha" + std::to_string((long long int)counter);
+		std::string member = "masha" + std::to_string(counter);
 		std::string script = "\
 			local rank = redis.call('ZSCORE', KEYS[1], ARGV[1]) \
 			if rank == false then \

@@ -15,11 +15,7 @@ public:
 	my_string & operator=(const char *); // operator=(const char*), for my_string a = "abc", if not use this, have to call my_string(const char*), operator=(const my_string &), ~my_string()
 
 	// conversion function, have no return
-#ifdef CPP11
 	explicit operator const char*(); // add explicit, have to explicit type case
-#else
-	operator const char*(); // add explicit, have to explicit type case
-#endif
 
 	friend std::ostream & operator<<(std::ostream &, const my_string &in);
 	static int get_counter(); // only can access static member

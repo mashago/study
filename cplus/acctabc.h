@@ -24,11 +24,7 @@ private:
 public:
 	BrassPlus(double bal=0.0, double ex=0.0);
 	virtual ~BrassPlus() {};
-#ifdef CPP11
+	// override, final work since c++11
 	virtual void update(double offset) override; // override means this method orerride base class virtual method
 	virtual void view() const final; // final means this method cannot be override by its derived class
-#else
-	virtual void update(double offset); 
-	virtual void view() const; 
-#endif
 };

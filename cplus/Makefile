@@ -1,14 +1,8 @@
-# here for c++0x
-#default: platform str_queue tp worker stack_tp tv queue_tp stu st smart_pointer frnd2tmp member_tp container stream variadic_tp function_tp class_test config_test type_tp macro_test stress order_queue_tp time_func string_tool my_string acct error_means rtti read_file sensitive_word_filter.o libsensitive_word_filter.a  sensitive_word_filter_test animal 
-
-# here for c++11
-# default: platform str_queue tp worker stack_tp tv queue_tp stu st smart_pointer frnd2tmp member_tp container stream variadic_tp function_tp class_test config_test type_tp macro_test stress order_queue_tp time_func string_tool my_string acct error_means rtti rvalue lambda wrapper 
 default: platform str_queue tp worker stack_tp tv queue_tp stu st smart_pointer frnd2tmp member_tp container stream variadic_tp function_tp class_test config_test type_tp macro_test stress order_queue_tp time_func string_tool my_string acct error_means rtti 
 
 OS:=$(shell uname -s)
 
-# CFLAG:=-Wall -std=c++11 -DCPP11
-CFLAG:=-Wall -std=c++0x
+CFLAG:=-Wall -std=c++11
 
 platform:
 	@echo Platform: $(OS)
@@ -53,7 +47,7 @@ clean:
 	rm -rf *.dSYM
 
 stu:	stu.cpp stu.h stu2.cpp stock.h stock.cpp counter.h counter.cpp tc_a.h tc_a.cpp
-	g++ -g3 $(CFLAG) -o stu stu.cpp stu2.cpp stock.cpp counter.cpp tc_a.cpp 
+	g++ $(CFLAG) -o stu stu.cpp stu2.cpp stock.cpp counter.cpp tc_a.cpp 
 
 stu3:	stu3.cpp stu2.cpp
 	g++ $(CFLAG) -o stu3 stu2.cpp stu3.cpp
@@ -134,28 +128,28 @@ macro_test: macro_test.cpp
 	g++ $(CFLAG) -g -D_MY_DEF_D -o macro_test macro_test.cpp
 
 stress: stress.cpp 
-	g++ -g $(CFLAG) -o stress stress.cpp
+	g++ $(CFLAG) -o stress stress.cpp
 
 order_queue_tp: order_queue_tp.cpp 
-	g++ -g $(CFLAG) -o order_queue_tp order_queue_tp.cpp
+	g++ $(CFLAG) -o order_queue_tp order_queue_tp.cpp
 
 time_func: time_func.cpp 
-	g++ -g $(CFLAG) -o time_func time_func.cpp
+	g++ $(CFLAG) -o time_func time_func.cpp
 
 string_tool: string_tool.cpp 
-	g++ -g $(CFLAG) -o string_tool string_tool.cpp
+	g++ $(CFLAG) -o string_tool string_tool.cpp
 
 read_file: read_file.cpp 
-	g++ -g $(CFLAG) -o read_file read_file.cpp
+	g++ $(CFLAG) -o read_file read_file.cpp
 
 sensitive_word_filter.o: sensitive_word_filter.cpp sensitive_word_filter.h
-	g++ -g $(CFLAG) -c -o $@ $<
+	g++ $(CFLAG) -c -o $@ $<
 
 libsensitive_word_filter.a: sensitive_word_filter.o 
 	ar -crus $@ $<
 
 sensitive_word_filter_test: sensitive_word_filter_test.cpp libsensitive_word_filter.a
-	g++ -g $(CFLAG) -o $@ $^
+	g++ $(CFLAG) -o $@ $^
 
 animal: animal.cpp animal.h
-	g++ -g $(CFLAG) -o $@ $<
+	g++ $(CFLAG) -o $@ $<

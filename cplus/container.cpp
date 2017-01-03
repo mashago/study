@@ -95,13 +95,8 @@ int test_vector()
 	// insert
 	v1.insert(v1.begin(), 19);
 	cout << "after insert() v1:";
-#ifdef CPP11
 	for (auto m : v1) { // new for loop in c++11
 		cout << " ["<< m << "]";
-#else
-	for (auto iter = v1.begin(); iter != v1.end(); iter++) {
-		cout << " ["<< *iter << "]";
-#endif
 	}
 	cout << endl;
 
@@ -719,7 +714,6 @@ int test_set()
 	for_each(s1.begin(), s1.end(), show_str); 
 	cout << endl;
 
-#ifdef CPP11
 	set<string> s2;
 	std::insert_iterator<set<string> > it = std::insert_iterator<set<string> >(s2, s2.begin());
 	copy(begin(strs2), end(strs2), it);
@@ -755,7 +749,6 @@ int test_set()
 	cout << "s4:";
 	for_each(s4.begin(), s4.end(), show_str); 
 	cout << endl;
-#endif
 
 	set<string> s5;
 	s5.insert("hello");
@@ -793,29 +786,15 @@ int test_map()
 	for_each(m1.begin(), m1.end(), show_pair);
 	cout << endl;
 
-#ifdef CPP11
 	for (auto &it : m1)
 	{
 		it.second += "8";
 	}
-#else
-	for (auto it = m1.begin(); it != m1.end(); it++)
-	{
-		it->second += "8";
-	}
-#endif
 
-#ifdef CPP11
 	for (auto it : m1)
 	{
 		cout << "it.first=" << it.first << " it.second=" << it.second << endl;
 	}
-#else
-	for (auto it = m1.begin(); it != m1.end(); it++)
-	{
-		cout << "it->first=" << it->first << " it->second=" << it->second << endl;
-	}
-#endif
 
 	cout << "m1.fine(3)" << endl;
 	auto iter = m1.find(3);

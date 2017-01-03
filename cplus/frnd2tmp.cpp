@@ -6,7 +6,8 @@ using std::endl;
 
 /////////////////////////////////////////////////
 // 1.friend non-template function
-template <typename T> class HasFriend
+template <typename T>
+class HasFriend
 {
 private:
 	T item;
@@ -31,20 +32,23 @@ void show(const HasFriend<char> &f)
 
 // 2.friend template function, same type with class, declare outside class
 // must declare template function first
-template <typename U> void showU(const U &);
+template <typename T>
+void showT(const T &);
 
-template <typename UU> class HasFriendT
+template <typename T>
+class HasFriendT
 {
 private:
-	UU item;
+	T item;
 public:
-	HasFriendT(const UU &i) : item(i) {};
+	HasFriendT(const T &i) : item(i) {};
 	~HasFriendT(){};
-	friend void showU<>(const HasFriendT<UU> &); // template function, explicit specialization
+	friend void showT<>(const HasFriendT<T> &); // template function, explicit specialization
 };
 
 // define template function
-template <typename U> void showU(const U &f) 
+template <typename T>
+void showT(const T &f) 
 {
 	cout << "f.item=" << f.item << endl;
 }
@@ -52,17 +56,20 @@ template <typename U> void showU(const U &f)
 /////////////////////////////////////////////////
 
 // 3.friend template function, no need same type with class, declare inside class
-template <typename V> class ManyFriend
+template <typename T>
+class ManyFriend
 {
 private:
-	V item;
+	T item;
 public:
-	ManyFriend(const V &i) : item(i) {};
+	ManyFriend(const T &i) : item(i) {};
 	~ManyFriend(){};
-	template <typename X, typename Y> friend void showXY(const X &, const Y &);// template function, declare inside
+	template <typename X, typename Y>
+	friend void showXY(const X &, const Y &);// template function, declare inside
 };
 
-template <typename X, typename Y> void showXY(const X &x, const Y &y) 
+template <typename X, typename Y>
+void showXY(const X &x, const Y &y) 
 {
 	cout << "x.item=" << x.item << " y.item=" << y.item << endl;
 }
@@ -78,10 +85,10 @@ int main(int argc, char *argv[])
 	cout << "-----------------" << endl;
 
 	HasFriendT<int> f3(100);
-	showU(f3);
+	showT(f3);
 
 	HasFriendT<char> f4('j');
-	showU(f4);
+	showT(f4);
 
 	cout << "-----------------" << endl;
 

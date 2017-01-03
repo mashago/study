@@ -8,25 +8,19 @@ class bad_mean1 : public std::exception
 public:
 	// std::exception::what = 
 	// virtual const char * what() const _NOEXCEPT;
-#ifdef CPP11
 	const char * what() const noexcept { return "bad_mean 1"; };
-#endif
 };
 
 class bad_mean2 : public std::exception
 {
 public:
-#ifdef CPP11
 	const char * what() const noexcept { return "bad_mean 2"; };
-#endif
 };
 
 class bad_mean3 : public bad_mean2
 {
 public:
-#ifdef CPP11
 	const char * what() const noexcept { return "bad_mean 3"; };
-#endif
 };
 
 void bad_method(int type)

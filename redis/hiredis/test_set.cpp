@@ -45,7 +45,7 @@ static void test(redisContext *c)
 	do
 	{
 		const std::string key = "myset";
-		std::string value = "N" + std::to_string((long long int)counter);
+		std::string value = "N" + std::to_string(counter);
 		redisReply *reply = (redisReply *)redisCommand(c, "SADD %s %s", key.c_str(), value.c_str());
 		if (reply == NULL)
 		{
