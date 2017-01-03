@@ -1,4 +1,4 @@
-default: platform rvalue lambda wrapper TaskThreadTest
+default:platform rvalue_reference lambda wrapper TaskThreadTest
 
 OS:=$(shell uname -s)
 
@@ -8,20 +8,17 @@ platform:
 	@echo Platform: $(OS)
 
 clean:
-	rm -rf rvalue
-	rm -rf lambda
-	rm -rf wrapper
-	rm -rf TaskThreadTest
+	rm -rf rvalue_reference lambda wrapper TaskThreadTest
 	rm -rf *.dSYM
 
-rvalue:	rvalue_reference.cpp 
-	g++ $(CFLAG) -o rvalue rvalue_reference.cpp
+rvalue_reference:	rvalue_reference.cpp 
+	g++ $(CFLAG) -O0 -o $@ $^
 
 lambda:	lambda.cpp 
-	g++ $(CFLAG) -o lambda lambda.cpp
+	g++ $(CFLAG) -o $@ $^
 
 wrapper:	wrapper.cpp 
-	g++ $(CFLAG) -o wrapper wrapper.cpp
+	g++ $(CFLAG) -o $@ $^
 
 TaskThreadTest:	TaskThreadTest.cpp 
 	g++ $(CFLAG) -o $@ $^ -pthread
