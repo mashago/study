@@ -170,11 +170,26 @@ Foo & Foo::retFoo()
 	return *ret;
 }
 
+////////////////////////////////////////
 
+int getInt() { return 0; }
+
+void RunCode(int &m) { cout << "lvalue ref" << endl; }
+void RunCode(int &&m) { cout << "rvalue ref" << endl; }
+void RunCode(const int &m) { cout << "const lvalue ref" << endl; }
+void RunCode(const int &&m) { cout << "const rvalue ref" << endl; }
+
+template <typename T>
+void PerfectForward(T &&t)
+{
+	// RunCode(std::forward<T>(t));
+	RunCode(static_cast<T &&>(t));
+}
+
+////////////////////////////////////////
 
 int main(int argc, char * argv[])
 {
-
 	{
 		printf("\n---------- regular ---------\n");
 		Buff a(5, 'a');
@@ -235,11 +250,25 @@ int main(int argc, char * argv[])
 		b.show();
 	}
 
-
 	{
 		printf("\n---------- foo ---------\n");
 		Foo::retVal().show();
 		Foo::retFoo().show();
+	}
+
+	{
+		printf("\n---------- perfect forward ---------\n");
+		int a = 1;
+		int b = 2;
+		const int c = 3;
+		const int d = 4;
+
+		PerfectForward(a);
+		PerfectForward(std::move(b));
+		PerfectForward(c);
+		PerfectForward(std::move(d));
+		PerfectForward(getInt());
+
 	}
 	
 	return 0;
