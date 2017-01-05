@@ -35,3 +35,14 @@ message Person
 	// optional int32      tmp         = 4; // cannot add new param in middle index
 	optional int32      tmp         = 7; // add new param in last index is ok
 }
+
+message Bar
+{
+	optional int32 id = 1;
+}
+
+message Foo
+{
+	optional Bar bar = 1;
+	repeated Bar bars = 2;
+}

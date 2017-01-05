@@ -12,7 +12,8 @@ clean:
 	rm -rf *.dSYM
 
 rvalue:	rvalue.cpp 
-	g++ $(CFLAG) -O0 -o $@ $^
+# g++ $(CFLAG) -O0 -o $@ $^
+	g++ $(CFLAG) -o $@ $^
 
 lambda:	lambda.cpp 
 	g++ $(CFLAG) -o $@ $^

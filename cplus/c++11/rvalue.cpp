@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <list>
 
 using std::cout;
 using std::endl;
@@ -188,6 +189,33 @@ void PerfectForward(T &&t)
 
 ////////////////////////////////////////
 
+
+void getBuffListRef(std::list<Buff> &ret)
+{
+	ret.push_back(Buff());
+	ret.push_back(Buff(10, 'a'));
+	printf("end getBuffListRef ---\n");
+}
+
+std::list<Buff> getBuffList()
+{
+	std::list<Buff> tmp;
+	tmp.push_back(Buff());
+	tmp.push_back(Buff(10, 'a'));
+	printf("end getBuffList ---\n");
+	return tmp;
+}
+
+std::list<Buff> getBuffListMove()
+{
+	std::list<Buff> tmp;
+	tmp.push_back(Buff());
+	tmp.push_back(Buff(10, 'a'));
+	printf("end getBuffList ---\n");
+	return std::move(tmp);
+}
+////////////////////////////////////////
+
 int main(int argc, char * argv[])
 {
 	{
@@ -268,7 +296,70 @@ int main(int argc, char * argv[])
 		PerfectForward(c);
 		PerfectForward(std::move(d));
 		PerfectForward(getInt());
+	}
 
+	{
+		printf("\n---------- move vec ---------\n");
+		{
+		printf("ref param\n");
+		std::list<Buff> v0;
+		getBuffListRef(v0);
+		printf("size()=%zu\n", v0.size());
+		}
+		printf("\n");
+
+		{
+		printf("without move1\n");
+		std::list<Buff> v1 = getBuffList();
+		printf("size()=%zu\n", v1.size());
+		}
+		printf("\n");
+
+		{
+		printf("without move2\n");
+		std::list<Buff> v1;
+		v1 = getBuffList();
+		printf("size()=%zu\n", v1.size());
+		}
+		printf("\n");
+
+		{
+		printf("without move3\n");
+		std::list<Buff> &&v1 = getBuffList();
+		printf("size()=%zu\n", v1.size());
+		}
+		printf("\n");
+
+		{
+		printf("with move1\n");
+		std::list<Buff> v2 = std::move(getBuffList());
+		printf("size()=%zu\n", v2.size());
+		}
+		printf("\n");
+
+		{
+		printf("with move2\n");
+		std::list<Buff> v2;
+		v2= std::move(getBuffList());
+		printf("size()=%zu\n", v2.size());
+		}
+		printf("\n");
+
+		/*
+		{
+		printf("with move3\n");
+		std::list<Buff> &&v2 = std::move(getBuffList()); // error
+		printf("size()=%zu\n", v2.size());
+		}
+		printf("\n");
+		*/
+
+		{
+		printf("get move\n");
+		std::list<Buff> &&v3 = getBuffListMove();
+		printf("size()=%zu\n", v3.size());
+		}
+		printf("\n");
 	}
 	
 	return 0;
