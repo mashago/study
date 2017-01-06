@@ -1,0 +1,6 @@
+test_string
+test_hash
+test_list
+test_set
+test_zset
+test_lua

@@ -1,0 +1,24 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+CXXFLAG	Makefile	/^CXXFLAG:=-g -Wall -std=c++0x$/;"	m
+LIB	Makefile	/^LIB:=-levent$/;"	m
+OS	Makefile	/^OS:=$(shell uname -s)$/;"	m
+SERVER_HOST	client_test.cpp	26;"	d	file:
+SERVER_HOST	server_test.cpp	25;"	d	file:
+SERVER_PORT	client_test.cpp	27;"	d	file:
+SERVER_PORT	server_test.cpp	26;"	d	file:
+create_connect_event	client_test.cpp	/^struct bufferevent * create_connect_event(struct event_base *main_event)$/;"	f
+create_listener	server_test.cpp	/^struct evconnlistener * create_listener(struct event_base *main_event)$/;"	f
+create_stdin_event	client_test.cpp	/^struct event * create_stdin_event(struct event_base *main_event, struct bufferevent *bev)$/;"	f
+event_cb	client_test.cpp	/^void event_cb(struct bufferevent *bev, short what, void *user_data)$/;"	f
+event_cb	server_test.cpp	/^void event_cb(struct bufferevent *bev, short what, void *user_data)$/;"	f
+listener_cb	server_test.cpp	/^void listener_cb(struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *sa, int socklen, void *user_data)$/;"	f
+main	client_test.cpp	/^int main(int argc, char **argv)$/;"	f
+main	server_test.cpp	/^int main(int argc, char **argv)$/;"	f
+read_cb	client_test.cpp	/^void read_cb(struct bufferevent *bev, void *user_data)$/;"	f
+read_cb	server_test.cpp	/^void read_cb(struct bufferevent *bev, void *user_data)$/;"	f
+stdin_cb	client_test.cpp	/^void stdin_cb(evutil_socket_t fd, short what, void *user_data)$/;"	f

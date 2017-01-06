@@ -1,0 +1,3 @@
+*.dSYM
+server_test
+client_test
