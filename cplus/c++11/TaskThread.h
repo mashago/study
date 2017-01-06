@@ -8,6 +8,7 @@
 #ifndef TASKTHREAD_H_
 #define TASKTHREAD_H_
 
+#include <cstddef>
 #include <list>
 #include <utility>
 #include <thread>
@@ -15,7 +16,7 @@
 #include <condition_variable>
 #include <memory>
 
-using namespace std;
+// using namespace std;
 
 /////////////////////////////////////
 class TaskOpBase
@@ -29,9 +30,9 @@ template<typename T>
 class TaskOp : public TaskOpBase
 {
 public:
-	typedef typename remove_reference<T>::type TaskType;
+	typedef typename std::remove_reference<T>::type TaskType;
 
-	TaskOp(T && _h) :h(forward<T>(_h)){}
+	TaskOp(T && _h) :h(std::forward<T>(_h)){}
 
 	virtual void Execute()
 	{
@@ -48,7 +49,7 @@ template<typename T>
 class SwitchList
 {
 public:
-	typedef list<T> ItemList;
+	typedef std::list<T> ItemList;
 
 	SwitchList()
 	{
@@ -61,12 +62,12 @@ public:
 	template<typename TT>
     void Push(TT && task)
 	{
-        m_pListIn->push_back(forward<TT>(task));
+        m_pListIn->push_back(std::forward<TT>(task));
 	}
 
 	void Switch()
 	{
-		swap(m_pListIn, m_pListOut);
+		std::swap(m_pListIn, m_pListOut);
 	}
 
 	void ClearOut()
@@ -164,9 +165,9 @@ public:
 	template<typename T>
 	void Post(T && h)
 	{
-		TaskOp<T> * p = new TaskOp<T>(forward<T>(h));
+		TaskOp<T> * p = new TaskOp<T>(std::forward<T>(h));
 
-		unique_lock<mutex> lock(mtx);
+		std::unique_lock<std::mutex> lock(mtx);
 		tl.Push(p);
 		cv.notify_all();
 	}
@@ -174,7 +175,7 @@ public:
 	//template<>
 	void Post(nullptr_t && h)
 	{
-		unique_lock<mutex> lock(mtx);
+		std::unique_lock<std::mutex> lock(mtx);
 		tl.Push(nullptr);
 		cv.notify_all();
 	}
@@ -195,14 +196,14 @@ public:
 private:
 	void Switch()
 	{
-		unique_lock<mutex> lock(mtx);
+		std::unique_lock<std::mutex> lock(mtx);
 		cv.wait(lock, [this](){ return !tl.IsInEmpty(); });
 		tl.Switch();
 	}
 
 	void TrySwitch()
 	{
-		unique_lock<mutex> lock(mtx);
+		std::unique_lock<std::mutex> lock(mtx);
 		if (tl.IsInEmpty())
 			return;
 		tl.Switch();
@@ -212,12 +213,12 @@ private:
 	typedef SwitchList<TaskOpBase *> TaskOpList;
 
 	TaskOpList tl;
-	mutex mtx;
-	condition_variable cv;
+	std::mutex mtx;
+	std::condition_variable cv;
 	volatile bool m_bExit = false;
 };
 
-typedef shared_ptr<TaskQueue> TaskQueuePtr;
+typedef std::shared_ptr<TaskQueue> TaskQueuePtr;
 /////////////////////////////////////
 
 /////////////////////////////////////
@@ -243,7 +244,7 @@ public:
 		if (m_thread.joinable())
 			return false;
 
-		m_thread = thread(bind(&TaskThread::Run, this));
+		m_thread = std::thread(std::bind(&TaskThread::Run, this));
 		return true;
 	}
 
@@ -251,7 +252,7 @@ public:
 	{
 		if (!m_thread.joinable())
 			return;
-		if (m_thread.get_id() == this_thread::get_id())
+		if (m_thread.get_id() == std::this_thread::get_id())
 			return;
 
 		ReqExit();
@@ -266,7 +267,7 @@ public:
 	template<typename T>
 	void Post(T && h)
 	{
-		m_taskQueue.Post(forward<T>(h));
+		m_taskQueue.Post(std::forward<T>(h));
 	}
 
 	void ReqExit()
@@ -280,11 +281,11 @@ public:
 	}
 
 private:
-	thread m_thread;
+	std::thread m_thread;
 	TaskQueue m_taskQueue;
 };
 
-typedef shared_ptr<TaskThread> TaskThreadPtr;
+typedef std::shared_ptr<TaskThread> TaskThreadPtr;
 /////////////////////////////////////
 
 #endif // TASKTHREAD_H_

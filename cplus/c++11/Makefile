@@ -1,4 +1,4 @@
-default:platform rvalue lambda wrapper TaskThreadTest
+default:platform rvalue lambda wrapper TaskThreadTest forward_test
 
 OS:=$(shell uname -s)
 
@@ -8,7 +8,7 @@ platform:
 	@echo Platform: $(OS)
 
 clean:
-	rm -rf rvalue lambda wrapper TaskThreadTest
+	rm -rf rvalue lambda wrapper TaskThreadTest forward_test
 	rm -rf *.dSYM
 
 rvalue:	rvalue.cpp 
@@ -23,4 +23,7 @@ wrapper:	wrapper.cpp
 
 TaskThreadTest:	TaskThreadTest.cpp 
 	g++ $(CFLAG) -o $@ $^ -pthread
+
+forward_test:	forward_test.cpp 
+	g++ $(CFLAG) -o $@ $^
 

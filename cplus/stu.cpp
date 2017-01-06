@@ -2769,6 +2769,33 @@ int test70()
 	return 0;
 }
 
+class A
+{
+public:
+	A()
+	{
+		value = 10;
+	}
+
+	int value;
+
+};
+
+class B
+{
+public:
+	operator A&(){ return a; }
+	A a;
+};
+
+int test71()
+{
+	B b;
+	((A&)b).value = 1011;
+	printf("value=%d\n", b.a.value);
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -2851,6 +2878,7 @@ testcase_t test_list[] =
 ,	test68
 ,	test69
 ,	test70
+,	test71
 };
 
 int main(int argc, char *argv[]) 
