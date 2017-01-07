@@ -197,6 +197,7 @@ void getBuffListRef(std::list<Buff> &ret)
 	printf("end getBuffListRef ---\n");
 }
 
+// use NRVO
 std::list<Buff> getBuffList()
 {
 	std::list<Buff> tmp;
@@ -212,6 +213,7 @@ std::list<Buff> getBuffListMove()
 	tmp.push_back(Buff());
 	tmp.push_back(Buff(10, 'a'));
 	printf("end getBuffList ---\n");
+	// LLVM warning: moving a local object in a return statement prevents copy elision
 	return std::move(tmp);
 }
 ////////////////////////////////////////
@@ -332,6 +334,7 @@ int main(int argc, char * argv[])
 
 		{
 		printf("with move1\n");
+		// LLVM warning: moving a temporary object prevents copy elision
 		std::list<Buff> v2 = std::move(getBuffList());
 		printf("size()=%zu\n", v2.size());
 		}
@@ -340,6 +343,7 @@ int main(int argc, char * argv[])
 		{
 		printf("with move2\n");
 		std::list<Buff> v2;
+		// LLVM warning: moving a temporary object prevents copy elision
 		v2= std::move(getBuffList());
 		printf("size()=%zu\n", v2.size());
 		}
