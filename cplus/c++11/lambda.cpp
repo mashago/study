@@ -49,14 +49,12 @@ int main(int argc, char *argv[])
 	cout << "lambda2: count=" << count << endl;
 
 	// give a name for lambda, ->bool is return
-	auto mod3 = [](int x)->bool{return x % 3 == 0;};
+	auto mod3 = [](int x) ->bool {return x % 3 == 0;};
 	count = std::count_if(nums.begin(), nums.end(), mod3);
 	cout << "lambda3: count=" << count << endl;
 
 	bool result = mod3(4);
 	cout << "result=" << result << endl;
-
-
 
 
 

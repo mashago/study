@@ -1,31 +1,35 @@
-default:platform rvalue lambda wrapper TaskThreadTest forward_test raw_string_literal
+default:platform rvalue lambda wrapper TaskThreadTest forward_test raw_string_literal bind_test
 
 OS:=$(shell uname -s)
 
-CFLAG:=-Wall -g -std=c++11
+CXX:=g++
+CPP_FLAGS:=-Wall -g -std=c++11
 
 platform:
 	@echo Platform: $(OS)
 
 clean:
-	rm -rf rvalue lambda wrapper TaskThreadTest forward_test raw_string_literal
+	rm -rf rvalue lambda wrapper TaskThreadTest forward_test raw_string_literal bind_test
 	rm -rf *.dSYM
 
 rvalue:	rvalue.cpp 
-# g++ $(CFLAG) -O0 -o $@ $^
-	g++ $(CFLAG) -o $@ $^
+	# $(CXX) $(CPP_FLAGS) -O0 -o $@ $^
+	$(CXX) $(CPP_FLAGS) -o $@ $^
 
 lambda:	lambda.cpp 
-	g++ $(CFLAG) -o $@ $^
+	$(CXX) $(CPP_FLAGS) -o $@ $^
 
 wrapper:	wrapper.cpp 
-	g++ $(CFLAG) -o $@ $^
+	$(CXX) $(CPP_FLAGS) -o $@ $^
 
 TaskThreadTest:	TaskThreadTest.cpp 
-	g++ $(CFLAG) -o $@ $^ -pthread
+	$(CXX) $(CPP_FLAGS) -o $@ $^ -pthread
 
 forward_test:	forward_test.cpp 
-	g++ $(CFLAG) -o $@ $^
+	$(CXX) $(CPP_FLAGS) -o $@ $^
  
 raw_string_literal:	raw_string_literal.cpp 
-	g++ $(CFLAG) -o $@ $^
+	$(CXX) $(CPP_FLAGS) -o $@ $^
+ 
+bind_test:	bind_test.cpp 
+	$(CXX) $(CPP_FLAGS) -o $@ $^

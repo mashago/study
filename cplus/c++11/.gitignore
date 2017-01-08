@@ -4,3 +4,4 @@ wrapper
 TaskThreadTest
 forward_test
 raw_string_literal
+bind_test
