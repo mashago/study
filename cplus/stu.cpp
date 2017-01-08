@@ -2796,6 +2796,62 @@ int test71()
 	return 0;
 }
 
+int test72()
+{
+	printf("__func__ %s\n", __func__);
+	printf("__FILE__ %s\n", __FILE__);
+	printf("__LINE__ %d\n", __LINE__);
+	printf("__TIME__ %s\n", __TIME__);
+	printf("__DATE__ %s\n", __DATE__);
+	return 0;
+}
+
+int funcForReturn(int x)
+{
+	printf("x=%d\n", x);
+	return x;
+}
+
+// declare, trailing return type
+auto funcReturnFuncPtr() -> int (*)(int);
+// define
+auto funcReturnFuncPtr() -> int (*)(int)
+{
+	return funcForReturn;
+}
+
+// use decltype
+decltype(funcForReturn) *funcReturnFuncPtr2()
+{
+	return funcForReturn;
+}
+
+int test73()
+{
+	auto fp1 = funcReturnFuncPtr();
+	fp1(10);
+
+	int (*fp2)(int) = funcReturnFuncPtr();
+	fp2(20);
+
+	{
+	using FP = int (*)(int);
+	FP fp3 = funcReturnFuncPtr();
+	fp3(30);
+	}
+
+	{
+	typedef int (*FP)(int);
+	FP fp4 = funcReturnFuncPtr();
+	fp4(40);
+	}
+
+	auto fp5 = funcReturnFuncPtr2();
+	fp5(50);
+
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -2879,6 +2935,8 @@ testcase_t test_list[] =
 ,	test69
 ,	test70
 ,	test71
+,	test72
+,	test73
 };
 
 int main(int argc, char *argv[]) 
