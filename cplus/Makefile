@@ -1,4 +1,4 @@
-default: platform str_queue tp worker stack_tp tv queue_tp stu st smart_pointer frnd2tmp member_tp container stream variadic_tp function_tp class_test config_test type_tp macro_test stress order_queue_tp time_func string_tool my_string acct error_means rtti 
+default: platform str_queue tp worker stack_tp tv queue_tp stu st smart_pointer container stream class_test config_test type_tp macro_test stress order_queue_tp time_func string_tool my_string acct error_means rtti 
 
 OS:=$(shell uname -s)
 
@@ -22,15 +22,11 @@ clean:
 	rm -rf error_means
 	rm -rf rtti
 	rm -rf smart_pointer
-	rm -rf frnd2tmp
-	rm -rf member_tp
 	rm -rf container
 	rm -rf stream
 	rm -rf rvalue
 	rm -rf lambda
 	rm -rf wrapper
-	rm -rf variadic_tp
-	rm -rf function_tp
 	rm -rf class_test
 	rm -rf config_test
 	rm -rf type_tp
@@ -91,9 +87,6 @@ smart_pointer:	smart_pointer.cpp
 frnd2tmp:	frnd2tmp.cpp 
 	g++ $(CFLAG) -o frnd2tmp frnd2tmp.cpp
 
-member_tp:	member_tp.cpp 
-	g++ $(CFLAG) -o member_tp member_tp.cpp
-
 container:	container.cpp 
 	g++ $(CFLAG) -o container container.cpp
 
@@ -108,12 +101,6 @@ lambda:	lambda.cpp
 
 wrapper:	wrapper.cpp 
 	g++ $(CFLAG) -o wrapper wrapper.cpp
-
-variadic_tp:	variadic_tp.cpp 
-	g++ $(CFLAG) -o variadic_tp variadic_tp.cpp
-
-function_tp:	function_tp.cpp 
-	g++ $(CFLAG) -o function_tp function_tp.cpp
 
 class_test:	class_test.h class_test.cpp class_test_run.cpp
 	g++ $(CFLAG) -o class_test class_test_run.cpp class_test.cpp

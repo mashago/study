@@ -1,5 +1,6 @@
 
-class Base{
+class Base
+{
 private:
 	int value;
 public:
@@ -7,7 +8,9 @@ public:
 	template <typename T> static Base * create(T t); 
 };
 
-template <typename Type> class Mid : public Base{
+template <typename Type> 
+class Mid : public Base
+{
 private:
 	Type ttt;
 public:
