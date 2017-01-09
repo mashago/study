@@ -1076,6 +1076,40 @@ function test22()
 	return 0
 end
 
+function create_closure(n)
+	local i = 10;
+	return function()
+		i = i+1;
+		return n * i
+	end
+end
+
+test23 = function()
+
+	local c1 = create_closure(1);
+	print(c1())
+	print(c1())
+
+	local c2 = create_closure(2);
+	print(c2())
+	print(c2())
+
+	print(c1())
+
+	return 0
+end
+
+function test24()
+	local mylib = {}
+	mylib.foo = function (x, y) return x + y end
+	mylib.goo = function (x, y) return x - y end
+
+	print(mylib.foo(5, 10))
+	print(mylib.goo(5, 10))
+
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -1104,6 +1138,8 @@ test_list =
 ,	test20
 ,	test21
 ,	test22
+,	test23
+,	test24
 }
 
 function do_main()

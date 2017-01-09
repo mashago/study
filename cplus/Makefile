@@ -1,4 +1,4 @@
-default: platform str_queue tp worker stack_tp tv queue_tp stu st smart_pointer container stream class_test config_test macro_test stress order_queue_tp time_func string_tool my_string acct error_means rtti 
+default: platform str_queue tp worker stack_tp tv queue_tp stu st smart_pointer container stream class_test config_test macro_test stress order_queue_tp time_func string_tool my_string acct error_means rtti read_file
 
 OS:=$(shell uname -s)
 

@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/time.h>
+
+#include <iostream>
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -13,11 +15,15 @@ double get_time_ms()
 	return tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0;
 }
 
-void read1(const char *file)
+void use_ifstream_read(const char *file)
 {
-	printf("read 1: use ifstream.read\n");
-
+	printf("%s\n", __FUNCTION__);
 	double time1 = get_time_ms();
+
+	// 1. in file stream open file
+	// 2. get file size
+	// 3. new a char buffer
+	// 4. ifs read into buffer
 
 	std::ifstream fin;
 	fin.open(file); // default is ios_base::in
@@ -40,20 +46,24 @@ void read1(const char *file)
 
 	fin.close();
 
-	std::string data = std::string(buffer, len);
+	std::string data(buffer, len);
 	printf("data.size()=%lu\n", data.size());
 
 	delete [] buffer;
 
 	double time2 = get_time_ms();
-	printf("read1:time=%lfms\n\n", time2-time1);
+	printf("%s:time=%lfms\n\n", __FUNCTION__, time2-time1);
 }
 
-void read2(const char *file)
+void use_istreambuf_iterator(const char *file)
 {
-	printf("read 2: use istreambuf_iterator1\n");
-
+	printf("%s\n", __FUNCTION__);
 	double time1 = get_time_ms();
+
+	// 1. in file stream open file
+	// 2. get file size
+	// 3. reserve string
+	// 4. string assign or append, from istreambuf_iterator
 
 	std::ifstream fin;
 	fin.open(file); // default is ios_base::in
@@ -73,9 +83,9 @@ void read2(const char *file)
 	std::string buffer;
 	buffer.reserve(len);
 
-
 	// very slow
 	buffer.assign((std::istreambuf_iterator<char>(fin)), (std::istreambuf_iterator<char>()));
+	// buffer.append((std::istreambuf_iterator<char>(fin)), (std::istreambuf_iterator<char>()));
 
 	// std::cout << "buffer=" << buffer << std::endl;
 
@@ -83,13 +93,17 @@ void read2(const char *file)
 
 	printf("buffer.size()=%lu\n", buffer.size());
 	double time2 = get_time_ms();
-	printf("read2:time=%lfms\n\n", time2-time1);
+	printf("%s:time=%lfms\n\n", __FUNCTION__, time2-time1);
 }
 
-void read3(const char *file)
+void use_istreambuf_iterator2(const char *file)
 {
-	printf("read 3: use istreambuf_iterator2\n");
+	printf("%s\n", __FUNCTION__);
 	double time1 = get_time_ms();
+
+	// 1. in file stream open file
+	// 2. get file size
+	// 3. init string by istreambuf_iterator
 
 	std::ifstream fin;
 	fin.open(file); // default is ios_base::in
@@ -107,13 +121,17 @@ void read3(const char *file)
 	printf("buffer.size()=%lu\n", buffer.size());
 
 	double time2 = get_time_ms();
-	printf("read3:time=%lfms\n\n", time2-time1);
+	printf("%s:time=%lfms\n\n", __FUNCTION__, time2-time1);
 }
 
-void read4(const char *file)
+void use_stringstream(const char *file)
 {
-	printf("read 4: use stringstream\n");
+	printf("%s\n", __FUNCTION__);
 	double time1 = get_time_ms();
+
+	// 1. in file stream open file
+	// 2. get file size
+	// 3. init string by istreambuf_iterator
 
 	std::ifstream fin;
 	fin.open(file); // default is ios_base::in
@@ -133,13 +151,17 @@ void read4(const char *file)
 	printf("buffer.size()=%lu\n", buffer.size());
 
 	double time2 = get_time_ms();
-	printf("read4:time=%lfms\n\n", time2-time1);
+	printf("%s:time=%lfms\n\n", __FUNCTION__, time2-time1);
 }
 
-void read5(const char *file)
+void use_c_file(const char *file)
 {
-	printf("read 5: use c FILE, new char buffer\n");
+	printf("%s\n", __FUNCTION__);
 	double time1 = get_time_ms();
+
+	// 1. open FILE *
+	// 2. new char buffer
+	// 3. fread into buffer
 
 	FILE *pfile;
 	if ((pfile = fopen(file, "r")) == NULL)
@@ -161,7 +183,7 @@ void read5(const char *file)
 	delete [] buffer;
 
 	double time2 = get_time_ms();
-	printf("read5:time=%lfms\n\n", time2-time1);
+	printf("%s:time=%lfms\n\n", __FUNCTION__, time2-time1);
 }
 
 void read_line(const char *file)
@@ -192,15 +214,15 @@ void read_line(const char *file)
 
 int main(int argc, char **argv)
 {
-	printf("hello read_file\n");
+	printf("hello %s\n", argv[0]);
 
-	const char *file = "Illegal.txt";
-	// const char *file = "Illegal2.txt";
-	read1(file);
-	read2(file);
-	read3(file);
-	read4(file);
-	read5(file);
+	const char *file = "read_file.cpp";
+	use_ifstream_read(file);
+	use_istreambuf_iterator(file);
+	use_istreambuf_iterator2(file);
+	use_stringstream(file);
+	use_c_file(file);
+
 	read_line(file);
 
 	return 0;
