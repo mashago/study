@@ -1,4 +1,4 @@
-default: platform str_queue tp worker stack_tp tv queue_tp stu st smart_pointer container stream class_test config_test type_tp macro_test stress order_queue_tp time_func string_tool my_string acct error_means rtti 
+default: platform str_queue tp worker stack_tp tv queue_tp stu st smart_pointer container stream class_test config_test macro_test stress order_queue_tp time_func string_tool my_string acct error_means rtti 
 
 OS:=$(shell uname -s)
 
@@ -29,7 +29,6 @@ clean:
 	rm -rf wrapper
 	rm -rf class_test
 	rm -rf config_test
-	rm -rf type_tp
 	rm -rf macro_test
 	rm -rf stress
 	rm -rf order_queue_tp
@@ -107,9 +106,6 @@ class_test:	class_test.h class_test.cpp class_test_run.cpp
 
 config_test: config_test.cpp 
 	g++ $(CFLAG) -o config_test config_test.cpp
-
-type_tp: type_tp.cpp 
-	g++ $(CFLAG) -o type_tp type_tp.cpp
 
 macro_test: macro_test.cpp 
 	g++ $(CFLAG) -g -D_MY_DEF_D -o macro_test macro_test.cpp

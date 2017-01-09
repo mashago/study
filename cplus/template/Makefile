@@ -1,4 +1,4 @@
-default: platform test_typename friend_tp function_tp member_tp variadic_tp
+default: platform test_typename friend_tp function_tp member_tp variadic_tp type_tp
 
 OS:=$(shell uname -s)
 
@@ -9,7 +9,7 @@ platform:
 	@echo Platform: $(OS)
 
 clean:
-	rm -rf test_typename friend_tp function_tp member_tp variadic_tp
+	rm -rf test_typename friend_tp function_tp member_tp variadic_tp type_tp
 	rm -rf *.dSYM
 
 test_typename: test_typename.cpp
@@ -25,5 +25,8 @@ member_tp:	member_tp.cpp
 	$(CXX) $(CPP_FLAGS) -o $@ $<
 
 variadic_tp:	variadic_tp.cpp 
+	$(CXX) $(CPP_FLAGS) -o $@ $<
+
+type_tp:	type_tp.cpp 
 	$(CXX) $(CPP_FLAGS) -o $@ $<
 
