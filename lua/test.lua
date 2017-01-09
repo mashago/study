@@ -1110,6 +1110,68 @@ function test24()
 	return 0
 end
 
+function test25()
+	-- coroutine
+	local co_a
+	co_a = coroutine.create(
+		function(n)
+			print("inside status=" .. coroutine.status(co_a))
+			local r = coroutine.yield(n + 1)
+			print("r=" .. r)
+			return n * r
+		end
+	)
+
+	print("type(co_a)=" .. type(co_a))
+
+	print("before resume status=" .. coroutine.status(co_a))
+
+	local flag, ret = coroutine.resume(co_a, 10)
+	print("after resume status=" .. coroutine.status(co_a))
+	print("flag=", (flag and "true") or "false", "ret=", ret)
+
+	flag, ret = coroutine.resume(co_a, 10)
+	print("flag=", (flag and "true") or "false", "ret=", ret)
+	print("final status=" .. coroutine.status(co_a))
+
+	flag, ret = coroutine.resume(co_a, 10)
+	print("flag=", (flag and "true") or "false", "ret=", ret)
+
+	return 0
+end
+
+function test26()
+
+	local send = function(n)
+		coroutine.yield(n)
+	end
+
+	local product = function(n)
+		while true do
+			n = n * 2
+			send(n)
+		end
+	end
+
+	local productor = coroutine.create(product)
+
+	function recv(n)
+		local status, item = coroutine.resume(productor, n)
+		return item
+	end
+
+	function consume()
+		for i = 1, 5 do
+			local item = recv(i)
+			print("item=" .. item)
+		end
+	end
+
+	consume()
+
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -1140,6 +1202,8 @@ test_list =
 ,	test22
 ,	test23
 ,	test24
+,	test25
+,	test26
 }
 
 function do_main()
