@@ -148,6 +148,7 @@ int test1()
 	{
 		int a = 0;
 		printf("&a=%p\n", &a);
+		// auto lam_func = [a](int n)mutable{ printf("in lambda: &a=%p, a=%d\n", &a, a); a += n; return a; }; // not real type is not MyFuncType
 		MyFuncType lam_func = [a](int n)mutable{ printf("in lambda: &a=%p, a=%d\n", &a, a); a += n; return a; };
 
 		int ret = lam_func(1);

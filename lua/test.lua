@@ -1077,7 +1077,7 @@ function test22()
 end
 
 function create_closure(n)
-	local i = 10;
+	local i = 10; -- upvalue
 	return function()
 		i = i+1;
 		return n * i
@@ -1089,10 +1089,12 @@ test23 = function()
 	local c1 = create_closure(1);
 	print(c1())
 	print(c1())
+	print();
 
 	local c2 = create_closure(2);
 	print(c2())
 	print(c2())
+	print();
 
 	print(c1())
 
