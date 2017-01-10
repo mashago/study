@@ -5,6 +5,8 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <random>
+#include <functional>
 
 using std::cout;
 using std::endl;
@@ -89,11 +91,76 @@ int test0()
 
 	bool result = lamIsModX(4);
 	cout << "result=" << result << endl;
+
+	// lambda is a function type
+	std::function<bool(int)> lamIsModX2 = lamIsModX;
+	result = lamIsModX(6);
+	cout << "result=" << result << endl;
 	return 0;
+}
+
+typedef std::function<int(int)> MyFuncType;
+
+int callLambda(MyFuncType func, int n)
+{
+	return func(n);
+}
+
+int callLambda2(MyFuncType &func, int n)
+{
+	return func(n);
 }
 
 int test1()
 {
+	{
+		int a = 0;
+		printf("&a=%p\n", &a);
+		auto lam_func = [&a](int n){ printf("in lambda: &a=%p a=%d\n", &a, a); a += n; return a; };
+
+		int ret = lam_func(1);
+		printf("a=%d ret=%d\n", a, ret);
+
+		ret = callLambda(lam_func, 10);
+		printf("a=%d ret=%d\n", a, ret);
+
+		ret = callLambda(lam_func, 20);
+		printf("a=%d ret=%d\n", a, ret);
+	}
+	printf("\n");
+
+	{
+		int a = 0;
+		printf("&a=%p\n", &a);
+		MyFuncType lam_func = [a](int n)mutable{ printf("in lambda: &a=%p, a=%d\n", &a, a); a += n; return a; };
+
+		int ret = lam_func(1);
+		printf("a=%d ret=%d\n", a, ret);
+
+		ret = callLambda(lam_func, 10);
+		printf("a=%d ret=%d\n", a, ret);
+
+		ret = callLambda(lam_func, 20);
+		printf("a=%d ret=%d\n", a, ret);
+	}
+	printf("\n");
+
+	{
+		int a = 0;
+		printf("&a=%p\n", &a);
+		MyFuncType lam_func = [a](int n)mutable{ printf("in lambda: &a=%p, a=%d\n", &a, a); a += n; return a; };
+
+		int ret = lam_func(1);
+		printf("a=%d ret=%d\n", a, ret);
+
+		ret = callLambda2(lam_func, 10);
+		printf("a=%d ret=%d\n", a, ret);
+
+		ret = callLambda2(lam_func, 20);
+		printf("a=%d ret=%d\n", a, ret);
+	}
+	printf("\n");
+
 	return 0;
 }
 
