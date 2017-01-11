@@ -169,6 +169,19 @@ function test5()
 			print(k .. " fit")
 		until true
 	end
+	print()
+
+	-- break can use in do ... end
+	for k, v in pairs(t) do
+		do	
+			if not v then
+				print(k .. " not fit")
+				break -- early continue
+			end
+			-- my logic
+			print(k .. " fit")
+		end
+	end
 
 	return 0
 end
