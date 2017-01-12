@@ -719,12 +719,23 @@ function test15_select(...)
 	end
 end
 
+function test15_unpack(...)
+	print(unpack(...))
+end
+
 function test15()
 
 	local s = test15_add(1, 2, 3, 4, 5)
 	print("s=", s)
+	print()
 
 	test15_select(11, 12, 13, 14, 15)
+	print()
+
+	local t = {"a", "b", "hello"}
+	print(unpack(t))
+	print(type(unpack(t)))
+	test15_unpack(t)
 
 	return 0
 end
@@ -1218,6 +1229,7 @@ test_list =
 ,	test23
 ,	test24
 ,	test25
+,	test26
 ,	test26
 }
 
