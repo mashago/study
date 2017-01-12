@@ -52,6 +52,7 @@ static void test(redisContext *c)
 	// HMSET & HGETALL
 	{
 		std::string key = "luahash";
+		std::string value = "masha 100 peter 80 jobs 60";
 		std::string script = "\
 			redis.call('HMSET', KEYS[1], 'masha', 100, 'peter', 80, 'jobs', 60) \
 			local values = redis.call('HGETALL', KEYS[1]) \
