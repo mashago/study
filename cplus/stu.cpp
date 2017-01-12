@@ -24,6 +24,10 @@
 #include "util.h"
 
 
+#if (defined __WIN32) || (defined __CYGWIN__)
+#define bzero(a, b) memset(a, 0, b)
+#endif
+
 using namespace std; // namespace type 1 
 int test0()
 {

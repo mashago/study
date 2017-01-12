@@ -51,7 +51,7 @@ st:	sizeof_test.cpp
 	g++ $(CFLAG) -o st sizeof_test.cpp
 
 str_queue:	str_queue.cpp str_queue.h
-	g++ $(CFLAG) -o str_queue str_queue.cpp -lpthread
+	# g++ $(CFLAG) -o str_queue str_queue.cpp -lpthread
 
 my_string:	my_string.cpp my_string.h
 	g++ $(CFLAG) -o my_string my_string.cpp

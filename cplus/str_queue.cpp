@@ -6,6 +6,10 @@ extern "C" {
 #include <thread>
 #include "str_queue.h"
 
+#if (defined __WIN32) || (defined __CYGWIN__)
+#define bzero(a, b) memset(a, 0, b)
+#endif
+
 StrQueue::StrQueue()
 {
 	head = 0;
