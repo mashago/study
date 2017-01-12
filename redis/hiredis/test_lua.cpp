@@ -78,6 +78,7 @@ static void test(redisContext *c)
 	int counter = 1;
 	do
 	{
+		// logic: get score by member, if not in zset, add with size+1
 		std::string key = "luazset";
 		std::string member = "masha" + std::to_string(counter);
 		std::string script = "\

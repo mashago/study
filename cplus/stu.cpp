@@ -2238,8 +2238,7 @@ int test60()
 	return 0;
 }
 
-// big-endian return 1, little-endian return 0
-int checkEnd()
+int is_little_endian()
 {
 	// little-endian:
 	// we can call, little data in little memory path
@@ -2251,26 +2250,24 @@ int checkEnd()
 	// *(char *)&i = 0x78
 	int i=0x12345678;
 	char *c=(char *)&i; 
-	return(*c==0x12);
+	return(*c==0x78);
 }
 
-// big-endian return 1, little-endian return 0
-int checkEnd2()
+int is_little_endian2()
 {
 	union
 	{
-		long a;
+		short a;
 		char b;
 	}u;
 
 	u.a = 1;
-	if (u.b == 1) return 0;
-	else return 1;
+	return (u.b - '\0');
 }
 int test61() 
 {
-	printf("checkEnd()=%d\n", checkEnd());
-	printf("checkEnd2()=%d\n", checkEnd2());
+	printf("is_little_endian=%d\n", is_little_endian());
+	printf("is_little_endian2=%d\n", is_little_endian2());
 	return 0;
 }
 
