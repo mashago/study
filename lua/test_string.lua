@@ -1,5 +1,5 @@
-#!/usr/local/bin/lua
---#!/usr/bin/lua
+#!/usr/bin/lua
+--#!/usr/local/bin/lua
 
 function test1()
 
@@ -100,6 +100,25 @@ end
 function test4()
 
 	-- about pattern
+	--[[
+	-- . all char
+	-- %a alphabet
+	-- %c control char
+	-- %d num
+	-- %l lower-case alphabet
+	-- %p punctuation
+	-- %s space
+	-- %u upper-case alphabet
+	-- %w alphabet and num
+	-- %x hex num
+	-- %z '\0'
+	-- + 1 or more times
+	-- * 0 or more times, max match
+	-- - 0 or more times, min match
+	-- ? optional, [+-]?
+	-- ^  start from, ^%s*
+	-- $  end with, %s*$
+	--]]
 
 	local x = "123Hello World123"
 	print("x=" .. x)
@@ -127,7 +146,16 @@ function test4()
 	print("x=" .. x)
 	print("string.gsub(x, \"o\", \"O\")=", string.gsub(x, "o", "O"))
 	print("string.gsub(x, \"o\", \"O\", 1)=", string.gsub(x, "o", "O", 1))
-	print("string.gsub(x, \"%d+\", \" \")=", string.gsub(x, "%d+", " "))
+	print("string.gsub(x, \"%a\", \" \")=", string.gsub(x, "%a", " "))
+	print("string.gsub(x, \"%d\", \" \")=", string.gsub(x, "%d", " "))
+	print("string.gsub(x, \"%d+\", \"\")=", string.gsub(x, "%d+", ""))
+	print()
+
+	function trim(s)
+		return (string.gsub(s, "^%s*(.-)%s*$", "%1"))
+	end
+	x = "  123Hello World123  "
+	print("trim(" .. x .. ")=", trim(x))
 	print()
 
 	local buffer = ""
@@ -149,20 +177,15 @@ function test4()
 
 	print()
 
-	local my_table = {player = "masha"}
+	local my_table = {player="masha", x="peter"}
 
 	-- replace from table
 	buffer = "player is best"
 	buffer = string.gsub(buffer, "%w+", my_table)
 	print("4 buffer=[" .. buffer .. "]")
 
-	-- replace from table, search capture data in table
-	buffer = "$player is best"
-	buffer = string.gsub(buffer, "$(%w+)", my_table)
-	print("5 buffer=[" .. buffer .. "]")
-
-	-- replace from function
-	buffer = "$player is best, $a is loser"
+	-- replace from function, replace by capture data
+	buffer = "$player is best, $x is loser"
 	buffer = string.gsub(buffer, "$(%w+)", function (n) return tostring(my_table[n]) end)
 	print("6 buffer=[" .. buffer .. "]")
 
@@ -173,7 +196,7 @@ function test4()
 	-- \x ==> char(x)
 	buffer = "%123abc&567def*"
 	print(string.match(buffer, "[\97-\122]+"))
-	-- string.gmatch: a iterator like string.match
+	-- string.gmatch: like a iterator use string.match
 	for w in string.gmatch(buffer, "[\97-\122]+") do
 		print("w=" .. w)
 	end
