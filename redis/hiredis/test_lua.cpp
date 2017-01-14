@@ -54,12 +54,15 @@ static void test(redisContext *c)
 		std::string key = "luahash";
 		std::string value = "masha 100 peter 80 jobs 60";
 		std::string script = "\
-			redis.call('HMSET', KEYS[1], 'masha', 100, 'peter', 80, 'jobs', 60) \
+			redis.call('HMSET', KEYS[1], unpack(ARGV)) \
 			local values = redis.call('HGETALL', KEYS[1]) \
 			return values \
 			";
-		redisReply *reply = (redisReply *)redisCommand(c, "EVAL %s 1 %s"
-				, script.c_str(), key.c_str());
+		// redisReply *reply = (redisReply *)redisCommand(c, "EVAL %s 1 %s %s", script.c_str(), key.c_str(), value.c_str());
+		redisReply *reply = (redisReply *)redisCommand(c, "EVAL %s 1 %s masha 100 peter 80 jobs 60", script.c_str(), key.c_str());
+		// std::string cmd = "EVAL " + script + " 1 " + key + " " + value;
+		// redisReply *reply = (redisReply *)redisCommand(c, cmd.c_str());
+
 		if (reply == NULL)
 		{
 			return;
