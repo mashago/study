@@ -1,5 +1,4 @@
-#!/usr/bin/lua
---#!/usr/local/bin/lua
+#!/usr/local/bin/lua
 
 function test1()
 
@@ -112,12 +111,17 @@ function test4()
 	-- %w alphabet and num
 	-- %x hex num
 	-- %z '\0'
+	-- ( ) . % + - * ? [ ] ^ $ magic char
+	-- % can convert magic char
+	-- [] char-set, [%w_] means alphabet and num amd _
+	-- [^] char-set complement, [^%d] means except num
 	-- + 1 or more times
 	-- * 0 or more times, max match
 	-- - 0 or more times, min match
 	-- ? optional, [+-]?
 	-- ^  start from, ^%s*
 	-- $  end with, %s*$
+	-- (?) capture, %1 is first capture
 	--]]
 
 	local x = "123Hello World123"
@@ -142,13 +146,15 @@ function test4()
 	print()
 
 	-- string.gsub(input, pattern, replace string, times)
-	x = "123Hello World123"
+	x = "123Hello_World123"
 	print("x=" .. x)
 	print("string.gsub(x, \"o\", \"O\")=", string.gsub(x, "o", "O"))
 	print("string.gsub(x, \"o\", \"O\", 1)=", string.gsub(x, "o", "O", 1))
 	print("string.gsub(x, \"%a\", \" \")=", string.gsub(x, "%a", " "))
 	print("string.gsub(x, \"%d\", \" \")=", string.gsub(x, "%d", " "))
 	print("string.gsub(x, \"%d+\", \"\")=", string.gsub(x, "%d+", ""))
+	print("string.gsub(x, \"[%d_]\", \"\")=", string.gsub(x, "[%d]", ""))
+	print("string.gsub(x, \"[^%d_]\", \"\")=", string.gsub(x, "[^%d]", ""))
 	print()
 
 	function trim(s)
@@ -175,18 +181,22 @@ function test4()
 	buffer = string.gsub(buffer, "$(%w+)", "%1")
 	print("3 buffer=[" .. buffer .. "]")
 
+	-- capture ()
+	buffer = "123abc"
+	buffer =string.gsub(buffer, "(%d+)(%a+)", "%2%1")
+	print("4 buffer=[" .. buffer .. "]")
+
 	print()
 
-	local my_table = {player="masha", x="peter"}
-
 	-- replace from table
+	local t = {player="masha", x="peter"}
 	buffer = "player is best"
-	buffer = string.gsub(buffer, "%w+", my_table)
+	buffer = string.gsub(buffer, "%w+", t)
 	print("4 buffer=[" .. buffer .. "]")
 
 	-- replace from function, replace by capture data
 	buffer = "$player is best, $x is loser"
-	buffer = string.gsub(buffer, "$(%w+)", function (n) return tostring(my_table[n]) end)
+	buffer = string.gsub(buffer, "$(%w+)", function (n) return tostring(t[n]) end)
 	print("6 buffer=[" .. buffer .. "]")
 
 	-- capture empty
@@ -202,8 +212,8 @@ function test4()
 	end
 
 	buffer = "$Rev: 3588 $"
-	print(string.gsub(buffer, "[ ]*$[a-zA-Z:]*[ ]*", ""))
-	print(string.match(buffer, "%d+"))
+	print(string.gsub(buffer, "[ ]*$[%a:]*[ ]*", ""))
+	print(string.match(buffer, "%$Rev:%s*(%d+)%s*%$"))
 
 	return 0
 end
