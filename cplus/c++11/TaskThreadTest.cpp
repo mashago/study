@@ -3,7 +3,9 @@
 #include <unistd.h>
 #include <functional>
 
-#include "TaskThread.h"
+// #include "TaskThread.h"
+#include "TaskThread2.h"
+using namespace masha;
 
 static void normal_func()
 {
@@ -58,7 +60,10 @@ void testcase(TaskThread &tt, int counter)
 		case 1:
 			{
 				// post a function
-				tt.Post(std::bind(normal_func2));
+				// tt.Post(std::bind(normal_func2));
+				auto f = std::bind(normal_func2);
+				auto &f2 = f;
+				tt.Post(f2);
 				break;
 			}
 		case 2:
@@ -70,10 +75,7 @@ void testcase(TaskThread &tt, int counter)
 		case 3:
 			{
 				// post a lambda
-				tt.Post([](){
-							printf("post a lambda\n");			
-						}
-					);
+				tt.Post([](){ printf("post a lambda\n"); });
 				break;
 			}
 		case 4:
