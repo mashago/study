@@ -1,4 +1,4 @@
-default:platform rvalue lambda wrapper TaskThreadTest forward_test raw_string_literal bind_test random_engine
+default:platform rvalue lambda wrapper TaskThreadTest forward_test raw_string_literal bind_test random_engine enumclass_test
 
 OS:=$(shell uname -s)
 
@@ -9,7 +9,7 @@ platform:
 	@echo Platform: $(OS)
 
 clean:
-	rm -rf rvalue lambda wrapper TaskThreadTest forward_test raw_string_literal bind_test random_engine
+	rm -rf rvalue lambda wrapper TaskThreadTest forward_test raw_string_literal bind_test random_engine enumclass_test
 	rm -rf *.dSYM
 
 rvalue:	rvalue.cpp 
@@ -35,4 +35,7 @@ bind_test:	bind_test.cpp
 	$(CXX) $(CPP_FLAGS) -o $@ $^
  
 random_engine:	random_engine.cpp 
+	$(CXX) $(CPP_FLAGS) -o $@ $^
+ 
+enumclass_test:	enumclass_test.cpp 
 	$(CXX) $(CPP_FLAGS) -o $@ $^
