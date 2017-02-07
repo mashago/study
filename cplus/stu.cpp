@@ -2854,6 +2854,53 @@ int test73()
 	return 0;
 }
 
+class TestX
+{
+public:
+	virtual ~TestX() {};
+	int a, b, c;
+};
+
+class TestY
+{
+public:
+	int a, b, c;
+};
+
+int test74()
+{
+	{
+	TestX x;
+	printf("sizeof(TestX)=%lu\n", sizeof(TestX));
+	printf("sizeof(x)=%lu\n", sizeof(x));
+	printf("&TestX::a=%p\n", &TestX::a);
+	printf("&TestX::b=%p\n", &TestX::b);
+	printf("&TestX::c=%p\n", &TestX::c);
+	printf("&x=%p\n", &x);
+	printf("&x.a=%p\n", &x.a);
+	x.a = 10;
+	printf("&x.a=%p\n", &x.a);
+	printf("x.a=%d\n", (&x)->*(&TestX::a));
+	}
+
+
+	printf("\n");
+
+	TestY y;
+	printf("sizeof(TestY)=%lu\n", sizeof(TestY));
+	printf("sizeof(y)=%lu\n", sizeof(y));
+	printf("&TestY::a=%p\n", &TestY::a);
+	printf("&TestY::b=%p\n", &TestY::b);
+	printf("&TestY::c=%p\n", &TestY::c);
+	int TestY::*p1 = 0;
+	int TestY::*p2 = &TestY::a;
+	printf("p1=%p\n", p1);
+	printf("p2=%p\n", p2);
+	printf("&y=%p\n", &y);
+	printf("&y.a=%p\n", &y.a);
+	return 0;
+}
+
 int test75()
 {
 
@@ -2928,7 +2975,6 @@ int test75()
 	}
 	printf("\n");
 	}
-
 
 	return 0;
 }
@@ -3018,6 +3064,7 @@ testcase_t test_list[] =
 ,	test71
 ,	test72
 ,	test73
+,	test74
 ,	test75
 };
 

@@ -6,3 +6,4 @@ forward_test
 raw_string_literal
 bind_test
 random_engine
+enumclass_test

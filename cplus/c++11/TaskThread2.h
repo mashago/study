@@ -147,7 +147,7 @@ public:
 		m_cv.notify_all();
 	}
 
-	void Post(nullptr_t &&t)
+	void Post(std::nullptr_t &&t)
 	{
 		std::unique_lock<std::mutex> lock(m_mtx);
 		m_taskList.Push(nullptr);
