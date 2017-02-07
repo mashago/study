@@ -2854,6 +2854,85 @@ int test73()
 	return 0;
 }
 
+int test75()
+{
+
+	std::vector<int32_t> v1;
+	for (int i = 0; i < 10; i++)
+	{
+		v1.push_back(i);
+	}
+	printf("v1:");
+	for (auto v : v1)
+	{
+		printf("%d ", v);
+	}
+	printf("\n");
+
+	std::vector<int32_t> v2;
+	for (int i = 5; i < 15; i++)
+	{
+		v2.push_back(i);
+	}
+	printf("v2:");
+	for (auto v : v2)
+	{
+		printf("%d ", v);
+	}
+	printf("\n");
+
+	{
+	std::vector<int32_t> result(v1.size() + v2.size());
+	auto iter = std::set_difference(v1.begin(), v1.end(), v2.begin(), v2.end(), result.begin());
+	result.resize(iter - result.begin());
+	printf("v1 diff v2: result.size=%lu\n", result.size());
+	for (auto v : result)
+	{
+		printf("%d ", v);
+	}
+	printf("\n");
+	}
+
+	{
+	std::vector<int32_t> result(v1.size() + v2.size());
+	auto iter = std::set_difference(v2.begin(), v2.end(), v1.begin(), v1.end(), result.begin());
+	result.resize(iter - result.begin());
+	printf("v2 diff v1: result.size=%lu\n", result.size());
+	for (auto v : result)
+	{
+		printf("%d ", v);
+	}
+	printf("\n");
+	}
+
+	{
+	std::vector<int32_t> result(v1.size() + v2.size());
+	auto iter = std::set_union(v1.begin(), v1.end(), v2.begin(), v2.end(), result.begin());
+	result.resize(iter - result.begin());
+	printf("v1 union v2: result.size=%lu\n", result.size());
+	for (auto v : result)
+	{
+		printf("%d ", v);
+	}
+	printf("\n");
+	}
+
+	{
+	std::vector<int32_t> result(v1.size() + v2.size());
+	auto iter = std::set_intersection(v1.begin(), v1.end(), v2.begin(), v2.end(), result.begin());
+	result.resize(iter - result.begin());
+	printf("v1 intersection v2: result.size=%lu\n", result.size());
+	for (auto v : result)
+	{
+		printf("%d ", v);
+	}
+	printf("\n");
+	}
+
+
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -2939,6 +3018,7 @@ testcase_t test_list[] =
 ,	test71
 ,	test72
 ,	test73
+,	test75
 };
 
 int main(int argc, char *argv[]) 
@@ -2996,8 +3076,6 @@ int main(int argc, char *argv[])
 	if (ret != 0) {
 		cout << "stu:case[" << testcase << "] " << ret << endl;
 	}
-
-
 
 	return 0;
 }
