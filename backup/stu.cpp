@@ -38,12 +38,15 @@ int main(int argc, char *argv[])
 	testcase = maxcase - 1;
 
 	if (argc > 1) {
-		if (!strcmp(argv[1], "all")) {
+		if (!strcmp(argv[1], "all"))
+		{
 			printf("run all case\n");
-			for (int i=0; i<maxcase; i++) {
+			for (int i=0; i<maxcase; i++)
+			{
 				printf("run case[%d]\n", i);
 				ret = test_list[i]();
-				if (ret != 0) {
+				if (ret != 0) 
+				{
 					printf("case[%d] ret=%d\n", i, ret);
 					return 0;
 				}
@@ -51,14 +54,16 @@ int main(int argc, char *argv[])
 			return 0;
 		}
 		testcase = atoi(argv[1]);
-		if (testcase < 0 || testcase >= maxcase) {
+		if (testcase < 0 || testcase >= maxcase) 
+		{
 			testcase = maxcase - 1;
 		}
 	}
 
 	printf("run case[%d]\n", testcase);
 	ret = test_list[testcase]();
-	if (ret != 0) {
+	if (ret != 0) 
+	{
 		printf("case[%d] ret=%d\n", testcase, ret);
 	}
 
