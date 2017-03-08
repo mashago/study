@@ -3,34 +3,118 @@
 #include <stdlib.h>
 #include <string.h>
 
+// split low level raw implementor and high level abstruction
+
 class Implementor
 {
 public:
 	virtual ~Implementor() {}	
-	virtual void RawOperator() = 0;
+	virtual void RawOperator1() = 0;
+	virtual void RawOperator2() = 0;
 };
 
-class ConcreteImplementorA
+class ConcreteImplementorA : public Implementor
 {
 public:
 	virtual ~ConcreteImplementorA() {}	
-	virtual void RawOperator() override
+	virtual void RawOperator1() override
+	{
+		printf("ConcreteImplementorA %s\n", __FUNCTION__);
+	}
+	virtual void RawOperator2() override
 	{
 		printf("ConcreteImplementorA %s\n", __FUNCTION__);
 	}
 };
 
+class ConcreteImplementorB : public Implementor
+{
+public:
+	virtual ~ConcreteImplementorB() {}	
+	virtual void RawOperator1() override
+	{
+		printf("ConcreteImplementorB %s\n", __FUNCTION__);
+	}
+	virtual void RawOperator2() override
+	{
+		printf("ConcreteImplementorB %s\n", __FUNCTION__);
+	}
+};
+
+////
+
+class Factory
+{
+public:
+	virtual Implementor *CreateImp() = 0;
+};
+
+class ConcreteFactoryA : public Factory
+{
+public:
+	virtual Implementor *CreateImp() override
+	{
+		return new ConcreteImplementorA();
+	}
+};
+
+class ConcreteFactoryB : public Factory
+{
+public:
+	virtual Implementor *CreateImp() override
+	{
+		return new ConcreteImplementorB();
+	}
+};
+
+////
+
 class Abstruction
 {
 public:
-	virtual ~Abstruction() {}
+	Abstruction(Implementor *p) : m_imp(p) {}
+	virtual ~Abstruction()
+	{
+		delete m_imp;
+	}
 	virtual void Operator() = 0;
-private:
+	Implementor *GetImp()
+	{
+		return m_imp;
+	}
+protected:
 	Implementor *m_imp;
+};
+
+class ConcreteAbstructionA : public Abstruction
+{
+public:
+	ConcreteAbstructionA(Implementor *p) : Abstruction(p) {}
+	virtual ~ConcreteAbstructionA() {}
+	virtual void Operator() override
+	{
+		printf("ConcreteAbstructionA %s\n", __FUNCTION__);
+		// use raw operator, but donnot care how raw operartor work
+		m_imp->RawOperator1();
+		m_imp->RawOperator2();
+	}
 };
 
 int test0()
 {
+	{
+		ConcreteFactoryA factory;
+		ConcreteAbstructionA conc(factory.CreateImp());
+		conc.Operator();
+	}
+	printf("\n");
+
+	{
+		ConcreteFactoryB factory;
+		ConcreteAbstructionA conc(factory.CreateImp());
+		conc.Operator();
+	}
+
 	return 0;
 }
 
