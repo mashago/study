@@ -17,7 +17,7 @@ INC:=.
 LIB_PATH:=.
 LIB:=
 
-default: info $(TARGET)
+default: $(TARGET)
 
 info:
 	@echo Platform: $(OS)
