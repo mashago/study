@@ -3,39 +3,51 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Product
+// Abstract Factory is about create a set of products
+// product set is confirmd, cannot create new product
+// but can create different set of products
+
+struct ProductA
 {
-	int type;
-	char from;
+	char mark;
 	void Print()
 	{
-		printf("type=%d from=%c\n", type, from);
+		printf("ProductA mark=%c\n", mark);
+	}
+};
+
+struct ProductB
+{
+	char mark;
+	void Print()
+	{
+		printf("ProductB mark=%c\n", mark);
 	}
 };
 
 class AbstractFactory
 {
 public:
-	virtual Product CreateProductA() = 0;
-	virtual Product CreateProductB() = 0;
+	virtual ~AbstractFactory() {}
+	virtual ProductA CreateProductA() = 0;
+	virtual ProductB CreateProductB() = 0;
 };
 
 class FactoryA : public AbstractFactory
 {
 public:
-	virtual Product CreateProductA()
+	const char MARK = 'A';
+	virtual ProductA CreateProductA() override
 	{
-		Product p;
-		p.type = 1;
-		p.from = 'A';
+		ProductA p;
+		p.mark = MARK;
 		return p;
 	}
 
-	virtual Product CreateProductB()
+	virtual ProductB CreateProductB() override
 	{
-		Product p;
-		p.type = 2;
-		p.from = 'A';
+		ProductB p;
+		p.mark = MARK;
 		return p;
 	}
 };
@@ -43,31 +55,28 @@ public:
 class FactoryB : public AbstractFactory
 {
 public:
-	virtual Product CreateProductA()
+	const char MARK = 'B';
+	virtual ProductA CreateProductA() override
 	{
-		Product p;
-		p.type = 1;
-		p.from = 'B';
+		ProductA p;
+		p.mark = MARK;
 		return p;
 	}
 
-	virtual Product CreateProductB()
+	virtual ProductB CreateProductB() override
 	{
-		Product p;
-		p.type = 2;
-		p.from = 'B';
+		ProductB p;
+		p.mark = MARK;
 		return p;
 	}
 };
 
 void Make(AbstractFactory &factory)
 {
-	Product pa = factory.CreateProductA();
-	printf("Product A\n");
+	ProductA pa = factory.CreateProductA();
 	pa.Print();
 
-	Product pb = factory.CreateProductB();
-	printf("Product B\n");
+	ProductB pb = factory.CreateProductB();
 	pb.Print();
 
 	printf("\n");
