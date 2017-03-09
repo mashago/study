@@ -1,5 +1,5 @@
 
-SUBDIRS:= Adapter Bridge Composite Decorator
+SUBDIRS:= Adapter Bridge Composite Decorator Facade Flyweight Proxy
 
 all: $(SUBDIRS)
 	@for dir in $(SUBDIRS); do echo `pwd`/$$dir; make -C $$dir || exit"$$?"; done
