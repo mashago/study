@@ -48,6 +48,7 @@ public:
 	virtual void SetData(int d)
 	{
 		m_data = d;
+		Notify();
 	}
 	virtual int GetData()
 	{
@@ -89,6 +90,7 @@ int test0()
 	ConcreteSubject s;
 	ConcreteObserver o(&s);
 	s.SetData(10);
+	s.SetData(11);
 	return 0;
 }
 
