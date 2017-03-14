@@ -2979,6 +2979,43 @@ int test75()
 	return 0;
 }
 
+int test76()
+{
+#define XXX_TEST_DEFINE_A 1
+#define XXX_TEST_DEFINE_B 0
+
+#ifdef XXX_TEST_DEFINE_A 
+	printf("ifdef XXX_TEST_DEFINE_A\n");
+#endif
+
+#if XXX_TEST_DEFINE_A 
+	printf("if XXX_TEST_DEFINE_A\n");
+#endif
+
+#undef XXX_TEST_DEFINE_A 
+#if XXX_TEST_DEFINE_A 
+	printf("after if XXX_TEST_DEFINE_A\n");
+#endif
+
+#ifdef XXX_TEST_DEFINE_B
+	printf("ifdef XXX_TEST_DEFINE_B\n");
+#endif
+
+#if XXX_TEST_DEFINE_B
+	printf("if XXX_TEST_DEFINE_B\n");
+#endif
+
+#if XXX_TEST_DEFINE_B == 0
+	printf("if XXX_TEST_DEFINE_B == 0\n");
+#endif
+
+#if XXX_TEST_DEFINE_C
+	printf("if XXX_TEST_DEFINE_C\n");
+#endif
+
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -3066,6 +3103,7 @@ testcase_t test_list[] =
 ,	test73
 ,	test74
 ,	test75
+,	test76
 };
 
 int main(int argc, char *argv[]) 
