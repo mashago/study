@@ -3,8 +3,84 @@
 #include <stdlib.h>
 #include <string.h>
 
+// abstract define regular framework, concrete define change part
+
+class AbstractClass
+{
+public:
+	virtual ~AbstractClass(){}
+	int Operation()
+	{
+		OperationPartA();
+		OperationPartB();
+		OperationPartC();
+		return m_result;
+	}
+protected:
+	AbstractClass() : m_result(0) {}
+	virtual void OperationPartA()
+	{
+	}
+	virtual void OperationPartB()
+	{
+	}
+	virtual void OperationPartC()
+	{
+	}
+	int m_result;
+};
+
+class ConcreteClassA : public AbstractClass
+{
+public:
+	ConcreteClassA() : AbstractClass() {}
+	virtual ~ConcreteClassA() {}
+private:
+	virtual void OperationPartA() override
+	{
+		m_result += 1;
+	}
+	virtual void OperationPartB() override
+	{
+		m_result += 1;
+	}
+	virtual void OperationPartC() override
+	{
+		m_result += 1;
+	}
+};
+
+class ConcreteClassB : public AbstractClass
+{
+public:
+	ConcreteClassB() : AbstractClass() {}
+	virtual ~ConcreteClassB() {}
+private:
+	virtual void OperationPartA() override
+	{
+		m_result += 1;
+	}
+	virtual void OperationPartB() override
+	{
+		m_result += 2;
+	}
+	virtual void OperationPartC() override
+	{
+		m_result += 3;
+	}
+};
+
 int test0()
 {
+	int result = 0;
+	ConcreteClassA c1;
+	result = c1.Operation();
+	printf("result=%d\n", result);
+
+	ConcreteClassB c2;
+	result = c2.Operation();
+	printf("result=%d\n", result);
+
 	return 0;
 }
 
