@@ -9,6 +9,7 @@
 #include <sys/time.h>
 #include <vector>
 #include <unistd.h>
+#include <malloc.h>
 #include <algorithm>
 #include <map>
 #include <set>
@@ -3016,6 +3017,57 @@ int test76()
 	return 0;
 }
 
+int test77()
+{
+	auto print_malloc = [](const char *msg)
+	{
+		printf("---- %s\n", msg);
+		malloc_stats();
+		printf("\n");
+	};
+
+	print_malloc("start");
+	{
+		// malloc and free
+		void *ptr = malloc(100);
+		print_malloc("after malloc");
+
+		free(ptr);
+		print_malloc("after free");
+	}
+
+	print_malloc("start2");
+	{
+		// malloc no free
+		char *ptr = (char *)malloc(100);
+		print_malloc("after malloc");
+		ptr[0] = 'a';
+	}
+
+	print_malloc("no free start");
+	{
+		// new and delete
+		char *ptr = new char[100];
+		print_malloc("after new");
+		ptr[0] = 'a';
+
+		delete [] ptr;
+		print_malloc("after delete");
+	}
+
+	print_malloc("start3");
+	{
+		// new and delete
+		char *ptr = new char[100];
+		print_malloc("after new");
+		ptr[0] = 'a';
+	}
+	print_malloc("no delete");
+
+
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -3104,6 +3156,7 @@ testcase_t test_list[] =
 ,	test74
 ,	test75
 ,	test76
+,	test77
 };
 
 int main(int argc, char *argv[]) 
