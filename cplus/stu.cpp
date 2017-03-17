@@ -2870,35 +2870,40 @@ public:
 
 int test74()
 {
+#define OPEN_TEST74 0
+#if OPEN_TEST74
 	{
-	TestX x;
-	printf("sizeof(TestX)=%lu\n", sizeof(TestX));
-	printf("sizeof(x)=%lu\n", sizeof(x));
-	printf("&TestX::a=%p\n", &TestX::a);
-	printf("&TestX::b=%p\n", &TestX::b);
-	printf("&TestX::c=%p\n", &TestX::c);
-	printf("&x=%p\n", &x);
-	printf("&x.a=%p\n", &x.a);
-	x.a = 10;
-	printf("&x.a=%p\n", &x.a);
-	printf("x.a=%d\n", (&x)->*(&TestX::a));
+		TestX x;
+		printf("sizeof(TestX)=%lu\n", sizeof(TestX));
+		printf("sizeof(x)=%lu\n", sizeof(x));
+		printf("&TestX::a=%p\n", &TestX::a);
+		printf("&TestX::b=%p\n", &TestX::b);
+		printf("&TestX::c=%p\n", &TestX::c);
+		printf("&x=%p\n", &x);
+		printf("&x.a=%p\n", &x.a);
+		x.a = 10;
+		printf("&x.a=%p\n", &x.a);
+		printf("x.a=%d\n", (&x)->*(&TestX::a));
 	}
-
 
 	printf("\n");
 
-	TestY y;
-	printf("sizeof(TestY)=%lu\n", sizeof(TestY));
-	printf("sizeof(y)=%lu\n", sizeof(y));
-	printf("&TestY::a=%p\n", &TestY::a);
-	printf("&TestY::b=%p\n", &TestY::b);
-	printf("&TestY::c=%p\n", &TestY::c);
-	int TestY::*p1 = 0;
-	int TestY::*p2 = &TestY::a;
-	printf("p1=%p\n", p1);
-	printf("p2=%p\n", p2);
-	printf("&y=%p\n", &y);
-	printf("&y.a=%p\n", &y.a);
+	{
+		TestY y;
+		printf("sizeof(TestY)=%lu\n", sizeof(TestY));
+		printf("sizeof(y)=%lu\n", sizeof(y));
+		printf("&TestY::a=%p\n", &TestY::a);
+		printf("&TestY::b=%p\n", &TestY::b);
+		printf("&TestY::c=%p\n", &TestY::c);
+		int TestY::*p1 = 0;
+		int TestY::*p2 = &TestY::a;
+		printf("p1=%p\n", p1);
+		printf("p2=%p\n", p2);
+		printf("&y=%p\n", &y);
+		printf("&y.a=%p\n", &y.a);
+	}
+#endif 
+
 	return 0;
 }
 
@@ -3068,6 +3073,31 @@ int test77()
 	return 0;
 }
 
+int test78()
+{
+	{
+		typedef int I32;
+		I32 a = 10;
+		printf("a=%d\n", a);
+
+		typedef std::vector<int> VI32;
+		VI32 b = {10, 12};
+		b.clear();
+	}
+
+	{
+		using I32 = int;
+		I32 a = 11;
+		printf("a=%d\n", a);
+
+		using VI32 = std::vector<int>;
+		VI32 b = {10, 12};
+		b.clear();
+	}
+
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -3157,6 +3187,7 @@ testcase_t test_list[] =
 ,	test75
 ,	test76
 ,	test77
+,	test78
 };
 
 int main(int argc, char *argv[]) 
