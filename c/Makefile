@@ -1,7 +1,8 @@
 
-default:	platform test ppp server client usock stu et alpha write_file locker check_cr
+default:	platform test ppp server client usock stu et alpha write_file locker check_cr clib
 
-CFLAG:= -Wall -std=c99
+CC:=gcc
+CFLAG:=-std=c99
 
 OS:=$(shell uname -s)
 INC_MYSQL=-I /usr/local/include/mysql -I /usr/include/mysql
@@ -23,43 +24,47 @@ clean:
 	rm -rf write_file
 	rm -rf locker
 	rm -rf check_cr
+	rm -rf clib
 	rm -rf *.dSYM
 
 test:	test.c
-	gcc $(CFLAG) -o test test.c -lm
+	$(CC) $(CFLAG) -o $@ $^ -lm
 
 ppp:	pthread_test.c
-	gcc $(CFLAG) -o ppp pthread_test.c -lpthread
+	$(CC) $(CFLAG) -o $@ $^ -lpthread
 
 server:	socket_server.c
-	gcc $(CFLAG) -o server socket_server.c
+	$(CC) $(CFLAG) -o $@ $^
 
 client:	socket_client.c
-	gcc $(CFLAG) -o client socket_client.c
+	$(CC) $(CFLAG) -o $@ $^
 
 usock:	socket_unix.c
-	gcc $(CFLAG) -o usock socket_unix.c -lpthread
+	$(CC) $(CFLAG) -o $@ $^ -lpthread
 
 stu:	stu.c
-	gcc $(CFLAG) -o stu stu.c -lm
+	$(CC) $(CFLAG) -o $@ $^ -lm
 
 two:	stu.c empty.c
-	gcc $(CFLAG) -o stu stu.c empty.c
+	$(CC) $(CFLAG) -o $@ $^
 
 obj:	stu.c empty.c
-	gcc $(CFLAG) -c stu.c empty.c
+	$(CC) $(CFLAG) -c $^
 
 et:		extern_test1.c extern_test2.c
-	gcc $(CFLAG) -o et extern_test1.c extern_test2.c
+	$(CC) $(CFLAG) -o $@ $^
 
 alpha:		alpha_list.h alpha_list.c alpha_list_test.c
-	gcc $(CFLAG) -o alpha alpha_list_test.c alpha_list.c
+	$(CC) $(CFLAG) -o $@ $^
 
 write_file:		write_file.c
-	gcc $(CFLAG) -o write_file write_file.c
+	$(CC) $(CFLAG) -o $@ $^
 
 locker:		locker.c
-	gcc $(CFLAG) -o locker locker.c -pthread
+	$(CC) $(CFLAG) -o $@ $^ -pthread
 
 check_cr:		check_cr.c
-	gcc $(CFLAG) -o $@ $< 
+	$(CC) $(CFLAG) -o $@ $< 
+
+clib: 	clib.c
+	$(CC) $(CFLAG) -o $@ $< 

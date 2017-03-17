@@ -1,8 +1,8 @@
 
+#include <sys/types.h>
 #include <netinet/tcp.h> // for TCP_NODELAY
 #include <stdio.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <netinet/in.h> // for sockaddr_in
 #include <arpa/inet.h> // for inet_addr()
 #include <string.h>
