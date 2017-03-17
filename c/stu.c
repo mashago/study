@@ -2076,6 +2076,20 @@ int test63()
 	return 0;
 }
 
+int test64()
+{
+	{
+		char msg[] = "12345";
+		printf("strlen=%zu size=%zu\n", strlen(msg), sizeof(msg));
+	}
+	{
+		char *msg = "12345"; // "12345" in data segement
+		printf("strlen=%zu size=%zu\n", strlen(msg), sizeof(msg));
+		// msg[0] = 'a'; // error, change data segement const value
+	}
+
+	return 0;
+}
 
 
 int test_tmp()
@@ -2155,6 +2169,7 @@ testcase_t test_list[] =
 ,	test61
 ,	test62
 ,	test63
+,	test64
 };
 
 int main(int argc, char * argv[]) 
