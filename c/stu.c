@@ -178,7 +178,7 @@ int test8()
 
 	int list[2][2];
 	printf("test8:sizeof(list)=%lu\n", sizeof(list));
-	bzero(list, sizeof(list));
+	memset(list, 0, sizeof(list));
 	list[0][0] = 1;
 	list[0][1] = 2;
 	list[1][0] = 3;
@@ -199,7 +199,7 @@ int test8()
 	print_test8(list);
 
 	int list2[4];
-	bzero(list2, sizeof(list2));
+	memset(list2, 0, sizeof(list2));
 	list2[0] = 1;
 	list2[1] = 2;
 	list2[2] = 3;
@@ -217,7 +217,7 @@ int test9()
 {
 
 	char input[30];
-	bzero(input, sizeof(input));
+	memset(input, 0, sizeof(input));
 
 	// gets(input);
 	// puts(input);
@@ -238,8 +238,8 @@ int test10()
 	char aaa[50];
 	char bbb[20];
 	char *ptr;
-	bzero(aaa, sizeof(aaa));
-	bzero(bbb, sizeof(bbb));
+	memset(aaa, 0, sizeof(aaa));
+	memset(bbb, 0, sizeof(bbb));
 
 	// strlen
 	sprintf(aaa, "qwerty");
@@ -2091,6 +2091,60 @@ int test64()
 	return 0;
 }
 
+void LogDebug(const char *fmt, ...)
+{
+	enum {MAX_LOG_BUFFER_SIZE = 1024};
+	char buffer[MAX_LOG_BUFFER_SIZE];
+
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(buffer, MAX_LOG_BUFFER_SIZE, fmt, ap);
+	va_end(ap);
+
+	printf("%s\n", buffer);
+}
+
+int test65()
+{
+	LogDebug("%s hello %d", __FUNCTION__, 10);
+	return 0;
+}
+
+
+/*
+void print_func_info(const char *head, int line, const char *fmt, va_list ap)
+{
+	enum {MAX_LOG_BUFFER_SIZE = 1024};
+	char buffer[MAX_LOG_BUFFER_SIZE];
+	vsnprintf(buffer, MAX_LOG_BUFFER_SIZE, fmt, ap);
+
+	printf("%s[%d]:%s\n", head, line, buffer);
+}
+*/
+
+void print_func_info(const char *head, int line, const char *fmt, ...)
+{
+	enum {MAX_LOG_BUFFER_SIZE = 1024};
+	char buffer[MAX_LOG_BUFFER_SIZE] = {0};
+
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(buffer, MAX_LOG_BUFFER_SIZE, fmt, ap);
+	va_end(ap);
+
+	printf("%s[%d]:%s\n", head, line, buffer);
+}
+
+#define PRINT_FUNC_INFO(fmt, arg...) print_func_info(__FUNCTION__, __LINE__, fmt, ##arg)
+
+int test66()
+{
+
+	PRINT_FUNC_INFO("hello");
+	PRINT_FUNC_INFO("hello %d", 123);
+
+	return 0;
+}
 
 int test_tmp()
 {
@@ -2170,6 +2224,8 @@ testcase_t test_list[] =
 ,	test62
 ,	test63
 ,	test64
+,	test65
+,	test66
 };
 
 int main(int argc, char * argv[]) 

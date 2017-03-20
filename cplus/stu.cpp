@@ -4,12 +4,14 @@
 // #include <string.h> // type in c
 #include <ctime>
 #include <cmath>
-#include <fstream>
-#include <new>
 #include <sys/time.h>
-#include <vector>
 #include <unistd.h>
 #include <malloc.h>
+#include <stdarg.h>
+
+#include <fstream>
+#include <new>
+#include <vector>
 #include <algorithm>
 #include <map>
 #include <set>
@@ -3115,6 +3117,30 @@ int test79()
 	return 0;
 }
 
+void logger(const char *tag, const char *funcname, int line, const char *fmt, ...)
+{
+	enum {MAX_LOG_BUFFER_SIZE = 1024};
+	char buffer[MAX_LOG_BUFFER_SIZE] = {0};
+
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(buffer, MAX_LOG_BUFFER_SIZE, fmt, ap);
+	va_end(ap);
+
+	printf("%s %s[%d]: %s\n", tag, funcname, line, buffer);
+}
+
+#define LOG_DEBUG(fmt, arg...) logger("DEBUG", __FUNCTION__, __LINE__, fmt, ##arg)
+
+int test80()
+{
+
+	LOG_DEBUG("hello");
+	LOG_DEBUG("hello %d", 123);
+
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -3206,6 +3232,7 @@ testcase_t test_list[] =
 ,	test77
 ,	test78
 ,	test79
+,	test80
 };
 
 int main(int argc, char *argv[]) 
