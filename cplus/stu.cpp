@@ -3130,7 +3130,10 @@ void logger(const char *tag, const char *funcname, int line, const char *fmt, ..
 	printf("%s %s[%d]: %s\n", tag, funcname, line, buffer);
 }
 
-#define LOG_DEBUG(fmt, arg...) logger("DEBUG", __FUNCTION__, __LINE__, fmt, ##arg)
+// work in gcc and vs
+#define LOG_DEBUG(fmt, ...) logger("DEBUG", __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
+// only work in gcc
+// #define LOG_DEBUG(fmt, arg...) logger("DEBUG", __FUNCTION__, __LINE__, fmt, ##arg)
 
 int test80()
 {

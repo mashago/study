@@ -2135,7 +2135,8 @@ void print_func_info(const char *head, int line, const char *fmt, ...)
 	printf("%s[%d]:%s\n", head, line, buffer);
 }
 
-#define PRINT_FUNC_INFO(fmt, arg...) print_func_info(__FUNCTION__, __LINE__, fmt, ##arg)
+// #define PRINT_FUNC_INFO(fmt, arg...) print_func_info(__FUNCTION__, __LINE__, fmt, ##arg)
+#define PRINT_FUNC_INFO(fmt, ...) print_func_info(__FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 
 int test66()
 {
