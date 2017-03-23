@@ -989,6 +989,46 @@ int test_functor()
 	transform(v1.begin(), v1.end(), v2.begin(), out, std::plus<int>());
 	cout << endl;
 	
+	return 0;
+}
+
+int test_iter()
+{
+	cout << endl << "-----------------test_iter----------------" << endl;
+
+	{
+		vector<int> vec = {1, 2, 3, 4, 5};
+		for (auto iter = vec.begin(); iter != vec.end(); ++iter)
+		{
+			(*iter)++;
+		}
+
+		printf("1:\n");
+		for_each(vec.begin(), vec.end(), [](const int &a){ printf("%d ", a);});
+		printf("\n");
+	}
+
+	{
+		vector<int> vec = {1, 2, 3, 4, 5};
+		printf("2:\n");
+		// for (const auto iter = vec.begin(); iter != vec.end(); ++iter) // is error
+		for (vector<int>::const_iterator iter = vec.begin(); iter != vec.end(); ++iter) // right 
+		{
+			printf("%d ", *iter);
+		}
+		printf("\n");
+	}
+
+	{
+		vector<int> vec = {1, 2, 3, 4, 5};
+		printf("3:\n");
+		// for (vector<int>::const_iterator iter = vec.cbegin(); iter != vec.cend(); ++iter)
+		for (auto iter = vec.cbegin(); iter != vec.cend(); ++iter)
+		{
+			printf("%d ", *iter);
+		}
+		printf("\n");
+	}
 
 
 	return 0;
@@ -1009,6 +1049,7 @@ int main(int argc, char *argv[])
 	test_set();
 	test_map();
 	test_functor();
+	test_iter();
 
 
 	return 0;

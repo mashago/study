@@ -1,11 +1,12 @@
 #include <time.h>
-#include <sys/time.h>
+#include <sys/time.h> // gettimeofday()
 #include <iostream>
 #include <unistd.h>
 
-void func1()
+void about_local_time()
 {
-	std::cout << "func1()" << std::endl;
+	std::cout << "about_local_time()" << std::endl;
+
 	time_t now = time(NULL);
 	std::cout << "now = " << now << std::endl;
 
@@ -24,24 +25,26 @@ void func1()
 	// 
 
 	struct tm detail;
-	localtime_r(&now, &detail);
+	localtime_r(&now, &detail); // get tm by time_t
+
 	std::cout << "tm_sec = " << detail.tm_sec << std::endl;
 	std::cout << "tm_min = " << detail.tm_min << std::endl;
 	std::cout << "tm_hour = " << detail.tm_hour << std::endl;
 	std::cout << "tm_wday = " << detail.tm_wday << std::endl;
 
-	detail.tm_sec = 0;
-	detail.tm_min = 0;
+	// zero hour, min, sec
 	detail.tm_hour = 0;
+	detail.tm_min = 0;
+	detail.tm_sec = 0;
 
-	time_t day_start_time = mktime(&detail);
+	time_t day_start_time = mktime(&detail); // get time_t by tm
 	std::cout << "day_start_time = " << day_start_time << std::endl;
 	
 }
 
-void func2()
+void about_time_val()
 {
-	std::cout << std::endl << "func1()" << std::endl;
+	std::cout << std::endl << "about_time_val()" << std::endl;
 	/*
 	struct timeval
 	{
@@ -49,8 +52,10 @@ void func2()
 		susecond_t tv_usec; // microseconds
 	}
 	*/
+
 	struct timeval tv;    
-	gettimeofday(&tv,NULL);
+	gettimeofday(&tv,NULL); // get timeval from 1970
+
 	long msTime1 = tv.tv_sec * 1000 + tv.tv_usec / 1000;
 	long usTime1 = tv.tv_sec * 1000000 + tv.tv_usec;
 	std::cout << "1 =" <<  msTime1 << "ms" << std::endl;
@@ -73,8 +78,8 @@ void func2()
 int main(int argc, char **argv)
 {
 	
-	func1();
-	func2();
+	about_local_time();
+	about_time_val();
 
 	return 0;
 }

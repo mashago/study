@@ -3144,6 +3144,38 @@ int test80()
 	return 0;
 }
 
+struct T81
+{
+	int a;
+	int b;
+	void Print()
+	{
+		printf("a=%d b=%d addr=%p\n", a, b, this);
+	}
+};
+
+struct T81 *GetT81Instance()
+{
+	static struct T81 t = [](){
+		printf("init T81\n");
+		struct T81 t;
+		t.a = 10;
+		t.b = 20;
+		return t;
+	}();
+	return &t;
+}
+
+int test81()
+{
+	struct T81 *ptr1 = GetT81Instance();
+	ptr1->Print();
+	struct T81 *ptr2 = GetT81Instance();
+	ptr2->Print();
+
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -3236,6 +3268,7 @@ testcase_t test_list[] =
 ,	test78
 ,	test79
 ,	test80
+,	test81
 };
 
 int main(int argc, char *argv[]) 
