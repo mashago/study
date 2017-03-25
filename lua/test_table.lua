@@ -1,6 +1,96 @@
 #!/usr/local/bin/lua
 
+require "util"
+
 function test1()
+	local t1 = {}
+	t1[1] = 1
+	log("t1[1]=%d", t1[1])
+
+	k = "x"
+	t1[k] = 10 -- ==> t1["x"] = 10
+	-- t[x] = 20 -- error, nil index
+	log("t1[k]=%d", t1[k])
+	log('t1["x"]=%d', t1["x"])
+	log('t1.x=%d', t1.x)
+
+	io.stdout:write("t1[x]=")
+	print(t1[x])
+
+	log()
+	if t1[k] == t1["x"] then
+		log('t1[k] == t1["x"]')
+	end
+	if t1["x"] == t1.x then
+		log('t1["x"] == t1.x')
+	end
+	log()
+
+	local t2 = t1
+	log("t1[1]=%d", t1[1])
+	t2[1] = 100
+	log("t2[1]=%d", t2[1])
+	log("t1[1]=%d", t1[1])
+	t2 = nil
+
+	return 0
+end
+
+function test2()
+	local t1 = {}
+	for i = 1, 50 do
+		t1[i] = i * 2
+	end
+	log("#t1=%d", #t1)
+
+	t1[#t1+1] = 77
+	log("t1[#t1]=%d", t1[#t1])
+	log("#t1=%d", #t1)
+
+	local t2 = {}
+	log("table.maxn(t2)=%d", table.maxn(t2))
+	t2[10000] = 1
+	log("table.maxn(t2)=%d", table.maxn(t2))
+
+	return 0
+end
+
+function changeTable(t)
+	-- t is reference
+	io.stdout:write("t=")
+	print(t)
+	t[100] = "ccc"
+	log()
+	return t
+end
+
+function test3()
+
+	local t1 = {}
+	io.stdout:write("t1=")
+	print(t1)
+	t1[100] = "aaa"
+	log("t1[100]=%s", t1[100])
+	log()
+
+	local t2 = changeTable(t1)
+	io.stdout:write("t2=")
+	print(t2)
+	log("t1[100]=%s", t1[100])
+	log("t2[100]=%s", t2[100])
+
+	return 0
+end
+
+function test4()
+	local t1 = { x = 10, y = 20; "one", "two", "three" }
+	for k, v in pairs(t1) do
+		print(k .. " : " .. v)
+	end
+	return 0
+end
+
+function test5()
 
 	-- array
 
@@ -230,7 +320,7 @@ function test1()
 	return 0
 end
 
-function test2()
+function test6()
 
 	local t = {}
 	t["k1"] = "v1"
@@ -297,6 +387,10 @@ test_list =
 {
 	test1
 ,	test2
+,	test3
+,	test4
+,	test5
+,	test6
 }
 
 function do_main()

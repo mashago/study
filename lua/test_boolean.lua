@@ -30,23 +30,25 @@ function test2()
 		print("y not true")
 	end
 
-	local z = nil
-	if not z then
+	if nil then
+	else
 		print("nil false")
 	end
 
 	if not nil then
-		print("nil false")
+		print("not nil true")
 	end
 
-	z = 0
-	if z then
-		print(z .. " true")
+	if 0 then
+		print("0 true")
 	end
 
-	z = 1
-	if z then
-		print(z .. " true")
+	if 1 then
+		print("1 true")
+	end
+
+	if 1 ~= 0 then
+		print("1~=0 true")
 	end
 
 	return 0

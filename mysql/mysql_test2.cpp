@@ -89,7 +89,7 @@ int test1()
 	ret = 0;
 
 cleanup:
-	delete esc_username;
+	delete []esc_username;
 	return ret;
 }
 

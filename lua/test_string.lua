@@ -1,53 +1,78 @@
 #!/usr/local/bin/lua
 
+require("util")
+
+--[[
+log = function(fmt, ...)
+	if fmt == nil then
+		return io.stdout:write("\n")
+	else
+		return io.stdout:write(string.format(fmt, ...) .. "\n")
+	end
+end
+--]]
+
 function test1()
 
 	local x = "hello world"
-	print(type(x))
+	log(type(x))
 
 	local y = "h\101\108\108\111"
-	print("y=" .. y)
+	log("y=%s", y)
 
 	local z = "\0481\0492\50"
-	print("z=" .. z)
-	print()
+	log("z=%s", z)
 
 	z = 1 .. 2 .. 3
-	print("z=" .. z)
-	print()
+	log("z=%s", z)
+	log()
 
 	z = 101
+	log("type(z)=%s", type(z))
+	log("z=%d", z)
 	z = tostring(z)
-	print("z=" .. z)
-	print(type(z))
-	print()
+	log("type(z)=%s", type(z))
+	log("z=%s", z)
+	log()
 
-	print(type("" .. 1))
-	print()
+	log('type("" .. 1)=%s', (type("" .. 1)))
+	log()
 
 	z = "10" + 1
-	print("z=" .. z)
-	print(type(z))
-	print()
+	log("type(z)=%s", type(z))
+	log("z=%d", z)
+	log()
 
 	z = "10" + "100"
-	print("z=" .. z)
-	print(type(z))
-	print()
+	log("type(z)=%s", type(z))
+	log("z=%d", z)
+	log()
+
+	z = "10" * "20"
+	log("type(z)=%s", type(z))
+	log("z=%d", z)
+	log()
 
 	-- z = "10A" + 1 -- error
+
 	z = tonumber("10A")
 	if z == nil then
-		print("z is nil")
+		log("tonumber('10A') is nil")
 	end
-	print()
+	log()
+
+	print(tostring(10) == "10")
+	print(10 .. "" == "10")
+	log()
 
 	z = "hello"
-	print("z=" .. z)
-	print("#z=" .. #z)
+	log("z=%s", z)
+	log("#z=%d", #z)
+	log("string.len(z)=%d", string.len(z))
 	z = "hello\0world"
-	print("z=" .. z)
-	print("#z=" .. #z)
+	log("z=%s", z)
+	log("#z=%d", #z)
+	log("string.len(z)=%d", string.len(z))
 
 	return 0
 end
@@ -61,8 +86,8 @@ function test2()
 	print("x=[" .. x .. "]")
 
 	x = [=[
-	abc
-	123]=]
+abc
+123]=]
 	print("x=[" .. x .. "]")
 
 	return 0

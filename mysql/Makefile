@@ -5,7 +5,7 @@ OS:=$(shell uname -s)
 platform:
 	@echo Platform: $(OS)
 
-CFLAG:=-Wall -std=c++0x -g
+CFLAG:=-Wall -std=c++11 
 
 INC:=/usr/local/include/mysql /usr/include/mysql
 LIB_PATH:=
@@ -28,7 +28,7 @@ clean:
 	rm -rf mysql_test2.dSYM
 
 mysql_operator.o: mysql_operator.cpp mysql_operator.h
-	g++ $(CFLAG) -g $(addprefix -I, $(INC)) -c $< -o $@
+	g++ $(CFLAG) $(addprefix -I, $(INC)) -c $< -o $@
 
 libmysql_operator.a: mysql_operator.o
 	ar -crus $@ $<
