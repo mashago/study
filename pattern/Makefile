@@ -1,5 +1,5 @@
 
-SUBDIRS:= creation structure
+SUBDIRS:= creation structure behavior
 
 all: $(SUBDIRS)
 	@for dir in $(SUBDIRS); do make -C $$dir || exit"$$?"; done

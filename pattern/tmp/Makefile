@@ -5,7 +5,7 @@ CC:=gcc
 CXX:=g++
 
 C_FLAGS:=
-CPP_FLAGS:=-O0 -Wall --std=c++11 -g
+CPP_FLAGS:=-O0 -Wall --std=c++11
 
 OS:=$(shell uname -s)
 SRC:=$(wildcard *.cpp) $(wildcard *.c)
@@ -17,7 +17,7 @@ INC:=.
 LIB_PATH:=.
 LIB:=
 
-default: $(TARGET)
+default: info $(TARGET)
 
 info:
 	@echo Platform: $(OS)

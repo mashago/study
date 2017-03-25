@@ -57,7 +57,11 @@ void show(const StrQueue &q) // friend function
 char * StrQueue::__copy_str(const char *str)
 {
 	// must free after get()
-	return strdup(str);
+	// return strdup(str);
+	size_t n = strlen(str) + 1;
+	char *ptr = (char *)calloc(sizeof(char), n);
+	strcpy(ptr, str);
+	return ptr;
 }
 
 int StrQueue::add(const char * str)
@@ -122,7 +126,7 @@ char * StrQueue::get()
 
 	char *str = NULL;
 	if (head == tail) {
-		cout << "get:no_str" << endl;
+		// cout << "get:no_str" << endl;
 		return NULL;
 	}
 
@@ -280,7 +284,7 @@ int test2()
 int test3()
 {
 	std::cout << "test3:for operator>> get and 3 ways to add" << std::endl;
-	const int loop_size = 100;
+	const int loop_size = 10;
 	StrQueue sq;
 
 	std::thread t2(get_function2, (void*)(&sq), "t2", loop_size * 3);

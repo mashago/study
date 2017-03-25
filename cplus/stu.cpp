@@ -4,11 +4,14 @@
 // #include <string.h> // type in c
 #include <ctime>
 #include <cmath>
+#include <sys/time.h>
+#include <unistd.h>
+#include <malloc.h>
+#include <stdarg.h>
+
 #include <fstream>
 #include <new>
-#include <sys/time.h>
 #include <vector>
-#include <unistd.h>
 #include <algorithm>
 #include <map>
 #include <set>
@@ -2869,35 +2872,40 @@ public:
 
 int test74()
 {
+#define OPEN_TEST74 0
+#if OPEN_TEST74
 	{
-	TestX x;
-	printf("sizeof(TestX)=%lu\n", sizeof(TestX));
-	printf("sizeof(x)=%lu\n", sizeof(x));
-	printf("&TestX::a=%p\n", &TestX::a);
-	printf("&TestX::b=%p\n", &TestX::b);
-	printf("&TestX::c=%p\n", &TestX::c);
-	printf("&x=%p\n", &x);
-	printf("&x.a=%p\n", &x.a);
-	x.a = 10;
-	printf("&x.a=%p\n", &x.a);
-	printf("x.a=%d\n", (&x)->*(&TestX::a));
+		TestX x;
+		printf("sizeof(TestX)=%lu\n", sizeof(TestX));
+		printf("sizeof(x)=%lu\n", sizeof(x));
+		printf("&TestX::a=%p\n", &TestX::a);
+		printf("&TestX::b=%p\n", &TestX::b);
+		printf("&TestX::c=%p\n", &TestX::c);
+		printf("&x=%p\n", &x);
+		printf("&x.a=%p\n", &x.a);
+		x.a = 10;
+		printf("&x.a=%p\n", &x.a);
+		printf("x.a=%d\n", (&x)->*(&TestX::a));
 	}
-
 
 	printf("\n");
 
-	TestY y;
-	printf("sizeof(TestY)=%lu\n", sizeof(TestY));
-	printf("sizeof(y)=%lu\n", sizeof(y));
-	printf("&TestY::a=%p\n", &TestY::a);
-	printf("&TestY::b=%p\n", &TestY::b);
-	printf("&TestY::c=%p\n", &TestY::c);
-	int TestY::*p1 = 0;
-	int TestY::*p2 = &TestY::a;
-	printf("p1=%p\n", p1);
-	printf("p2=%p\n", p2);
-	printf("&y=%p\n", &y);
-	printf("&y.a=%p\n", &y.a);
+	{
+		TestY y;
+		printf("sizeof(TestY)=%lu\n", sizeof(TestY));
+		printf("sizeof(y)=%lu\n", sizeof(y));
+		printf("&TestY::a=%p\n", &TestY::a);
+		printf("&TestY::b=%p\n", &TestY::b);
+		printf("&TestY::c=%p\n", &TestY::c);
+		int TestY::*p1 = 0;
+		int TestY::*p2 = &TestY::a;
+		printf("p1=%p\n", p1);
+		printf("p2=%p\n", p2);
+		printf("&y=%p\n", &y);
+		printf("&y.a=%p\n", &y.a);
+	}
+#endif 
+
 	return 0;
 }
 
@@ -3016,6 +3024,158 @@ int test76()
 	return 0;
 }
 
+int test77()
+{
+	auto print_malloc = [](const char *msg)
+	{
+		printf("---- %s\n", msg);
+		malloc_stats();
+		printf("\n");
+	};
+
+	print_malloc("start");
+	{
+		// malloc and free
+		void *ptr = malloc(100);
+		print_malloc("after malloc");
+
+		free(ptr);
+		print_malloc("after free");
+	}
+
+	print_malloc("start2");
+	{
+		// malloc no free
+		char *ptr = (char *)malloc(100);
+		print_malloc("after malloc");
+		ptr[0] = 'a';
+	}
+
+	print_malloc("no free start");
+	{
+		// new and delete
+		char *ptr = new char[100];
+		print_malloc("after new");
+		ptr[0] = 'a';
+
+		delete [] ptr;
+		print_malloc("after delete");
+	}
+
+	print_malloc("start3");
+	{
+		// new and delete
+		char *ptr = new char[100];
+		print_malloc("after new");
+		ptr[0] = 'a';
+	}
+	print_malloc("no delete");
+
+
+	return 0;
+}
+
+int test78()
+{
+	{
+		typedef int I32;
+		I32 a = 10;
+		printf("a=%d\n", a);
+
+		typedef std::vector<int> VI32;
+		VI32 b = {10, 12};
+		b.clear();
+	}
+
+	{
+		using I32 = int;
+		I32 a = 11;
+		printf("a=%d\n", a);
+
+		using VI32 = std::vector<int>;
+		VI32 b = {10, 12};
+		b.clear();
+	}
+
+	return 0;
+}
+
+int test79()
+{
+	{
+		char msg[] = "12345";
+		printf("strlen=%zu size=%zu\n", strlen(msg), sizeof(msg));
+	}
+	{
+		// char *msg = "12345"; // "12345" in data segement
+		const char *msg = "12345"; // "12345" in data segement
+		printf("strlen=%zu size=%zu\n", strlen(msg), sizeof(msg));
+		// msg[0] = 'a'; // error, change data segement const value
+	}
+
+
+	return 0;
+}
+
+void logger(const char *tag, const char *funcname, int line, const char *fmt, ...)
+{
+	enum {MAX_LOG_BUFFER_SIZE = 1024};
+	char buffer[MAX_LOG_BUFFER_SIZE] = {0};
+
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(buffer, MAX_LOG_BUFFER_SIZE, fmt, ap);
+	va_end(ap);
+
+	printf("%s %s[%d]: %s\n", tag, funcname, line, buffer);
+}
+
+// work in gcc and vs
+#define LOG_DEBUG(fmt, ...) logger("DEBUG", __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
+// only work in gcc
+// #define LOG_DEBUG(fmt, arg...) logger("DEBUG", __FUNCTION__, __LINE__, fmt, ##arg)
+
+int test80()
+{
+
+	LOG_DEBUG("hello");
+	LOG_DEBUG("hello %d", 123);
+
+	return 0;
+}
+
+struct T81
+{
+	int a;
+	int b;
+	void Print()
+	{
+		printf("a=%d b=%d addr=%p\n", a, b, this);
+	}
+};
+
+struct T81 *GetT81Instance()
+{
+	static struct T81 t = [](){
+		printf("init T81\n");
+		struct T81 t;
+		t.a = 10;
+		t.b = 20;
+		return t;
+	}();
+	return &t;
+}
+
+int test81()
+{
+	struct T81 *ptr1 = GetT81Instance();
+	ptr1->Print();
+	struct T81 *ptr2 = GetT81Instance();
+	ptr2->Print();
+
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -3104,6 +3264,11 @@ testcase_t test_list[] =
 ,	test74
 ,	test75
 ,	test76
+,	test77
+,	test78
+,	test79
+,	test80
+,	test81
 };
 
 int main(int argc, char *argv[]) 

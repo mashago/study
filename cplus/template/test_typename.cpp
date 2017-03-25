@@ -31,8 +31,19 @@ class Y
 	typedef typename T::iterator iterator;
 };
 
+template <typename T>
+struct S
+{
+	typedef T value_type;
+};
+
 int main(int argc, char **argv)
 {
 	printf("hello %s\n", argv[0]);
+
+	typename S<int>::value_type n = 10;
+	printf("n=%d\n", n);
+
+
 	return 0;
 }

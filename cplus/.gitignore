@@ -1,4 +1,6 @@
 *dSYM
+*.exe
+tags
 str_queue
 tp
 worker

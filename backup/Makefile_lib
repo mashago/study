@@ -1,5 +1,5 @@
 
-TARGET:=main
+TARGET:=libx.a
 
 CC:=gcc
 CXX:=g++
@@ -8,7 +8,7 @@ C_FLAGS:=
 CPP_FLAGS:=-O0 -Wall --std=c++11 -g
 
 OS:=$(shell uname -s)
-SRC:=$(wildcard *.cpp) $(wildcard *.c)
+SRC:=$(wildcard *.cpp *.c)
 OBJ:=$(patsubst %.cpp, %.o, $(patsubst %.c, %.o, $(SRC)))
 
 USER_MACROS:=
@@ -31,8 +31,9 @@ info:
 	$(CC) $(C_FLAGS) $(addprefix -D, $(USER_MACROS)) $(addprefix -I, $(INC)) -c $< -o $@
 
 $(TARGET): $(OBJ)
-	$(CXX) $^ -o $@ $(addprefix -L, $(LIB_PATH)) $(addprefix -l, $(LIB))
+	ar -crus $(TARGET) $(OBJ)
 
 .PHONY: clean
 clean:
 	rm -rf $(TARGET) $(OBJ)
+	rm -rf *.dSYM
