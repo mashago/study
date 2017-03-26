@@ -1,10 +1,106 @@
 #!/usr/local/bin/lua
 
+require "util"
+
 function printf(format, ...)
 	return io.stdout:write(string.format(format, ...))
 end
 
 function test1()
+	do
+		local t = {}
+		print("getmetatable(t)=", getmetatable(t))
+
+		local s = "hi"
+		print("getmetatable(s)=", getmetatable(s))
+	end
+
+	return 0
+end
+
+function test2()
+	do
+		local t1 = {11, 12}
+		local t2 = {21, 22}
+
+		-- local t3 = t1 + t2 -- error
+	end
+
+	do
+		local mt = {}
+		local t1 = {11, 12}
+		local t2 = {21, 22}
+		setmetatable(t1, mt)
+		setmetatable(t2, mt)
+		print("getmetatable(t1)=", getmetatable(t1))
+		print("getmetatable(t2)=", getmetatable(t2))
+
+		mt.__add = function(t1, t2)
+			local ret = {}
+			for _, v in pairs(t1) do
+				ret[#ret+1] = v
+			end
+			for _, v in pairs(t2) do
+				ret[#ret+1] = v
+			end
+			return ret
+		end
+
+		local t3 = t1 + t2
+		log(table.concat(t3, " "))
+		log()
+	end
+
+	do
+		local mt = {}
+		local t1 = {11, 12}
+		local t2 = {21, 22}
+		-- setmetatable(t1, mt)
+		setmetatable(t2, mt)
+		print("getmetatable(t1)=", getmetatable(t1))
+		print("getmetatable(t2)=", getmetatable(t2))
+
+		mt.__add = function(t1, t2)
+			local ret = {}
+			for _, v in pairs(t1) do
+				ret[#ret+1] = v
+			end
+			for _, v in pairs(t2) do
+				ret[#ret+1] = v
+			end
+			return ret
+		end
+
+		local t3 = t1 + t2 -- will call use t2 mt.__add
+		log(table.concat(t3, " "))
+		log()
+	end
+
+	return 0
+end
+
+function test3()
+	do
+		local mt = {}
+		local t1 = {11, 12}
+		setmetatable(t1, mt)
+		print("getmetatable(t1)=", getmetatable(t1))
+
+		mt.__metatable = "not your business" -- protect metatable access
+		print("getmetatable(t1)=", getmetatable(t1))
+
+		local func = function(t)
+			setmetatable(t, {})
+		end
+		print(pcall(func, t1))
+
+		log()
+	end
+
+	return 0
+end
+
+function test4()
 
 	-- __index only for visit
 	-- find key from table
@@ -47,18 +143,17 @@ function test1()
 	return 0
 end
 
-function test2()
-
-	local mt = 
-	{
-		__index = function(t, key)
-			print("__index: t=", t)
-			print("__index: key=", key, " type(key)=", type(key))
-			return "get from __index"
-		end
-	}
+function test5()
 
 	do
+		local mt = 
+		{
+			__index = function(t, key)
+				print("__index: t=", t)
+				print("__index: key=", key, " type(key)=", type(key))
+				return "get from __index"
+			end
+		}
 		local t = {a=1}
 		if t.a then
 			printf("t.a=%d\n", t.a)
@@ -93,21 +188,36 @@ function test2()
 	return 0
 end
 
-function test3()
-
-	local mt = 
-	{
-		__newindex = function(t, key, v)
-			if k == "a" then
-				print("avoid set a")
-			else
-				-- t.key = v -- will dead loop
-				rawset(t, key, v)
-			end
-		end
-	}
+function test6()
 
 	do
+		local mt = {}
+		local t1 = {}
+		setmetatable(t1, mt)
+		mt.__newindex = mt
+
+		t1[1] = 1
+		t1[2] = 2
+		log("t1:" .. table.concat(t1, " "))
+		log("mt:" .. table.concat(mt, " "))
+
+		log()
+	end
+
+	do
+
+		local mt = 
+		{
+			__newindex = function(t, key, v)
+				if k == "a" then
+					print("avoid set a")
+				else
+					-- t.key = v -- will dead loop
+					rawset(t, key, v)
+				end
+			end
+		}
+
 		local t = {a=1}
 		if t.a then
 			printf("t.a=%d\n", t.a)
@@ -135,6 +245,9 @@ test_list =
 	test1
 ,	test2
 ,	test3
+,	test4
+,	test5
+,	test6
 }
 
 function do_main()
