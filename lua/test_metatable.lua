@@ -116,28 +116,33 @@ function test4()
 	do
 		local t = {a=1}
 		if t.a then
-			printf("t.a=%d\n", t.a)
+			log("t.a=%d", t.a)
 		end
 		if t.b == nil then
-			printf("t.b == nil\n")
+			log("t.b == nil")
 		end
+		log()
 
 		-- return setted table
 		local ret = setmetatable(t, mt)
 		if t.b then
-			printf("t.b=%d\n", t.b)
+			log("t.b=%d", t.b)
 		end
 		print("t:", t)
 		print("ret:", ret)
+		log()
 
 		ret = getmetatable(t)
 		print("mt:", mt)
 		print("ret:", ret)
+		log()
 
 		content.c = 3
-		if t.c then
-			printf("t.c=%d\n", t.c)
-		end
+		log("t.c=%d", t.c)
+		print("t.c=", rawget(t, 'c'))
+		log()
+
+
 	end
 
 	return 0
@@ -198,8 +203,33 @@ function test6()
 
 		t1[1] = 1
 		t1[2] = 2
-		log("t1:" .. table.concat(t1, " "))
-		log("mt:" .. table.concat(mt, " "))
+		log()
+
+		log("t1")
+		for k, v in pairs(t1) do
+			print(k, v)
+		end
+		log()
+
+		log("mt")
+		for k, v in pairs(mt) do
+			print(k, v)
+		end
+		log()
+
+		rawset(t1, 3, 3)
+
+		log("t1")
+		for k, v in pairs(t1) do
+			print(k, v)
+		end
+		log()
+
+		log("mt")
+		for k, v in pairs(mt) do
+			print(k, v)
+		end
+		log()
 
 		log()
 	end
