@@ -266,6 +266,117 @@ function test6()
 	return 0
 end
 
+function test7()
+	do
+		-- weak table
+		-- weak key
+		local mt = {__mode = "k"}
+
+		local t1 = {}
+		setmetatable(t1, mt)
+
+		local key = {}
+		t1[key] = 1
+
+		for k, v in pairs(t1) do print(k, v) end
+		log()
+
+		key = {}
+		t1[key] = 2
+		log("before gc")
+		for k, v in pairs(t1) do print(k, v) end
+		log()
+
+		collectgarbage()
+		log("after gc")
+		for k, v in pairs(t1) do print(k, v) end
+		log()
+
+	end
+
+	do
+		-- weak table
+		-- weak value
+		local mt = {__mode = "v"}
+
+		local t1 = {}
+		setmetatable(t1, mt)
+
+		local value = {}
+		t1[1] = value
+
+		for k, v in pairs(t1) do print(k, v) end
+		log()
+
+		value = {}
+		t1[2] = value
+		log("before gc")
+		for k, v in pairs(t1) do print(k, v) end
+		log()
+
+		collectgarbage()
+		log("after gc")
+		for k, v in pairs(t1) do print(k, v) end
+		log()
+
+	end
+
+	do
+		-- weak table
+		-- weak key & value
+		local mt = {__mode = "kv"}
+
+		local t1 = {}
+		setmetatable(t1, mt)
+
+		do
+			local key = {}
+			t1[key] = 1
+			local value = {}
+			t1[1] = value
+
+			log("before gc")
+			for k, v in pairs(t1) do print(k, v) end
+			log()
+		end
+
+		collectgarbage()
+		log("after gc")
+		for k, v in pairs(t1) do print(k, v) end
+		log()
+
+	end
+
+	do
+		-- weak table
+		-- weak key & value
+		-- string will not gc
+		local mt = {__mode = "kv"}
+
+		local t1 = {}
+		setmetatable(t1, mt)
+
+		do
+			local key = "hello"
+			t1[key] = 1
+			local value = "world"
+			t1[1] = value
+
+			log("before gc")
+			for k, v in pairs(t1) do print(k, v) end
+			log()
+		end
+
+		collectgarbage()
+		log("after gc")
+		for k, v in pairs(t1) do print(k, v) end
+		log()
+
+	end
+
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -278,6 +389,7 @@ test_list =
 ,	test4
 ,	test5
 ,	test6
+,	test7
 }
 
 function do_main()

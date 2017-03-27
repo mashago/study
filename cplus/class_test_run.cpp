@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "class_test.h"
 
-int main(int argc, char **argv)
+int test0()
 {
 	printf("hello_class_test\n");
 
@@ -81,5 +81,83 @@ int main(int argc, char **argv)
 	m3.print_hello();
 
 
+	return 0;
+}
+
+struct st_a
+{
+	int a;
+	int b;
+	void Print() { printf("a=%d b=%d\n", a, b); }
+};
+
+class cl_a
+{
+public:
+	int a;
+	int b;
+	void Print() { printf("a=%d b=%d\n", a, b); }
+};
+
+struct st_b
+{
+	int a;
+};
+
+struct st_bs : st_b // public extend
+{
+	int b;
+	void Print() { printf("a=%d b=%d\n", a, b); }
+};
+
+class st_bc : st_b // private extend
+{
+public:
+	int b;
+	void Print() { printf("a=%d b=%d\n", a, b); }
+};
+
+int test1()
+{
+	printf("%s\n", __FUNCTION__);
+	{
+		st_a t1;
+		t1.a = 1;
+		t1.b = 1;
+		t1.Print();
+
+		st_a t2 = {10, 20}; // init struct by array
+		t2.Print();
+	}
+
+	{
+		cl_a t1;
+		t1.a = 1;
+		t1.b = 1;
+		t1.Print();
+		cl_a t2 = {10, 20}; // init class by array
+		t2.Print();
+	}
+
+	{
+		st_bs t1;
+		t1.b = 10;
+		t1.a = 20;
+	}
+
+	{
+		st_bc t1;
+		t1.b = 10;
+		// t1.a = 20; // default is private extend
+		t1.Print();
+	}
+
+	return 0;
+}
+
+int main(int argc, char **argv)
+{
+	test0();
+	test1();
 	return 0;
 }

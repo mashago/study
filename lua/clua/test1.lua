@@ -13,11 +13,12 @@ background2 = WRITE
 -- for test2
 function func_t2(x, y)
 	-- return (x^2 * math.sin(y)) / (1 - x)
-	return x + y
+	return x / y
 end
 
 -- for test3
 function func_t3(x)
+	-- mysin is a c function
 	-- get c function, which already push into global
 	if mysin == nil then
 		return -1

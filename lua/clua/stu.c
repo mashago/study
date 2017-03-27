@@ -15,9 +15,11 @@
 #include <lua.h> // include lua_xxx function, base api
 #include <lauxlib.h> // include luaL_xxx function
 #include <lualib.h>
+#include <luaconf.h>
 
 static void print_stack(lua_State *L)
 {
+	/*
 	int top = lua_gettop(L);
 	for (int i = 1; i <= top; i++)
 	{
@@ -43,12 +45,37 @@ static void print_stack(lua_State *L)
 		printf("  ");
 	}
 	printf("\n");
+	*/
+	int top = lua_gettop(L);
+	for (int i = -1; i >= -top; i--)
+	{
+		int type = lua_type(L, i);
+		switch (type)
+		{
+		case LUA_TNIL:
+			printf("[%d] nil\n", i);
+			break;
+		case LUA_TBOOLEAN:
+			printf("[%d] boolean: %d\n", i, lua_toboolean(L, i));
+			break;
+		case LUA_TNUMBER:
+			printf("[%d] number: %g\n", i, lua_tonumber(L, i));
+			break;
+		case LUA_TSTRING:
+			printf("[%d] string: %s\n", i, lua_tostring(L, i));
+			break;
+		default:
+			printf("[%d] %s\n", i, lua_typename(L, i));
+			break;
+		}
+	}
+	printf("\n");
 } // print_stack end
 
 int test0()
 {
-	lua_State *L = luaL_newstate();
-	luaL_openlibs(L);
+	lua_State *L = luaL_newstate(); // open lua
+	luaL_openlibs(L); // open standard lib
 
 	int flag = 1;
 	double d = 3.14;
@@ -72,32 +99,19 @@ int test0()
 	lua_pushlstring(L, b1, strlen(b1));
 	lua_pushstring(L, b2);
 
+	/*
+	 * 		  top
+	 *		-1 | 6
+	 *		-2 | 5
+	 *		-3 | 4
+	 *		-4 | 3
+	 *		-5 | 2
+	 *		-6 | 1
+	 * 		bottom
+	 */
+
 	top = lua_gettop(L);
 	printf("top = %d\n", top);
-
-	for (int i = 1; i <= top; i++)
-	{
-		int type = lua_type(L, i);
-		switch (type)
-		{
-		case LUA_TNIL:
-			printf("[%d] nil\n", i);
-			break;
-		case LUA_TBOOLEAN:
-			printf("[%d] boolean: %d\n", i, lua_toboolean(L, i));
-			break;
-		case LUA_TNUMBER:
-			printf("[%d] number: %g\n", i, lua_tonumber(L, i));
-			break;
-		case LUA_TSTRING:
-			printf("[%d] string: %s\n", i, lua_tostring(L, i));
-			break;
-		default:
-			printf("[%d] %s\n", i, lua_typename(L, i));
-			break;
-		}
-	}
-	printf("\n");
 
 	size_t size = 0;
 	for (int i = -1; i >= -top; i--)
@@ -124,39 +138,70 @@ int test0()
 	}
 	printf("\n");
 
+	for (int i = top; i >= 1; i--)
+	{
+		int type = lua_type(L, i);
+		switch (type)
+		{
+		case LUA_TNIL:
+			printf("[%d] nil\n", i);
+			break;
+		case LUA_TBOOLEAN:
+			printf("[%d] boolean: %d\n", i, lua_toboolean(L, i));
+			break;
+		case LUA_TNUMBER:
+			printf("[%d] number: %g\n", i, lua_tonumber(L, i));
+			break;
+		case LUA_TSTRING:
+			printf("[%d] string: %s\n", i, lua_tostring(L, i));
+			break;
+		default:
+			printf("[%d] %s\n", i, lua_typename(L, i));
+			break;
+		}
+	}
+	printf("\n");
+
 	print_stack(L);
 	printf("\n");
 
+	// copy target value and push top
 	lua_pushvalue(L, -3);
 	printf("after pushvalue -3\n");
 	print_stack(L);
 	printf("\n");
 
-	lua_remove(L, 4);
-	printf("after remove 4\n");
+	// remove target pos value
+	lua_remove(L, -4);
+	printf("after remove -4\n");
 	print_stack(L);
 	printf("\n");
 
-	lua_insert(L, 2);
-	printf("after insert 2\n");
+	// pop top value, insert to target pos
+	lua_insert(L, -5);
+	printf("after insert -5\n");
 	print_stack(L);
 	printf("\n");
 
+	// pop top value, set to target pos
 	lua_replace(L, -4);
 	printf("after replace -4\n");
 	print_stack(L);
 	printf("\n");
 
-	lua_pop(L, 1);
-	printf("after pop 1\n");
+	// pop num value
+	lua_pop(L, 2);
+	printf("after pop 2\n");
 	print_stack(L);
 	printf("\n");
 
-	lua_settop(L, -3);
-	printf("after settop -3\n");
+	// set new top, if now top < new top, will push nil. or pop value to match new top
+	lua_settop(L, -2);
+	printf("after settop -2\n");
 	print_stack(L);
 	printf("\n");
 
+	// set top 0 will clear stack
 	lua_settop(L, 0);
 	printf("after settop 0\n");
 	print_stack(L);
@@ -262,187 +307,233 @@ int test1()
 		int height = lua_tonumber(L, -1);
 		printf("width=%d height=%d\n", width, height);
 
-		lua_pop(L, 2);
+		lua_settop(L, 0);
 		printf("\n");
 		}
 
 		// get table field from lua
+		// 1. getglobal to get table
+		// 2. push key, now table in -2
+		// 3. get value, gettable(-2), key will pop auto
+		// now value in -1, table in -2
 		{
-		printf("---- 2\n");
-		// 1. get table
-		const char *tablename = "background";
-		lua_getglobal(L, tablename);
-		if (!lua_istable(L, -1))
-		{
-			fprintf(stderr, "stack -2 not a table\n");
-			break;
+			printf("---- 2\n");
+			// 1. get table
+			const char *tablename = "background";
+			lua_getglobal(L, tablename);
+			if (!lua_istable(L, -1))
+			{
+				fprintf(stderr, "stack -2 not a table\n");
+				break;
+			}
+				
+			// 2. push key
+			const char *key = "r";
+			lua_pushstring(L, key);
+
+			// 3. get value in table
+			lua_gettable(L, -2);
+			if (!lua_isnumber(L, -1))
+			{
+				fprintf(stderr, "stack -1 not a number\n");
+				break;
+			}
+			int value = lua_tonumber(L, -1);
+			printf("tablename=%s key=%s value=%d\n", tablename, key, value);
+
+			int top = lua_gettop(L);
+			printf("top=%d\n", top);
+
+			// 4. pop value
+			lua_pop(L, 1);
+			lua_settop(L, 0);
+			printf("\n");
 		}
-			
-		// 2. push key
-		const char *key = "r";
-		lua_pushstring(L, key);
-
-		// 3. get value in table
-		lua_gettable(L, -2);
-		if (!lua_isnumber(L, -1))
-		{
-			fprintf(stderr, "stack -1 not a number\n");
-			break;
-		}
-		int value = lua_tonumber(L, -1);
-		printf("tablename=%s key=%s value=%d\n", tablename, key, value);
-
-		int top = lua_gettop(L);
-		printf("top=%d\n", top);
-
-		// 4. pop value
-		lua_pop(L, 1);
-
-		//////////////////////////////////////
 
 		// use lua_getfield()
-		// table is already in -1
-		key = "g";
-		lua_getfield(L, -1, key); // same as lua_pushstring() + lua_gettable()
-		if (!lua_isnumber(L, -1))
+		// 1. getblobal get table, now table in -1
+		// 2. getfield(-1, key) 
+		// now value in -1, table in -2
 		{
-			fprintf(stderr, "stack -1 not a number\n");
-			break;
-		}
-		value = lua_tonumber(L, -1);
-		printf("tablename=%s key=%s value=%d\n", tablename, key, value);
+			printf("---- 3\n");
+			// 1. get table
+			const char *tablename = "background";
+			lua_getglobal(L, tablename);
+			if (!lua_istable(L, -1))
+			{
+				fprintf(stderr, "stack -2 not a table\n");
+				break;
+			}
 
-		top = lua_gettop(L);
-		printf("top=%d\n", top);
+			// 2.
+			const char *key = "g";
+			lua_getfield(L, -1, key); // same as lua_pushstring() + lua_gettable()
+			if (!lua_isnumber(L, -1))
+			{
+				fprintf(stderr, "stack -1 not a number\n");
+				break;
+			}
+			int value = lua_tonumber(L, -1);
+			printf("tablename=%s key=%s value=%d\n", tablename, key, value);
 
-		lua_pop(L, 1);
+			int top = lua_gettop(L);
+			printf("top=%d\n", top);
 
-		// clean stack
-		lua_settop(L, 0);
-		printf("\n");
+			lua_pop(L, 1);
+
+			// clean stack
+			lua_settop(L, 0);
+			printf("\n");
 		}
 
 		// get table field from lua
 		{
-		printf("---- 3\n");
-		// 1. get table
-		const char *tablename = "background2";
-		lua_getglobal(L, tablename);
-		if (!lua_istable(L, -1))
-		{
-			fprintf(stderr, "stack -2 not a table\n");
-			break;
-		}
-			
-		// 2. push key
-		const char *key = "r";
-		lua_pushstring(L, key);
+			printf("---- 4\n");
+			// 1. get table
+			const char *tablename = "background2";
+			lua_getglobal(L, tablename);
+			if (!lua_istable(L, -1))
+			{
+				fprintf(stderr, "stack -2 not a table\n");
+				break;
+			}
+				
+			// 2. push key
+			const char *key = "r";
+			lua_pushstring(L, key);
 
-		// 3. get value
-		lua_gettable(L, -2);
-		if (!lua_isnumber(L, -1))
-		{
-			fprintf(stderr, "stack -1 not a number\n");
-			break;
-		}
-		int value = lua_tonumber(L, -1);
-		printf("tablename=%s key=%s value=%d\n", tablename, key, value);
+			// 3. get value
+			lua_gettable(L, -2);
+			if (!lua_isnumber(L, -1))
+			{
+				fprintf(stderr, "stack -1 not a number\n");
+				break;
+			}
+			int value = lua_tonumber(L, -1);
+			printf("tablename=%s key=%s value=%d\n", tablename, key, value);
 
-		// 4. pop value
-		lua_pop(L, 1);
+			// 4. pop value
+			lua_pop(L, 1);
 
-		lua_settop(L, 0);
-		printf("\n");
+			lua_settop(L, 0);
+			printf("\n");
 		}
 
 		// set table field in lua
-		{
-		printf("---- 4\n");
-		// 1. get table from global
-		const char *tablename = "background";
-		lua_getglobal(L, tablename);
-		if (!lua_istable(L, -1))
-		{
-			fprintf(stderr, "stack -2 not a table\n");
-			break;
-		}
-			
+		// 1. getglobal to get table
 		// 2. push key
-		const char *key = "r";
-		lua_pushstring(L, key);
-			
-		// 3. push value
-		int value = 100;
-		lua_pushnumber(L, value);
+		// 3. push value, now value in -1, key in -2, table in -3
+		// 4. settable(-3), key and value will pop auto
+		{
+			printf("---- 5\n");
+			// 1. get table from global
+			const char *tablename = "background";
+			lua_getglobal(L, tablename);
+			if (!lua_istable(L, -1))
+			{
+				fprintf(stderr, "stack -1 not a table\n");
+				break;
+			}
+				
+			// 2. push key
+			const char *key = "r";
+			lua_pushstring(L, key);
+				
+			// 3. push value
+			int value = 100;
+			lua_pushnumber(L, value);
 
-		// 4. set kv in table, table in -3 now
-		lua_settable(L, -3);
+			// 4. set kv in table, table in -3 now
+			lua_settable(L, -3);
 
-		int top = lua_gettop(L);
-		printf("top=%d\n", top);
-		printf("\n");
+			// key and value will pop auto
+			int top = lua_gettop(L);
+			printf("top=%d\n", top);
 
-		//////////////////////////////////////
+			key = "r";
+			lua_pushstring(L, key);
+			lua_gettable(L, -2);
+			value = lua_tonumber(L, -1);
+			printf("tablename=%s key=%s value=%d\n", tablename, key, value);
 
-		// use lua_setfield()
-		// table is already in -1
-		// 1. push value first
-		value = 200;
-		lua_pushnumber(L, value);
-
-		// 2. set field
-		key = "g";
-		lua_setfield(L, -2, key); // assert table in -2, logic same as lua_pushstring(key) + lua_insert(-2) + lua_settable()
-
-		//////////////////////////////////////
-
-		key = "r";
-		lua_pushstring(L, key);
-		lua_gettable(L, -2);
-		value = lua_tonumber(L, -1);
-		printf("tablename=%s key=%s value=%d\n", tablename, key, value);
-		lua_pop(L, 1);
-
-		key = "g";
-		lua_getfield(L, -1, key);
-		value = lua_tonumber(L, -1);
-		printf("tablename=%s key=%s value=%d\n", tablename, key, value);
-		lua_pop(L, 1);
+			lua_pop(L, 1);
+			lua_settop(L, 0);
+			printf("\n");
+		}
 
 
-		// clean stack
-		lua_settop(L, 0);
-		printf("\n");
+		// use lua_setfield() to set into table
+		// 1. getglobal to get table
+		// 2. push value, now table in -2
+		// 3. setfield(-2, key)
+		{
+			printf("---- 6\n");
+			// 1. get table from global
+			const char *tablename = "background";
+			lua_getglobal(L, tablename);
+			if (!lua_istable(L, -1))
+			{
+				fprintf(stderr, "stack -1 not a table\n");
+				break;
+			}
+
+			// 2. push value 
+			int value = 200;
+			lua_pushnumber(L, value);
+
+			// 3. set field
+			const char * key = "g";
+			lua_setfield(L, -2, key); // assert table in -2, logic same as lua_pushstring(key) + lua_insert(-2) + lua_settable()
+
+			// key and value will pop auto
+			int top = lua_gettop(L);
+			printf("top=%d\n", top);
+
+			key = "g";
+			lua_getfield(L, -1, key);
+			value = lua_tonumber(L, -1);
+			printf("tablename=%s key=%s value=%d\n", tablename, key, value);
+			lua_pop(L, 1);
+
+			// clean stack
+			lua_settop(L, 0);
+			printf("\n");
 		}
 
 		// create a table in lua
+		// 1. new table, now table in -1
+		// 2. setglobal(tablename), set a name for table, and table will pop
 		{
-		printf("---- 5\n");
-		const char *tablename = "background3";
-		// 1. new a table 
-		lua_newtable(L);
-		// 2. set kv
-		const char *key = "r"; int value = 20;
-		lua_pushnumber(L, value);
-		lua_setfield(L, -2, key);
-		key = "g"; value = 30;
-		lua_pushnumber(L, value);
-		lua_setfield(L, -2, key);
-		key = "b"; value = 40;
-		lua_pushnumber(L, value);
-		lua_setfield(L, -2, key);
-		// 3. set table in lua
-		lua_setglobal(L, tablename);
+			printf("---- 7\n");
+			const char *tablename = "background3";
+			// 1. new a table 
+			lua_newtable(L);
+			int top = lua_gettop(L);
+			printf("top=%d\n", top);
 
-		int top = lua_gettop(L);
-		printf("top=%d\n", top);
+			const char *key = "r"; int value = 20;
+			lua_pushnumber(L, value);
+			lua_setfield(L, -2, key);
+
+			key = "g"; value = 30;
+			lua_pushnumber(L, value);
+			lua_setfield(L, -2, key);
+
+			key = "b"; value = 40;
+			lua_pushnumber(L, value);
+			lua_setfield(L, -2, key);
+
+			// 2. set table in lua
+			lua_setglobal(L, tablename);
+			top = lua_gettop(L);
+			printf("top=%d\n", top);
+			printf("\n");
+		}
 
 		print_rgb_table(L, "background");
 		print_rgb_table(L, "background2");
 		print_rgb_table(L, "background3");
 		print_rgb_table(L, "background4");
-
-		}
 
 	} while (0);
 
@@ -468,36 +559,38 @@ int test2()
 		}
 
 		// call lua function
-		{
-		const char *funcname = "func_t2";
-		double x = 20, y = 50;
-		double ret;
-
-		// 1. get function
-		lua_getglobal(L, funcname);
-
+		// 1. getglobal, get function
 		// 2. push param
-		lua_pushnumber(L, x);
-		lua_pushnumber(L, y);
-
-		// 3. protect call
-		if (lua_pcall(L, 2, 1, 0) != 0)
+		// 3. pcall(L, param num, ret num, err-function-index)
 		{
-			fprintf(stderr, "%s\n", lua_tostring(L, -1));
-			lua_pop(L, 1);
-			break;
+			const char *funcname = "func_t2";
+			double x = 20, y = 50;
+			double ret;
+
+			// 1. get function
+			lua_getglobal(L, funcname);
+
+			// 2. push param
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+
+			// 3. protect call
+			// after pcall, fucntion and input params will be removed from stack
+			if (lua_pcall(L, 2, 1, 0) != 0)
+			{
+				fprintf(stderr, "%s\n", lua_tostring(L, -1));
+				lua_pop(L, 1);
+				break;
+			}
+			
+			ret = lua_tonumber(L, -1);
+			printf("ret=%g\n", ret);
+
+			int top = lua_gettop(L);
+			printf("top=%d\n", top);
+
+			lua_settop(L, 0);
 		}
-		
-		ret = lua_tonumber(L, -1);
-		printf("ret=%g\n", ret);
-
-		// after pcall, fucntion and input params will be removed from stack
-		int top = lua_gettop(L);
-		printf("top=%d\n", top);
-
-		lua_pop(L, 1);
-		}
-
 
 	} while (0);
 
@@ -506,7 +599,7 @@ int test2()
 	return 0;
 } // test2 end
 
-// function for lua
+// a c function will call by lua
 static int l_sin(lua_State *L)
 {
 	// 1. get param from lua_State
@@ -537,11 +630,11 @@ int test3()
 			break;
 		}
 
-		// 1. push c function into lua
+		// 1. push c function for lua
 		lua_pushcfunction(L, l_sin);
-		// 2. define it in lua global environment, therefore lua can get this function
-		lua_setglobal(L, "mysin");
 
+		// 2. name it in lua global environment, therefore lua can get this function
+		lua_setglobal(L, "mysin");
 
 		lua_getglobal(L, "func_t3"); // this function will call c func
 		lua_pushnumber(L, 3.1415926/6);
@@ -596,7 +689,7 @@ static int cfunc_4div(lua_State *L)
 }
 
 // cfunction list
-static const struct luaL_Reg cfunc4_list [] =
+static const struct luaL_Reg cfunc_list [] =
 {
 	{"add", cfunc_4add} // table key and function
 ,	{"sub", cfunc_4sub}
@@ -607,7 +700,7 @@ static const struct luaL_Reg cfunc4_list [] =
 
 int test4()
 {
-	// register list of c function to lua, and lua call it
+	// register a module with c functions for lua, and lua can call it
 	const char *file = "test1.lua";
 
 	lua_State *L = luaL_newstate();
@@ -615,6 +708,12 @@ int test4()
 
 	do
 	{
+		// register list of c functions for lua
+		// for lua5.1, use luaL_register(L, libname, func_list)
+		// for lua5.2+, use 
+		// 1. lua_newtable(L); new a table to store the funcs
+    	// 2. luaL_setfuncs(L, func_list, 0);
+		// 3. lua_setglobal(L, libname), name the table
 		if (luaL_dofile(L, file))
 		{
 			fprintf(stderr, "%s\n", lua_tostring(L, -1));
@@ -630,12 +729,21 @@ int test4()
 		printf("version=%s\n", version);
 
 		const char *libname = "cfunc4";
-		if (strcmp(version, "Lua 5.1") == 0)
+		// core logic
+		// if (strcmp(version, "Lua 5.1") == 0)
+		#ifndef __LUA_5_2
 		{
-			// core logic
 			// register c function array as a function table into lua, table will stay in stack
-			luaL_register(L, libname, cfunc4_list);
+			luaL_register(L, libname, cfunc_list);
 		}
+		#else
+		// else if (strcmp(version, "Lua 5.2") == 0)
+		{
+			lua_newtable(L); // new a table to store funcs
+			luaL_setfuncs(L, cfunc_list, 0); // set funcs into table
+			lua_setglobal(L, libname); // name the table
+		}
+		#endif
 
 		int top = lua_gettop(L);
 		printf("top=%d\n", top);
@@ -777,8 +885,6 @@ static void print_array(lua_State *L)
 int test5()
 {
 	// get and set from a table array
-	int ret;
-	ret = 0;
 	const char *file = "test1.lua";
 
 	lua_State *L = luaL_newstate();
@@ -845,8 +951,6 @@ int test5()
 int test6()
 {
 	// handle string
-	int ret;
-	ret = 0;
 	const char *file = "test1.lua";
 
 	lua_State *L = luaL_newstate();
@@ -913,8 +1017,6 @@ static int str_upper(lua_State *L)
 int test7()
 {
 	// test lua string buffer
-	int ret;
-	ret = 0;
 	const char *file = "test1.lua";
 
 	lua_State *L = luaL_newstate();
@@ -963,8 +1065,6 @@ int test7()
 int test8()
 {
 	// registry
-	int ret;
-	ret = 0;
 	const char *file = "test1.lua";
 
 	lua_State *L = luaL_newstate();
@@ -1067,7 +1167,7 @@ static int replace_environment(lua_State *L)
 
 	lua_newtable(L);
 	// use a new environment
-	lua_replace(L, LUA_ENVIRONINDEX); // not work....
+	// lua_replace(L, LUA_ENVIRONINDEX); // not work....
 
 	paramname = "test9val";
 	lua_getglobal(L, paramname);
@@ -1087,8 +1187,6 @@ static int replace_environment(lua_State *L)
 
 int test9()
 {
-	int ret;
-	ret = 0;
 	const char *file = "test1.lua";
 
 	lua_State *L = luaL_newstate();
@@ -1143,8 +1241,6 @@ static int newCounter(lua_State *L)
 int test10()
 {
 	// closure
-	int ret;
-	ret = 0;
 	const char *file = "test1.lua";
 
 	lua_State *L = luaL_newstate();
@@ -1243,8 +1339,6 @@ static const struct luaL_Reg tuplelib [] =
 
 int test11()
 {
-	int ret;
-	ret = 0;
 	const char *file = "test1.lua";
 
 	lua_State *L = luaL_newstate();
