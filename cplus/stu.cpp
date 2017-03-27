@@ -6,7 +6,9 @@
 #include <cmath>
 #include <sys/time.h>
 #include <unistd.h>
+#ifndef __APPLE__
 #include <malloc.h>
+#endif
 #include <stdarg.h>
 
 #include <fstream>
@@ -29,6 +31,10 @@
 
 #if (defined __WIN32) || (defined __CYGWIN__)
 #define bzero(a, b) memset(a, 0, b)
+#endif
+
+#ifdef __APPLE__
+#define malloc_stats() void()
 #endif
 
 using namespace std; // namespace type 1 
@@ -3176,6 +3182,47 @@ int test81()
 	return 0;
 }
 
+class EmptyA
+{
+public:
+	EmptyA() { memset((void *)this, 0, sizeof(EmptyA)); }
+	virtual void Print() { printf("---A\n"); }
+};
+
+class EmptyB : public EmptyA
+{
+public:
+	EmptyB() { memset((void *)this, 0, sizeof(EmptyB)); }
+	virtual void Print() { printf("---B\n"); }
+};
+
+class EmptyC : public EmptyB
+{
+public:
+	EmptyC() { memset((void *)this, 0, sizeof(EmptyC)); }
+	virtual void Print() { printf("---C\n"); }
+};
+
+int test82()
+{
+
+	if (0)
+	{
+		EmptyB b;
+		EmptyA * ptr = &b;
+		ptr->Print(); // core dump
+	}
+
+	if (0)
+	{
+		EmptyC c;
+		EmptyB * ptr = &c;
+		ptr->Print(); // core dump
+	}
+
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -3269,6 +3316,7 @@ testcase_t test_list[] =
 ,	test79
 ,	test80
 ,	test81
+,	test82
 };
 
 int main(int argc, char *argv[]) 
