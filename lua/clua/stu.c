@@ -600,6 +600,7 @@ int test2()
 } // test2 end
 
 // a c function will call by lua
+// typedef int (*lua_CFunction)(lua_State *L)
 static int l_sin(lua_State *L)
 {
 	// 1. get param from lua_State
@@ -739,6 +740,7 @@ int test4()
 		#else
 		// else if (strcmp(version, "Lua 5.2") == 0)
 		{
+			// in lua5.2+, register c function array, just like new a table and set functions into the table, and name it
 			lua_newtable(L); // new a table to store funcs
 			luaL_setfuncs(L, cfunc_list, 0); // set funcs into table
 			lua_setglobal(L, libname); // name the table
@@ -907,38 +909,87 @@ int test5()
 			lua_pop(L, 1);
 			break;
 		}
+
+		// get array table len
 		int size = lua_objlen(L, -1);
 		printf("size=%d\n", size);
 		print_array(L);
 
-		int index = 1;
-		lua_pushinteger(L, index);
-		lua_rawget(L, -2);
-		if (!lua_isstring(L, -1))
+		// get string value in array by index
+		// use rawget
+		// 1. push index
+		// 2. rawget(L, table stack index)
 		{
-			fprintf(stderr, "-1 not a string\n");
+			int index = 1;
+			lua_pushinteger(L, index);
+			lua_rawget(L, -2);
+			if (!lua_isstring(L, -1))
+			{
+				fprintf(stderr, "-1 not a string\n");
+				lua_pop(L, 1);
+				break;
+			}
+			const char *value = lua_tostring(L, -1);
+			printf("[%d]value=%s\n", index, value);
 			lua_pop(L, 1);
-			break;
 		}
-		const char *value = lua_tostring(L, -1);
-		printf("[%d]value=%s\n", index, value);
-		lua_pop(L, 1);
 
-		index = 2;
-		lua_rawgeti(L, -1, index);
-		if (!lua_isstring(L, -1))
+		// get int value in array by index
+		// use rawgeti, no need to push index
+		// rawgeti(L, table stack index, index)
 		{
-			fprintf(stderr, "-1 not a string\n");
+			int index = 3;
+			lua_rawgeti(L, -1, index);
+			if (!lua_isnumber(L, -1))
+			{
+				fprintf(stderr, "-1 not a number\n");
+				lua_pop(L, 1);
+				break;
+			}
+			int value = lua_tonumber(L, -1);
+			printf("[%d]value=%d\n", index, value);
 			lua_pop(L, 1);
-			break;
 		}
-		value = lua_tostring(L, -1);
-		printf("[%d]value=%s\n", index, value);
-		lua_pop(L, 1);
 
-		// set into array
-		lua_pushstring(L, "hello");
-		lua_rawseti(L, -2, size+1);
+		{
+			// set value into array
+			// use rawseti()
+			// 1. push value
+			// 2. rawseti(L, table_stack_index, index)
+			int index = lua_objlen(L, -1) + 1;
+			lua_pushstring(L, "hello");
+			lua_rawseti(L, -2, index);
+			printf("top=%d\n", lua_gettop(L));
+		}
+
+		{
+			// set value into array
+			// use rawset()
+			// 1. push key
+			// 2. push value
+			// 3. rawset(L, table_stack_index)
+			// stack info:
+			// -1 : value
+			// -2 : key
+			// -3 : table
+			int index = lua_objlen(L, -1) + 1;
+			lua_pushnumber(L, index);
+			lua_pushstring(L, "world");
+			lua_rawset(L, -3);
+			printf("top=%d\n", lua_gettop(L));
+		}
+
+		{
+			// change value into array
+			// use rawseti()
+			// 1. push value
+			// 2. rawseti(L, table_stack_index, index)
+			int index = 1;
+			lua_pushstring(L, "change");
+			lua_rawseti(L, -2, index);
+			printf("top=%d\n", lua_gettop(L));
+		}
+
 		print_array(L);
 
 	} while (0);
@@ -965,20 +1016,22 @@ int test6()
 			break;
 		}
 
-		const char *tablename = "test6array";
 		lua_newtable(L);
 
 		int index = 1;
+
+		// push len string
 		const char *v1 = "qwerty123456";
 		lua_pushlstring(L, v1+2, 5);
 		lua_rawseti(L, -2, index++);
 
+		// push format string
 		lua_pushfstring(L, "%s-%d", "masha", time(NULL));
 		lua_rawseti(L, -2, index++);
 
 		print_array(L);
 
-		lua_setglobal(L, tablename);
+		lua_settop(L, 0);
 
 	} while (0);
 

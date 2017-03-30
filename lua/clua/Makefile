@@ -7,7 +7,8 @@ CFLAG:= -Wall -std=c99 -g
 OS:=$(shell uname -s)
 INC:=
 LIB:=-llua -ldl -lm
-USER_MACROS:=-DLUA_COMPAT_ALL -D__LUA_5_2
+#USER_MACROS:=-DLUA_COMPAT_ALL -D__LUA_5_2
+USER_MACROS:=-DLUA_COMPAT_ALL 
 
 
 platform:
