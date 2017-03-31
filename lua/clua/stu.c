@@ -575,6 +575,7 @@ int test2()
 			lua_pushnumber(L, y);
 
 			// 3. protect call
+			// lua_pcall(L, param_num, ret_num, error_function_index)
 			// after pcall, fucntion and input params will be removed from stack
 			if (lua_pcall(L, 2, 1, 0) != 0)
 			{
@@ -624,6 +625,7 @@ int test3()
 
 	do
 	{
+		// luaL_dofile() == luaL_loadfile() + lua_pcall()
 		if (luaL_dofile(L, file))
 		{
 			fprintf(stderr, "%s\n", lua_tostring(L, -1));
@@ -1045,24 +1047,38 @@ static int str_upper(lua_State *L)
 {
 	size_t l;
 	size_t i;
+	printf("1 top=%d\n", lua_gettop(L));
 
 	// lua string buffer
 	luaL_Buffer b;
 
-	// get input string
+	// check and get len string
 	const char *s = luaL_checklstring(L, 1, &l);
 
 	// init lua string buffer
 	luaL_buffinit(L, &b);
+	printf("2 top=%d\n", lua_gettop(L));
+
+	lua_pushstring(L, "good luck");
+	// a function to push top to buffer
+	luaL_addvalue(&b);
+	printf("3 top=%d\n", lua_gettop(L));
 
 	for (i = 0; i < l; i++)
 	{
 		// add char into buffer
 		luaL_addchar(&b, toupper((unsigned char)(s[i])));
 	}
+	printf("4 top=%d\n", lua_gettop(L));
+
+	// add lstring into buffer
+	const char * s2 = " Masha";
+	luaL_addlstring(&b, s2, strlen(s2));
+	printf("5 top=%d\n", lua_gettop(L));
 
 	// push buffer into stack
 	luaL_pushresult(&b);
+	printf("6 top=%d\n", lua_gettop(L));
 
 	return 1;
 }
@@ -1084,9 +1100,9 @@ int test7()
 			break;
 		}
 
+		// push c function to lua, and name it
 		lua_pushcfunction(L, str_upper);
 		lua_setglobal(L, "c_str_upper");
-
 
 		lua_getglobal(L, "func_t7");
 		if (!lua_isfunction(L, -1))
@@ -1096,8 +1112,9 @@ int test7()
 			break;
 		}
 
-		const char *buffer = "Hello World 123";
+		const char *buffer = "Hello 123";
 		lua_pushstring(L, buffer);
+
 		if (lua_pcall(L, 1, 1, 0) != 0)
 		{
 			fprintf(stderr, "%s\n", lua_tostring(L, -1));
@@ -1105,6 +1122,7 @@ int test7()
 			break;
 		}
 
+		// function return
 		const char *result = lua_tostring(L, -1);
 		printf("result=%s\n", result);
 
@@ -1132,72 +1150,84 @@ int test8()
 			break;
 		}
 
+		// use registry to save global data from c to lua
+
 		const char *key;
 		const char *value;
 
-		key = "my_global_variable1";
-		value = "helloworld1";
-		lua_pushstring(L, value);
-		// set string key and value into registry index
-		// use registry like a global table
-		lua_setfield(L, LUA_REGISTRYINDEX, key);
-
-		key = "my_global_variable2";
-		value = "helloworld2";
-		lua_pushstring(L, value);
-		lua_setfield(L, LUA_REGISTRYINDEX, key);
-
-		// get value from registry index
-		key = "my_global_variable1";
-		lua_getfield(L, LUA_REGISTRYINDEX, key);
-		value = lua_tostring(L, -1);
-		printf("key=%s value=%s\n", key, value);
-		lua_pop(L, 1);
-
-		key = "my_global_variable2";
-		lua_getfield(L, LUA_REGISTRYINDEX, key);
-		value = lua_tostring(L, -1);
-		printf("key=%s value=%s\n", key, value);
-		lua_pop(L, 1);
-
-		printf("\n");
-
-		value = "helloworld3";
-		lua_pushstring(L, value);
-		// save value into a unique key, return a key
-		int r = luaL_ref(L, LUA_REGISTRYINDEX);
-		printf("r=%d\n", r);
-
-		lua_rawgeti(L, LUA_REGISTRYINDEX, r);
-		value = lua_tostring(L, -1);
-		printf("r=%d value=%s\n", r, value);
-		printf("top=%d\n", lua_gettop(L));
-		lua_pop(L, 1);
-
-		// release the unique key and value
-		luaL_unref(L, LUA_REGISTRYINDEX, r);
-		lua_rawgeti(L, LUA_REGISTRYINDEX, r);
-		if (lua_isnil(L, -1))
 		{
-			printf("r=%d already release\n",r);
+			// set string key and value into registry index
+			// use registry like a global table
+			key = "my_global_variable1";
+			value = "helloworld1";
+			lua_pushstring(L, value);
+			lua_setfield(L, LUA_REGISTRYINDEX, key);
+
+			key = "my_global_variable2";
+			value = "helloworld2";
+			lua_pushstring(L, value);
+			lua_setfield(L, LUA_REGISTRYINDEX, key);
+
+			// get value from registry index
+			key = "my_global_variable1";
+			lua_getfield(L, LUA_REGISTRYINDEX, key);
+			value = lua_tostring(L, -1);
+			printf("key=%s value=%s\n", key, value);
+			lua_pop(L, 1);
+
+			key = "my_global_variable2";
+			lua_getfield(L, LUA_REGISTRYINDEX, key);
+			value = lua_tostring(L, -1);
+			printf("key=%s value=%s\n", key, value);
+			lua_pop(L, 1);
+
+			printf("\n");
 		}
-		printf("top=%d\n", lua_gettop(L));
-		lua_pop(L, 1);
 
-		printf("\n");
+		{
 
-		static char skey = 'k';
-		value = "helloworld4";
-		// use a pointer address as a unique key
-		lua_pushlightuserdata(L, (void *)&skey);
-		lua_pushstring(L, value);
-		lua_settable(L, LUA_REGISTRYINDEX);
+			value = "helloworld3";
+			lua_pushstring(L, value);
+			// luaL_ref
+			// save value into registry, and return a unique index key in registry
+			int index = luaL_ref(L, LUA_REGISTRYINDEX);
+			printf("index=%d\n", index);
 
-		lua_pushlightuserdata(L, (void *)&skey);
-		lua_gettable(L, LUA_REGISTRYINDEX);
-		value = lua_tostring(L, -1);
-		printf("key=%p value=%s\n", &skey, value);
-		lua_pop(L, 1);
+			lua_rawgeti(L, LUA_REGISTRYINDEX, index);
+			value = lua_tostring(L, -1);
+			printf("index=%d value=%s\n", index, value);
+			printf("top=%d\n", lua_gettop(L));
+			lua_pop(L, 1);
+
+			// release the index key and value from registry
+			luaL_unref(L, LUA_REGISTRYINDEX, index);
+
+			lua_rawgeti(L, LUA_REGISTRYINDEX, index);
+			if (lua_isnil(L, -1))
+			{
+				printf("index=%d already release\n",index);
+			}
+			printf("top=%d\n", lua_gettop(L));
+			lua_pop(L, 1);
+
+			printf("\n");
+		}
+
+
+		{
+			static char skey = 'k';
+			value = "helloworld4";
+			// use a pointer address as a unique key
+			lua_pushlightuserdata(L, (void *)&skey);
+			lua_pushstring(L, value);
+			lua_settable(L, LUA_REGISTRYINDEX);
+
+			lua_pushlightuserdata(L, (void *)&skey);
+			lua_gettable(L, LUA_REGISTRYINDEX);
+			value = lua_tostring(L, -1);
+			printf("key=%p value=%s\n", &skey, value);
+			lua_pop(L, 1);
+		}
 
 
 	} while (0);
@@ -1253,6 +1283,8 @@ int test9()
 			lua_pop(L, 1);
 			break;
 		}
+
+		// use environment to save data
 
 		lua_cpcall(L, replace_environment, 0);
 
