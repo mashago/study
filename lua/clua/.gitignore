@@ -1,6 +1,7 @@
 # ignore built executable file
 stu
 lua_interpreter
+Makefile
 
 # mac lldb file
 /*.dSYM

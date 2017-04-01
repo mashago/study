@@ -5,7 +5,8 @@ default: MongoOperator
 OS:=$(shell uname -s)
 
 
-FLAG:=-DTTT -D__MONGO_REPLICA_SET 
+# FLAG:=-DTTT -D__MONGO_REPLICA_SET 
+FLAG:=-DTTT 
 
 ifeq "$(OS)" "Linux"
 INC:=-I /usr/local/mongodb/include/
@@ -18,7 +19,7 @@ LIB:=-L/usr/lib64 -lboost_thread -lboost_filesystem -lboost_program_options -lbo
 endif
 
 ifeq "$(OS)" "Darwin"
-INC:=-I /usr/local/mongodb/include/
+INC:=-I /usr/local/mongodb/include/ -I ../jsoncpp/c++11
 LINK:=/usr/local/mongodb/lib/libmongoclient.a
 LIB:=-L/usr/local/lib -lboost_thread-mt -lboost_filesystem -lboost_program_options -lboost_regex-mt -lboost_system-mt -lssl -lcrypto
 endif
