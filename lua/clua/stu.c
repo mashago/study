@@ -1237,33 +1237,50 @@ int test8()
 	return 0;
 }
 
-static int replace_environment(lua_State *L)
+static int set_ga(lua_State *L)
 {
-	const char *paramname;
-	const char *val;
+	const char *name = "g_test9val";
 
-	paramname = "test9val";
-	lua_getglobal(L, paramname);
-	val = lua_tostring(L, -1);
-	printf("paramname=%s val=%s\n", paramname, val);
-	lua_pop(L, 1);
+	lua_pushinteger(L, 10);
+	lua_setglobal(L, name);
+
+	return 0;
+}
+
+static const struct luaL_Reg cfunc_list2 [] =
+{
+	{"set_ga", set_ga} // table key and function
+,	{NULL, NULL} // must null end
+};
+
+static void register_cmodule(lua_State *L, const char *module_name, const struct luaL_Reg *cfuncs)
+{
+	#ifndef __LUA_5_2
+	{
+		// register c function array as a function table into lua, table will stay in stack
+		luaL_register(L, module_name, cfuncs);
+	}
+	#else
+	{
+		// in lua5.2+, register c module, just like new a table and set functions into the table, and name it
+		lua_newtable(L); // new a table to store funcs
+		luaL_setfuncs(L, cfuncs, 0); // set funcs into table
+		lua_setglobal(L, module_name); // name the table
+	}
+	#endif
+}
+
+static int create_independent_module(lua_State *L)
+{
+	printf("top=%d\n", lua_gettop(L));
+
+	// 1. new a table as module environment
+	// 2. replace environment
+	// 3. register c module
 
 	lua_newtable(L);
-	// use a new environment
-	// lua_replace(L, LUA_ENVIRONINDEX); // not work....
-
-	paramname = "test9val";
-	lua_getglobal(L, paramname);
-	if (lua_isnil(L, -1))
-	{
-		printf("paramname=%s is nil\n", paramname);
-	}
-	else
-	{
-		val = lua_tostring(L, -1);
-		printf("paramname=%s val=%s\n", paramname, val);
-	}
-	lua_pop(L, 1);
+	lua_replace(L, LUA_ENVIRONINDEX); // replace environment
+	register_cmodule(L, "cfunc9", cfunc_list2);
 
 	return 0;
 }
@@ -1284,9 +1301,46 @@ int test9()
 			break;
 		}
 
-		// use environment to save data
+		// set c functions environment
+		// but no long work from 5.2
+		// not work on 5.1 too...
 
-		lua_cpcall(L, replace_environment, 0);
+		// let lua call a c function
+		// in 5.3 like:
+		// lua_pushcfunction()
+		// lua_pushlightuserdata()
+		// lua_pcall()
+		lua_cpcall(L, create_independent_module, NULL);
+
+		// call lua function
+		const char *funcname = "func_t9";
+		lua_getglobal(L, funcname);
+		if (!lua_isfunction(L, -1))
+		{
+			fprintf(stderr, "%s is not a function\n", funcname);
+			lua_pop(L, 1);
+			break;
+		}
+
+		if (lua_pcall(L, 0, 0, 0) != 0)
+		{
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			break;
+		}
+
+		// 
+		const char *name = "g_test9val";
+		lua_getglobal(L, name);
+		if (lua_isnil(L, -1))
+		{
+			printf("%s is nil\n", name);
+		}
+		else
+		{
+			int val = lua_tointeger(L, -1);
+			printf("%s = %d\n", name, val);
+		}
 
 	} while (0);
 
@@ -1299,28 +1353,42 @@ int test9()
 // c closure function
 static int counter(lua_State *L)
 {
-	// get upvalue 1 fake index, and get it
-	int val = lua_tointeger(L, lua_upvalueindex(1));
-
-	// push ++value to stack
-	lua_pushinteger(L, ++val);
-
-	//  copy it
-	lua_pushvalue(L, -1);
+	// get upvalue by upvalue index
+	int valA = lua_tointeger(L, lua_upvalueindex(1));
+	int valB = lua_tointeger(L, lua_upvalueindex(2));
+	printf("valA=%d valB=%d\n", valA, valB);
 
 	// update upvalue
+	lua_pushinteger(L, valA + 1);
 	lua_replace(L, lua_upvalueindex(1));
+	lua_pushinteger(L, valB + 1);
+	lua_replace(L, lua_upvalueindex(2));
+
+	// push result
+	lua_pushinteger(L, valA * valB);
+
 	return 1;
 }
 
 static int newCounter(lua_State *L)
 {
-	// push upvalue initial value
-	lua_pushinteger(L, 0);
+	// this function is a factory, will create closure and upvalue for that closure
 
-	// push c closure, pass function and upvalue num
-	lua_pushcclosure(L, &counter, 1);
+	// push upvalue for the closure, init value
+	lua_pushinteger(L, 10);
+	lua_pushinteger(L, 2);
+
+	// push c closure, pass closure and upvalue num
+	lua_pushcclosure(L, &counter, 2);
+	printf("top=%d\n", lua_gettop(L));
+
+	// closure will stay in stack
 	return 1;
+}
+
+void print_top(lua_State *L, const char *msg)
+{
+	printf("%s top=%d\n", msg, lua_gettop(L));
 }
 
 int test10()
@@ -1340,37 +1408,66 @@ int test10()
 			break;
 		}
 
+		// push c closure factory for lua
 		lua_pushcfunction(L, newCounter);
 		lua_setglobal(L, "c_new_counter");
 
-		const char *funcname = "func_t10";
-		lua_getglobal(L, funcname);
-		if (!lua_isfunction(L, -1))
 		{
-			fprintf(stderr, "%s not a function\n", funcname);
-			lua_pop(L, 1);
-			break;
-		}
+			// get lua function
+			const char *funcname = "func_t10";
+			lua_getglobal(L, funcname);
+			if (!lua_isfunction(L, -1))
+			{
+				fprintf(stderr, "%s not a function\n", funcname);
+				lua_pop(L, 1);
+				break;
+			}
 
-		int x = 5;
-		lua_pushinteger(L, x);
-		if (lua_pcall(L, 1, 1, 0) != 0)
-		{
-			fprintf(stderr, "%s\n", lua_tostring(L, -1));
-			lua_pop(L, 1);
-			break;
-		}
+			// call lua function, will call closure factory, return closure
+			if (lua_pcall(L, 0, 1, 0) != 0)
+			{
+				fprintf(stderr, "%s\n", lua_tostring(L, -1));
+				lua_pop(L, 1);
+				break;
+			}
 
-		if (!lua_isnumber(L, -1))
-		{
-			fprintf(stderr, "reuslt not a integer\n");
-			lua_pop(L, 1);
-			break;
-		}
+			// closure
+			if (!lua_isfunction(L, -1))
+			{
+				fprintf(stderr, "reuslt not a function\n");
+				lua_pop(L, 1);
+				break;
+			}
+			print_top(L, "after create closure");
 
-		int result = lua_tointeger(L, -1);
-		printf("result = %d\n", result);
-		lua_pop(L, 1);
+			// call closure
+			for (int i = 0; i < 3; i++)
+			{
+				// copy closure and push into stack
+				// because after call, closure will pop from stack
+				lua_pushvalue(L, -1);
+
+				if (lua_pcall(L, 0, 1, 0) != 0)
+				{
+					fprintf(stderr, "%s\n", lua_tostring(L, -1));
+					lua_pop(L, 1);
+					break;
+				}
+				print_top(L, "after call closure");
+
+				if (!lua_isnumber(L, -1))
+				{
+					fprintf(stderr, "closure result not a integer\n");
+					lua_pop(L, 1);
+					break;
+				}
+
+				int result = lua_tointeger(L, -1);
+				printf("result=%d\n", result);
+
+				lua_pop(L, 1);
+			}
+		}
 
 	} while (0);
 
@@ -1388,7 +1485,7 @@ static int t_tuple(lua_State *L)
 	if (op == 0)
 	{
 		int i;
-		// use lua_isnone() check if upvalueindex is ok
+		// use lua_isnone() check if upvalue is exists
 		for (i = 1; !lua_isnone(L, lua_upvalueindex(i)); i++)
 		{
 			// push upvalue into stack to return
@@ -1400,6 +1497,7 @@ static int t_tuple(lua_State *L)
 	{
 		// check op is positive, else raise a error
 		luaL_argcheck(L, 0 < op, 1, "index out of range");
+
 		if (lua_isnone(L, lua_upvalueindex(op)))
 		{
 			return 0;
@@ -1412,11 +1510,14 @@ static int t_tuple(lua_State *L)
 
 static int t_new(lua_State *L)
 {
+	// lua will push param when call this function
+	// therefore set these param as upvalue
+
 	lua_pushcclosure(L, t_tuple, lua_gettop(L));
 	return 1;
 }
 
-static const struct luaL_Reg tuplelib [] =
+static const struct luaL_Reg tuplefuncs [] =
 {
 	{"new", t_new}
 ,	{NULL, NULL}
@@ -1438,19 +1539,7 @@ int test11()
 			break;
 		}
 
-		lua_getglobal(L, "_VERSION");
-		const char * pv = lua_tostring(L, -1);
-		char version[50];
-		snprintf(version, sizeof(version), "%s", pv);
-		lua_pop(L, 1);
-		// printf("version=%s\n", version);
-
-		if (strcmp(version, "Lua 5.1") == 0)
-		{
-			// core logic
-			// register c function array as a function table into lua, table will stay in stack
-			luaL_register(L, "tuple", tuplelib);
-		}
+		register_cmodule(L, "tuple", tuplefuncs);
 
 		lua_getglobal(L, "func_t11");
 		if (!lua_isfunction(L, -1))
@@ -1461,6 +1550,92 @@ int test11()
 		}
 
 		if (lua_pcall(L, 0, 0, 0) != 0)
+		{
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			break;
+		}
+
+	} while (0);
+
+	lua_close(L);
+
+	return 0;
+}
+
+typedef struct 
+{
+	int a;
+} MySt;
+
+static int myst_new(lua_State *L)
+{
+	// new a userdata, lua will handle this memory life
+	// userdata will stay in stack
+	MySt *ptr = (MySt *)lua_newuserdata(L, sizeof(MySt));
+	ptr->a = 0;
+
+	// userdata will stay in stack
+	return 1;
+}
+
+static int myst_set(lua_State *L)
+{
+	MySt *ptr = (MySt *)lua_touserdata(L, 1);
+	luaL_argcheck(L, ptr != NULL, 1, "not a userdata");
+	int n = lua_tointeger(L, 2);
+	ptr->a = n;
+	return 0;
+}
+
+static int myst_get(lua_State *L)
+{
+	MySt *ptr = (MySt *)lua_touserdata(L, 1);
+	luaL_argcheck(L, ptr != NULL, 1, "not a userdata");
+
+	lua_pushinteger(L, ptr->a);
+
+	return 1;
+}
+
+
+static const struct luaL_Reg myst_funcs [] =
+{
+	{"new", myst_new}
+,	{"set", myst_set}
+,	{"get", myst_get}
+,	{NULL, NULL}
+};
+
+int test12()
+{
+	const char *file = "test1.lua";
+
+	lua_State *L = luaL_newstate();
+	luaL_openlibs(L);
+
+	do
+	{
+		if (luaL_dofile(L, file))
+		{
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			break;
+		}
+
+		register_cmodule(L, "myst", myst_funcs);
+
+		lua_getglobal(L, "func_t12");
+		if (!lua_isfunction(L, -1))
+		{
+			fprintf(stderr, "%s is not a function\n", "func_t_11");
+			lua_pop(L, 1);
+			break;
+		}
+
+		lua_pushinteger(L, 555);
+
+		if (lua_pcall(L, 1, 0, 0) != 0)
 		{
 			fprintf(stderr, "%s\n", lua_tostring(L, -1));
 			lua_pop(L, 1);
@@ -1516,6 +1691,7 @@ testcase_t test_list[] =
 ,	test9
 ,	test10
 ,	test11
+,	test12
 };
 
 int main(int argc, char **argv) 

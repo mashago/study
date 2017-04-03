@@ -60,20 +60,19 @@ function func_t7(x)
 end
 
 -- for test9
-test9val = "masha"
+function func_t9()
+	cfunc9.set_ga()
+end
 
 -- for test10
-function func_t10(x)
-	local counter = c_new_counter() -- call c function, get a c closure
+function func_t10()
+	local counter = c_new_counter() -- call closure factory, get a c closure
 	local t = 0
 	if counter == nil then
 		return 0
 	end
-	x = x or 10
-	for i=1, x, 1 do
-		t = counter() -- call c closure
-	end
-	return t
+
+	return counter -- return a closure
 end
 
 function func_t11()
@@ -81,6 +80,15 @@ function func_t11()
 	print(t1(1)) -- call c closure
 	print(t1(2))
 	print(t1())
+	-- print(t1(-1))
 	print(t1(5))
+end
+
+function func_t12(n)
+	n = n or 10
+	local t = myst.new()
+	myst.set(t, n)
+	local a = myst.get(t)
+	print(a)
 end
 

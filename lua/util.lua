@@ -1,4 +1,6 @@
 
+local io = io
+local print = print
 
 log = function(fmt, ...)
 	if fmt == nil then
