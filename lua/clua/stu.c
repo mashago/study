@@ -1575,13 +1575,25 @@ static int myst_new(lua_State *L)
 	MySt *ptr = (MySt *)lua_newuserdata(L, sizeof(MySt));
 	ptr->a = 0;
 
+	// get metatable
+	luaL_getmetatable(L, "myst.mt");
+	print_top(L, "after get metatable");
+
+	// set metatable for userdata
+	lua_setmetatable(L, -2);
+
 	// userdata will stay in stack
 	return 1;
 }
 
 static int myst_set(lua_State *L)
 {
-	MySt *ptr = (MySt *)lua_touserdata(L, 1);
+	// get userdata
+	// MySt *ptr = (MySt *)lua_touserdata(L, 1);
+
+	// check metatable and get userdata
+	MySt *ptr = (MySt *)luaL_checkudata(L, 1, "myst.mt");
+	
 	luaL_argcheck(L, ptr != NULL, 1, "not a userdata");
 	int n = lua_tointeger(L, 2);
 	ptr->a = n;
@@ -1590,7 +1602,11 @@ static int myst_set(lua_State *L)
 
 static int myst_get(lua_State *L)
 {
-	MySt *ptr = (MySt *)lua_touserdata(L, 1);
+	// get userdata
+	// MySt *ptr = (MySt *)lua_touserdata(L, 1);
+
+	// check metatable and get userdata
+	MySt *ptr = (MySt *)luaL_checkudata(L, 1, "myst.mt");
 	luaL_argcheck(L, ptr != NULL, 1, "not a userdata");
 
 	lua_pushinteger(L, ptr->a);
@@ -1623,7 +1639,16 @@ int test12()
 			break;
 		}
 
+		// normally, should create a metatable for userdata, therefor when using userdata in c function, if userdata not match, will throw a error.
+		// luaL_newmetable(L, metatablename)
+		// luaL_getmetable(L, metatablename)
+		// lua_setmetable(L, stackindex)
+		// create a metatable for c userdata
+		luaL_newmetatable(L, "myst.mt");
+		print_top(L, "after new metatable");
+
 		register_cmodule(L, "myst", myst_funcs);
+		print_top(L, "after register c module");
 
 		lua_getglobal(L, "func_t12");
 		if (!lua_isfunction(L, -1))

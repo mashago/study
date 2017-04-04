@@ -2,6 +2,7 @@
 stu
 lua_interpreter
 Makefile
+tags
 
 # mac lldb file
 /*.dSYM

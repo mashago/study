@@ -90,5 +90,8 @@ function func_t12(n)
 	myst.set(t, n)
 	local a = myst.get(t)
 	print(a)
+
+	-- will error
+	-- myst.set(io.stdin, n)
 end
 

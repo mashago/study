@@ -17,8 +17,10 @@ function test1()
 	mymodule.printHello()
 	require "for_test_module"
 	log()
+
 	package.loaded["for_test_module"] = nil
 	log()
+
 	require "for_test_module"
 
 	return 0
