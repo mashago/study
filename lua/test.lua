@@ -388,7 +388,7 @@ MadCatClass = {
 		z = z or 0
 
 		local proxy = {}
-		proxy = BaseClass:new(x, y)
+		proxy = CatClass:new(x, y)
 		setmetatable(proxy, self)
 
 		proxy.z = z
@@ -410,7 +410,7 @@ MadCatClass = {
 		return 10
 	end,
 }
-setmetatable(MadCatClass, BaseClass) -- extend
+setmetatable(MadCatClass, CatClass) -- extend
 MadCatClass.__index = MadCatClass
 --
 
