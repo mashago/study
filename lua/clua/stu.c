@@ -1270,6 +1270,7 @@ static void register_cmodule(lua_State *L, const char *module_name, const struct
 	#endif
 }
 
+#ifndef __LUA_5_2
 static int create_independent_module(lua_State *L)
 {
 	printf("top=%d\n", lua_gettop(L));
@@ -1284,6 +1285,7 @@ static int create_independent_module(lua_State *L)
 
 	return 0;
 }
+#endif
 
 int test9()
 {
@@ -1300,6 +1302,8 @@ int test9()
 			lua_pop(L, 1);
 			break;
 		}
+
+#ifndef __LUA_5_2
 
 		// set c functions environment
 		// but no long work from 5.2
@@ -1341,6 +1345,7 @@ int test9()
 			int val = lua_tointeger(L, -1);
 			printf("%s = %d\n", name, val);
 		}
+#endif
 
 	} while (0);
 
