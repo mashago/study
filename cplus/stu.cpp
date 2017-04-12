@@ -3223,6 +3223,26 @@ int test82()
 	return 0;
 }
 
+
+int test83()
+{
+	const int AR_NUM = 10;
+	typedef int Ar[AR_NUM];
+	Ar a1;
+	printf("sizeof(a1)=%lu\n", sizeof(a1));
+	for (int i = 0; i < AR_NUM; i++)
+	{
+		a1[i] = i;
+	}
+	for (int i = 0; i < AR_NUM; i++)
+	{
+		printf("a1[%d]=%d\n", i, a1[i]);
+	}
+	
+	return 0;
+}
+
+
 int test_notyet() 
 {
 	// int ret;
@@ -3317,6 +3337,7 @@ testcase_t test_list[] =
 ,	test80
 ,	test81
 ,	test82
+,	test83
 };
 
 int main(int argc, char *argv[]) 

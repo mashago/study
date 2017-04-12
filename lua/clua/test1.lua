@@ -35,7 +35,7 @@ function func_t4(x, y, op)
 	end
 
 	local result = 0
-	local func
+	local func = nil
 	if op == "add" then
 		func = cfunc4.add -- get c function
 	elseif op == "sub" then

@@ -266,6 +266,24 @@ static void print_rgb_table(lua_State *L, const char *tablename)
 	} while (0);
 } // print_rgb_table end
 
+static void register_cmodule(lua_State *L, const char *module_name, const struct luaL_Reg *cfuncs)
+{
+	#ifndef __LUA_5_2
+	{
+		// for lua5.1
+		// register c function array as a function table into lua, table will stay in stack
+		luaL_register(L, module_name, cfuncs);
+	}
+	#else
+	{
+		// for lua5.2+, register c module, just like new a table and set functions into the table, and name it
+		lua_newtable(L); // new a table to store funcs
+		luaL_setfuncs(L, cfuncs, 0); // set funcs into table
+		lua_setglobal(L, module_name); // name the table
+	}
+	#endif
+}
+
 int test1()
 {
 	const char *file = "test1.lua";
@@ -661,32 +679,39 @@ int test3()
 
 static int cfunc_4add(lua_State *L)
 {
-	double d1 = luaL_checknumber(L, 1);
-	double d2 = luaL_checknumber(L, 2);
+	double d1 = luaL_checknumber(L, -2);
+	double d2 = luaL_checknumber(L, -1);
+	// or
+	// double d1 = luaL_checknumber(L, 1);
+	// double d2 = luaL_checknumber(L, 2);
+	printf("d1=%g d2=%g\n", d1, d2);
 	lua_pushnumber(L, d1+d2);
 	return 1;
 }
 
 static int cfunc_4sub(lua_State *L)
 {
-	double d1 = luaL_checknumber(L, 1);
-	double d2 = luaL_checknumber(L, 2);
+	double d1 = luaL_checknumber(L, -2);
+	double d2 = luaL_checknumber(L, -1);
+	printf("d1=%g d2=%g\n", d1, d2);
 	lua_pushnumber(L, d1-d2);
 	return 1;
 }
 
 static int cfunc_4times(lua_State *L)
 {
-	double d1 = luaL_checknumber(L, 1);
-	double d2 = luaL_checknumber(L, 2);
+	double d1 = luaL_checknumber(L, -2);
+	double d2 = luaL_checknumber(L, -1);
+	printf("d1=%g d2=%g\n", d1, d2);
 	lua_pushnumber(L, d1*d2);
 	return 1;
 }
 
 static int cfunc_4div(lua_State *L)
 {
-	double d1 = luaL_checknumber(L, 1);
-	double d2 = luaL_checknumber(L, 2);
+	double d1 = luaL_checknumber(L, -2);
+	double d2 = luaL_checknumber(L, -1);
+	printf("d1=%g d2=%g\n", d1, d2);
 	lua_pushnumber(L, d1/d2);
 	return 1;
 }
@@ -733,21 +758,7 @@ int test4()
 
 		const char *libname = "cfunc4";
 		// core logic
-		// if (strcmp(version, "Lua 5.1") == 0)
-		#ifndef __LUA_5_2
-		{
-			// register c function array as a function table into lua, table will stay in stack
-			luaL_register(L, libname, cfunc_list);
-		}
-		#else
-		// else if (strcmp(version, "Lua 5.2") == 0)
-		{
-			// in lua5.2+, register c function array, just like new a table and set functions into the table, and name it
-			lua_newtable(L); // new a table to store funcs
-			luaL_setfuncs(L, cfunc_list, 0); // set funcs into table
-			lua_setglobal(L, libname); // name the table
-		}
-		#endif
+		register_cmodule(L, libname, cfunc_list);
 
 		int top = lua_gettop(L);
 		printf("top=%d\n", top);
@@ -1252,23 +1263,6 @@ static const struct luaL_Reg cfunc_list2 [] =
 	{"set_ga", set_ga} // table key and function
 ,	{NULL, NULL} // must null end
 };
-
-static void register_cmodule(lua_State *L, const char *module_name, const struct luaL_Reg *cfuncs)
-{
-	#ifndef __LUA_5_2
-	{
-		// register c function array as a function table into lua, table will stay in stack
-		luaL_register(L, module_name, cfuncs);
-	}
-	#else
-	{
-		// in lua5.2+, register c module, just like new a table and set functions into the table, and name it
-		lua_newtable(L); // new a table to store funcs
-		luaL_setfuncs(L, cfuncs, 0); // set funcs into table
-		lua_setglobal(L, module_name); // name the table
-	}
-	#endif
-}
 
 #ifndef __LUA_5_2
 static int create_independent_module(lua_State *L)
