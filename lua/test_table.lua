@@ -379,6 +379,34 @@ function test6()
 	return 0
 end
 
+function test7()
+	-- next(t) check if table is empty
+	do
+		local t = {}
+		print('#t=', #t, 'next(t)=', next(t))
+	end
+	do
+		local t = {a = 10}
+		print('#t=', #t, 'next(t)=', next(t))
+	end
+	do
+		local t = {[1]='a', b='b'}
+		print('#t=', #t, 'next(t)=', next(t))
+	end
+	return 0
+end
+
+function test8()
+	-- load
+	local str_table = '{k1="v1", k2="v2"}'
+	local t = load('return ' .. str_table)()
+	for k, v in pairs(t) do
+		print(k, v)
+	end
+
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -391,6 +419,8 @@ test_list =
 ,	test4
 ,	test5
 ,	test6
+,	test7
+,	test8
 }
 
 function do_main()

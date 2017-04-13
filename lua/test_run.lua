@@ -88,6 +88,14 @@ function test3()
 		log()
 	end
 
+	do
+		local str_table = '{k1="v1", k2="v2"}'
+		local t = load('return ' .. str_table)()
+		for k, v in pairs(t) do
+			print(k, v)
+		end
+	end
+
 
 	return 0
 end
