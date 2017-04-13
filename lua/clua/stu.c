@@ -857,6 +857,19 @@ int test4()
 	return 0;
 } // test4 end
 
+static int get_raw_len(lua_State *L, int index)
+{
+	// get raw len
+	// string size
+	// table: #
+	// other: 0
+#ifndef __LUA_5_2
+	int size = lua_objlen(L, index);
+#else
+	int size = lua_rawlen(L, index);
+#endif
+	return size;
+}
 
 static void print_array(lua_State *L)
 {
@@ -866,7 +879,7 @@ static void print_array(lua_State *L)
 		return;
 	}
 
-	int size = lua_objlen(L, -1);
+	int size = get_raw_len(L, -1);
 	for (int i = 1; i <= size; i++)
 	{
 		lua_pushnumber(L, i);
@@ -924,7 +937,8 @@ int test5()
 		}
 
 		// get array table len
-		int size = lua_objlen(L, -1);
+		int size = get_raw_len(L, -1);
+
 		printf("size=%d\n", size);
 		print_array(L);
 
@@ -969,7 +983,7 @@ int test5()
 			// use rawseti()
 			// 1. push value
 			// 2. rawseti(L, table_stack_index, index)
-			int index = lua_objlen(L, -1) + 1;
+			int index = get_raw_len(L, -1) + 1;
 			lua_pushstring(L, "hello");
 			lua_rawseti(L, -2, index);
 			printf("top=%d\n", lua_gettop(L));
@@ -985,7 +999,7 @@ int test5()
 			// -1 : value
 			// -2 : key
 			// -3 : table
-			int index = lua_objlen(L, -1) + 1;
+			int index = get_raw_len(L, -1) + 1;
 			lua_pushnumber(L, index);
 			lua_pushstring(L, "world");
 			lua_rawset(L, -3);
@@ -1248,6 +1262,8 @@ int test8()
 	return 0;
 }
 
+#ifndef __LUA_5_2
+
 static int set_ga(lua_State *L)
 {
 	const char *name = "g_test9val";
@@ -1264,7 +1280,6 @@ static const struct luaL_Reg cfunc_list2 [] =
 ,	{NULL, NULL} // must null end
 };
 
-#ifndef __LUA_5_2
 static int create_independent_module(lua_State *L)
 {
 	printf("top=%d\n", lua_gettop(L));
@@ -1480,7 +1495,7 @@ int test10()
 static int t_tuple(lua_State *L)
 {
 	// get optional input int, if not exists, return specified value
-	int op = luaL_optint(L, 1, 0);
+	int op = luaL_optinteger(L, 1, 0);
 	if (op == 0)
 	{
 		int i;
