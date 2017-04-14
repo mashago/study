@@ -91,6 +91,15 @@ function vaFunc(...)
 			print("x=" .. x)
 		end
 
+		-- for lua5.1, will create a arg table, which store va
+		-- local n = arg[1]
+		-- from lua5.2, arg table is delete, use { ... } to make a va table
+		local t = { ... }
+		print("#t=", #t)
+		for i=1, #t do
+			print("t[" .. i .. "]=", t[i])
+		end
+
 		log()
 	end
 
