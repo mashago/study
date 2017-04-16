@@ -271,14 +271,21 @@ static void register_cmodule(lua_State *L, const char *module_name, const struct
 	#ifndef __LUA_5_2
 	{
 		// for lua5.1
-		// register c function array as a function table into lua, table will stay in stack
+		// register c function array as a function table into lua global environment, table will stay in stack
 		luaL_register(L, module_name, cfuncs);
 	}
 	#else
 	{
 		// for lua5.2+, register c module, just like new a table and set functions into the table, and name it
-		lua_newtable(L); // new a table to store funcs
-		luaL_setfuncs(L, cfuncs, 0); // set funcs into table
+		// 1. new a table
+		// 2. set funcs into table
+		// 3. set table into global
+		// lua_newtable(L); // new a table to store funcs
+		// luaL_setfuncs(L, cfuncs, 0); // set funcs into table
+		// lua_setglobal(L, module_name); // name the table
+
+		// luaL_newlib = lua_newtable + luaL_setfuncs
+		luaL_newlib(L, cfuncs);
 		lua_setglobal(L, module_name); // name the table
 	}
 	#endif
@@ -737,11 +744,6 @@ int test4()
 	do
 	{
 		// register list of c functions for lua
-		// for lua5.1, use luaL_register(L, libname, func_list)
-		// for lua5.2+, use 
-		// 1. lua_newtable(L); new a table to store the funcs
-    	// 2. luaL_setfuncs(L, func_list, 0);
-		// 3. lua_setglobal(L, libname), name the table
 		if (luaL_dofile(L, file))
 		{
 			fprintf(stderr, "%s\n", lua_tostring(L, -1));
@@ -1688,6 +1690,105 @@ int test12()
 	return 0;
 }
 
+// mylib13 start [
+
+typedef struct mylib13_t
+{
+	int a;
+} mylib13_t;
+
+int mylib13_create(lua_State *L)
+{
+	mylib13_t *ptr = (mylib13_t *)lua_newuserdata(L, sizeof(mylib13_t));
+	ptr->a = 0;
+
+	return 1;
+}
+
+static const luaL_Reg mylib13_funcs[] =
+{
+	{"create", mylib13_create}
+,	{NULL, NULL}
+};
+
+int luaopen_mylib13(lua_State *L)
+{
+	// open lib function
+	// should leave a table in stack
+	
+	luaL_newlib(L, mylib13_funcs);
+
+	return 1;
+}
+// mylib13 start ]
+
+int test13()
+{
+	const char *file = "test2.lua";
+
+	lua_State *L = luaL_newstate();
+	// luaL_openlibs(L);
+
+	do
+	{
+		const luaL_Reg lua_reg_libs[] =
+		{
+			// lua standard lib
+			{"base", luaopen_base}
+		,	{"table", luaopen_table}
+		,	{LUA_IOLIBNAME, luaopen_io}
+		,	{LUA_OSLIBNAME, luaopen_os}
+		,	{LUA_BITLIBNAME, luaopen_bit32}
+		,	{LUA_COLIBNAME, luaopen_coroutine}
+		,	{LUA_MATHLIBNAME, luaopen_math}
+		,	{LUA_DBLIBNAME, luaopen_debug}
+		,	{LUA_LOADLIBNAME, luaopen_package}
+
+			// require my lib
+		,	{"mylib13", luaopen_mylib13}
+
+		,	{NULL, NULL}
+		};
+
+		// require libs
+		const luaL_Reg *libptr = lua_reg_libs;
+		for (; libptr->func; ++libptr)
+		{
+			luaL_requiref(L, libptr->name, libptr->func, 1);
+			lua_pop(L, 1); // pop the require return
+		}
+
+		if (luaL_dofile(L, file))
+		{
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			break;
+		}
+
+		lua_getglobal(L, "func_t13");
+		if (!lua_isfunction(L, -1))
+		{
+			fprintf(stderr, "%s is not a function\n", "func_t_13");
+			lua_pop(L, 1);
+			break;
+		}
+
+		lua_pushinteger(L, 555);
+
+		if (lua_pcall(L, 1, 0, 0) != 0)
+		{
+			fprintf(stderr, "%s\n", lua_tostring(L, -1));
+			lua_pop(L, 1);
+			break;
+		}
+
+	} while (0);
+
+	lua_close(L);
+
+	return 0;
+}
+
 int test_tmp()
 {
 	/*
@@ -1731,6 +1832,7 @@ testcase_t test_list[] =
 ,	test10
 ,	test11
 ,	test12
+,	test13
 };
 
 int main(int argc, char **argv) 
