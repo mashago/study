@@ -1697,26 +1697,69 @@ typedef struct mylib13_t
 	int a;
 } mylib13_t;
 
-int mylib13_create(lua_State *L)
+// mylib13 constructor
+int mylib13_new(lua_State *L)
 {
 	mylib13_t *ptr = (mylib13_t *)lua_newuserdata(L, sizeof(mylib13_t));
 	ptr->a = 0;
 
+	// set metatable for obj
+	luaL_getmetatable(L, "mylib13");
+	lua_setmetatable(L, -2);
+
 	return 1;
 }
 
-static const luaL_Reg mylib13_funcs[] =
+static const luaL_Reg mylib13_constructor_funcs[] =
 {
-	{"create", mylib13_create}
+	{"new", mylib13_new}
+,	{NULL, NULL}
+};
+
+// mylib13 member functions
+int mylib13_set_a(lua_State *L)
+{
+	mylib13_t *ptr = (mylib13_t *)luaL_checkudata(L, 1, "mylib13");
+	luaL_argcheck(L, ptr != NULL, 1, "null userdata");
+
+	int n = lua_tointeger(L, 2);
+	ptr->a = n;
+
+	return 0;
+}
+
+int mylib13_get_a(lua_State *L)
+{
+	mylib13_t *ptr = (mylib13_t *)luaL_checkudata(L, 1, "mylib13");
+	luaL_argcheck(L, ptr != NULL, 1, "null userdata");
+
+	lua_pushinteger(L, ptr->a);
+
+	return 1;
+}
+
+static const luaL_Reg mylib13_member_funcs[] =
+{
+	{"set_a", mylib13_set_a}
+,	{"get_a", mylib13_get_a}
 ,	{NULL, NULL}
 };
 
 int luaopen_mylib13(lua_State *L)
 {
 	// open lib function
-	// should leave a table in stack
-	
-	luaL_newlib(L, mylib13_funcs);
+	// should leave a lib table in stack
+
+	// create metatable for this lib, and set funcs into metatable
+	luaL_newmetatable(L, "mylib13");
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
+	luaL_setfuncs(L, mylib13_member_funcs, 0);
+	print_top(L, "after setfunc into metatable");
+
+	// register constructor function into a table, and leave it in stack
+	luaL_newlib(L, mylib13_constructor_funcs);
+	print_top(L, "after newlib");
 
 	return 1;
 }
@@ -1727,7 +1770,8 @@ int test13()
 	const char *file = "test2.lua";
 
 	lua_State *L = luaL_newstate();
-	// luaL_openlibs(L);
+	// luaL_openlibs(L); 
+	// not open all lib, do it by myself
 
 	do
 	{
@@ -1754,9 +1798,11 @@ int test13()
 		const luaL_Reg *libptr = lua_reg_libs;
 		for (; libptr->func; ++libptr)
 		{
+			// call openlib function, set return table name and set into global
 			luaL_requiref(L, libptr->name, libptr->func, 1);
 			lua_pop(L, 1); // pop the require return
 		}
+		print_top(L, "after requiref all lib");
 
 		if (luaL_dofile(L, file))
 		{
