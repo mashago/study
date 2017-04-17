@@ -65,8 +65,9 @@ function test1()
 	do
 		-- unpack array
 		-- return from t[1] to t[#t]
+		-- from lua5.2, use table.unpack(t)
 		local t = {1, 2, 3}
-		local a, b = unpack(t)
+		local a, b = table.unpack(t)
 		print(a)
 		print(b)
 		log()
