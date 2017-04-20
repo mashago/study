@@ -33,6 +33,8 @@ function test1()
 	log("t1[1]=%d", t1[1])
 	t2 = nil
 
+	log("t1=%s", tableToString(t1))
+
 	return 0
 end
 
@@ -87,6 +89,7 @@ function test4()
 	for k, v in pairs(t1) do
 		print(k .. " : " .. v)
 	end
+	log("t1=%s", tableToString(t1))
 	return 0
 end
 

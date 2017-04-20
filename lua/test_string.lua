@@ -97,6 +97,13 @@ function test3()
 	local x = "123Hello World123"
 	print("x=" .. x)
 
+	-- string.sub(s, from, to)
+	print("string.sub(x, 1, 1)=", string.sub(x, 1, 1))
+	print("string.sub(x, 1, 5)=", string.sub(x, 1, 5))
+	print("string.sub(x, -1, -1)=", string.sub(x, -1, -1))
+	print("string.sub(x, -5, -1)=", string.sub(x, -5, -1))
+	print("string.sub(x, 5, -5)=", string.sub(x, 5, -5))
+
 	print("string.upper(x)=", string.upper(x))
 	print("string.lower(x)=", string.lower(x))
 	print("string.reverse(x)=", string.reverse(x))
