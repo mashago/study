@@ -30,6 +30,9 @@ int test0()
 {
 	int ret = 0;
 	const char *sql = "SELECT * FROM test_table";
+
+	for (int i = 0; i < 2; ++i)
+	{
 	ret = op.query(sql, strlen(sql));
 	if (ret != 0)
 	{	
@@ -51,6 +54,7 @@ int test0()
 	}
 
 	op.clean_result();
+	}
 
 	return 0;
 }
@@ -148,6 +152,7 @@ int main(int argc, char **argv)
 	test0();
 	printf("\n");
 
+	/*
 	test1();
 	printf("\n");
 	test0();
@@ -167,6 +172,7 @@ int main(int argc, char **argv)
 	printf("\n");
 	test0();
 	printf("\n");
+	*/
 
 	op.close();
 

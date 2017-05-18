@@ -6,19 +6,6 @@
 
 class mysql_operator_t
 {
-private:
-	std::string host;
-	int port;
-	std::string user;
-	std::string password;
-	std::string db_name;
-	std::string charset;
-
-	MYSQL *conn;
-	MYSQL_RES *result;
-	int err;
-	int reconnect();
-	MYSQL * real_connect();
 public:
 	mysql_operator_t();
 	~mysql_operator_t();
@@ -40,6 +27,20 @@ public:
 	void clean_result();
 
 	int get_err();
+
+private:
+	std::string host;
+	int port;
+	std::string user;
+	std::string password;
+	std::string db_name;
+	std::string charset;
+
+	MYSQL *conn;
+	MYSQL_RES *result;
+	int err;
+	int reconnect();
+	MYSQL * real_connect();
 };
 
 #endif
