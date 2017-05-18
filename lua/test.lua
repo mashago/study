@@ -1198,6 +1198,76 @@ function test26()
 	return 0
 end
 
+function test27()
+	math.randomseed(os.time())
+	for i=1, 20 do
+		local n = math.random(100)
+		print("n=", n)
+	end
+
+	local k = 0.1
+	local r = math.floor(k * 100)
+	print("r=", r)
+
+	print()
+
+	for i=1, 20 do
+		local n = math.random(3)
+		print("n=", n)
+	end
+
+	print("math.floor(0.3)=", math.floor(0.3))
+	print("math.floor(1.3)=", math.floor(1.3))
+
+	return 0
+end
+
+function test28()
+	local t = {}
+	local key = "x"
+	if not t[key] then
+		print("t[key] nil")
+	else
+		print("t[key] not nil")
+	end
+	return 0
+end
+
+function test29()
+
+	local n = 2 ^ 31 - 1
+	print("n=", n)
+
+	n = 101
+	local r = n / 100
+	print("n=", n, " r=", r)
+
+	n = 190
+	r = math.floor(n / 100)
+	print("n=", n, " r=", r)
+
+	n = 190
+	r = math.modf(n / 100)
+	print("n=", n, " r=", r)
+	
+	return 0
+end
+
+function test30()
+
+	local n = 10
+	local ret
+
+	ret = n < 0 and 0 or n
+	print("n=", n, " ret=", ret)
+
+	n = -1
+	ret = n < 0 and 0 or n
+	print("n=", n, " ret=", ret)
+	
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -1230,7 +1300,10 @@ test_list =
 ,	test24
 ,	test25
 ,	test26
-,	test26
+,	test27
+,	test28
+,	test29
+,	test30
 }
 
 function do_main()

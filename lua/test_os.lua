@@ -4,29 +4,45 @@ require "util"
 
 function test1()
 
-	local t = os.time()
-	log("t=%d", t)
+	do
+		local t = os.time()
+		log("t=%d", t)
 
-	t = os.time{year=1989, month=10, day=30, hour=18, min=0, second=1}
-	log("t=%d", t)
-	log()
+		t = os.time{year=1989, month=10, day=30, hour=18, min=0, sec=1}
+		log("t=%d", t)
+		log()
 
-	local d = os.date("*t", t)
-	for k, v in pairs(d) do print(k, v) end
-	log()
+		local d = os.date("*t", t)
+		for k, v in pairs(d) do print(k, v) end
+		log()
 
-	d = os.date("*t") -- default use now time
-	for k, v in pairs(d) do print(k, v) end
-	log()
+		d = os.date("*t") -- default use now time
+		for k, v in pairs(d) do print(k, v) end
+		log()
 
-	d = os.date("Y=%Y m=%m d=%d H=%H M=%M S=%S")
-	log("d:%s", d)
-	log()
+		d = os.date("Y=%Y m=%m d=%d H=%H M=%M S=%S")
+		log("d:%s", d)
+		log()
 
-	local x = os.clock() -- cpu time
-	local s = 0
-	for i=1, 10000000 do s = s + i end
-	log("use cpu time=%.2f", os.clock() - x)
+		local x = os.clock() -- cpu time
+		local s = 0
+		for i=1, 10000000 do s = s + i end
+		log("use cpu time=%.2f", os.clock() - x)
+		log()
+	end
+
+	do
+		local now = os.time()
+		local date = os.date("*t")
+		print(tableToString(date))
+		date.hour = 0
+		date.min = 0
+		date.sec = 0
+		local day_start_time = os.time(date)
+
+		log("now=%d day_start_time=%d", now, day_start_time)
+
+	end
 
 
 	return 0
