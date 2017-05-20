@@ -1,4 +1,4 @@
-all: platform libmysql_operator.a mysql_test mysql_test2
+all: platform libmysql_operator.a mysql_test mysql_test2 test_lock
 
 OS:=$(shell uname -s)
 
@@ -26,6 +26,8 @@ clean:
 	rm -rf mysql_test.dSYM
 	rm -rf mysql_test2
 	rm -rf mysql_test2.dSYM
+	rm -rf test_lock
+	rm -rf test_lock.dSYM
 
 mysql_operator.o: mysql_operator.cpp mysql_operator.h
 	g++ $(CFLAG) $(addprefix -I, $(INC)) -c $< -o $@
@@ -37,4 +39,7 @@ mysql_test: mysql_test.cpp
 	g++ $(CFLAG) -o $@ $(addprefix -I, $(INC)) $< $(addprefix -L, $(LIB_PATH)) $(addprefix -l, $(LIB))
 	
 mysql_test2: mysql_test2.cpp libmysql_operator.a
+	g++ $(CFLAG) -o $@  $(addprefix -I, $(INC)) $< $(addprefix -L, $(LIB_PATH)) $(addprefix -l, $(LIB)) 
+	
+test_lock: test_lock.cpp libmysql_operator.a
 	g++ $(CFLAG) -o $@  $(addprefix -I, $(INC)) $< $(addprefix -L, $(LIB_PATH)) $(addprefix -l, $(LIB)) 

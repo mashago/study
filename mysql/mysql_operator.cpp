@@ -3,7 +3,8 @@
 #include <unistd.h>
 #include "mysql_operator.h"
 
-mysql_operator_t::mysql_operator_t()
+mysql_operator_t::mysql_operator_t() 
+: host(""), port(0), user(""), password(""), db_name(""), charset(""), conn(NULL), result(NULL), err(0)
 {
 }
 
@@ -57,7 +58,7 @@ int mysql_operator_t::connect()
 	this->conn = real_connect();
 	if (this->conn == NULL)
 	{
-		return -1;
+		return -2;
 	}
 	return 0;
 }
@@ -195,6 +196,7 @@ const MYSQL_ROW & mysql_operator_t::fetch_row()
 	return row;
 }
 
+/*
 void mysql_operator_t::clean_result()
 {
 	this->err = 0;
@@ -204,6 +206,26 @@ void mysql_operator_t::clean_result()
 	}
 
 	mysql_free_result(this->result);
+	this->result = NULL;
+}
+*/
+
+void mysql_operator_t::clean_result()
+{
+	this->err = 0;
+
+	if (this->result != NULL)
+	{
+		mysql_free_result(this->result);
+		this->result = NULL;
+	}
+
+	while(!mysql_next_result(this->conn))
+	{
+		this->result = mysql_store_result(this->conn);
+		mysql_free_result(this->result);
+	} 
+
 	this->result = NULL;
 }
 
