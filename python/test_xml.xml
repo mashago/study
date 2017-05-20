@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<catalog>
+	<maxid>4</maxid>
+
+	<login username="pytest" passwd='123456'>
+		<caption>Python</caption>
+		<item id="1">
+			<data>data 1</data>
+		</item>
+		<item id="2">
+			<data>data 2</data>
+		</item>
+	</login>
+
+	<item id="3">
+		<data>data 3</data>
+	</item>
+	<item id="4">
+		<data>data 4</data>
+	</item>
+</catalog>

@@ -1268,6 +1268,21 @@ function test30()
 	return 0
 end
 
+function test31()
+	local str = "{0, 100}, {101, 200}, {201, 300}"
+	local t = load('return ' .. '{' .. str .. '}')()
+
+	print(t[1][1])
+	print(t[1][2])
+	print(t[2][1])
+	print(t[2][2])
+	print(t[3][1])
+	print(t[3][2])
+
+	return 0
+end
+
+
 function test_notyet()
 	return 0
 end
@@ -1304,6 +1319,7 @@ test_list =
 ,	test28
 ,	test29
 ,	test30
+,	test31
 }
 
 function do_main()
