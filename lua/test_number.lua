@@ -46,6 +46,10 @@ end
 
 function test2()
 
+	local n = 10
+	local x = tostring(n)
+	print(type(x))
+
 	return 0
 end
 

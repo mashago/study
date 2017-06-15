@@ -377,6 +377,25 @@ function test7()
 	return 0
 end
 
+function test8()
+
+	do
+		local mt = {}
+		mt.a = 1
+		mt.__index = mt
+		mt.__gc = function() print("do gc") end
+
+		local t = {}
+		setmetatable(t, mt)
+		print("1")
+		t = nil
+		print("2")
+		collectgarbage()
+		print("3")
+
+	end
+end
+
 function test_notyet()
 	return 0
 end
@@ -390,6 +409,7 @@ test_list =
 ,	test5
 ,	test6
 ,	test7
+,	test8
 }
 
 function do_main()

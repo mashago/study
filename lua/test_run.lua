@@ -169,6 +169,13 @@ function test4()
 	return 0
 end
 
+function test5()
+	print(debug.getinfo(1).currentline)
+	print(debug.getinfo(0).name)
+
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -179,6 +186,7 @@ test_list =
 ,	test2
 ,	test3
 ,	test4
+,	test5
 }
 
 function do_main()

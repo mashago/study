@@ -34,7 +34,7 @@ function test1()
 	do
 		local now = os.time()
 		local date = os.date("*t")
-		print(tableToString(date))
+		print("date=" .. tableToString(date))
 		date.hour = 0
 		date.min = 0
 		date.sec = 0
@@ -42,6 +42,12 @@ function test1()
 
 		log("now=%d day_start_time=%d", now, day_start_time)
 
+	end
+
+	do
+		local now = os.time()
+		local days_of_month = os.date("%d",os.time({year=os.date("%Y", now), month=os.date("%m", now)+1,day=0}))
+		log("days_of_month=%d", days_of_month)
 	end
 
 

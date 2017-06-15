@@ -27,10 +27,14 @@ void about_local_time()
 	struct tm detail;
 	localtime_r(&now, &detail); // get tm by time_t
 
-	std::cout << "tm_sec = " << detail.tm_sec << std::endl;
-	std::cout << "tm_min = " << detail.tm_min << std::endl;
-	std::cout << "tm_hour = " << detail.tm_hour << std::endl;
-	std::cout << "tm_wday = " << detail.tm_wday << std::endl;
+	printf("%d-%d-%d %d:%d:%d %d\n"
+	, detail.tm_year+1900
+	, detail.tm_mon+1
+	, detail.tm_mday
+	, detail.tm_hour
+	, detail.tm_min
+	, detail.tm_sec
+	, detail.tm_wday);
 
 	// zero hour, min, sec
 	detail.tm_hour = 0;

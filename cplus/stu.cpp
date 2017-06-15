@@ -3223,7 +3223,6 @@ int test82()
 	return 0;
 }
 
-
 int test83()
 {
 	const int AR_NUM = 10;
@@ -3242,6 +3241,22 @@ int test83()
 	return 0;
 }
 
+struct s84_t
+{
+	void *ptr;
+};
+
+int test84()
+{
+	s84_t t;
+	{
+		int64_t n = 10086;
+		t.ptr = (void *)n; // store a int64_t as a pointer address
+	}
+	printf("t.ptr=%ld", (int64_t)t.ptr);
+
+	return 0;
+}
 
 int test_notyet() 
 {
@@ -3338,6 +3353,7 @@ testcase_t test_list[] =
 ,	test81
 ,	test82
 ,	test83
+,	test84
 };
 
 int main(int argc, char *argv[]) 
