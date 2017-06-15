@@ -9,7 +9,7 @@ extern "C"
 }
 
 // typedef void (*event_callback_fn)(evutil_socket_t, short, void *);
-void timer_cb(int fd, short event, void *arg)
+void timer_cb(evutil_socket_t fd, short event, void *arg)
 {
 	int *pv = (int *)arg;
 	printf("fd=%d event=%d v=%d\n", fd, event, *pv);
