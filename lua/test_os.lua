@@ -42,6 +42,11 @@ function test1()
 
 		log("now=%d day_start_time=%d", now, day_start_time)
 
+		local date2 = os.date("*t")
+		local tmp = {year=date2.year, month=date2.month, day=date2.day}
+		local time = os.time(tmp) -- time in 12:00 !!!
+		log("time=%d", time)
+
 	end
 
 	do

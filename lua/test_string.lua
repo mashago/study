@@ -306,6 +306,21 @@ function test5()
 	return 0
 end
 
+function test6()
+
+	do
+	local str = ""
+	local format = "aa %d %s %d %s"
+	local int_arr = {1, 1}
+	local str_arr = {"str1", "str2"}
+
+	--str = string.format(format, 
+	end
+
+
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -317,6 +332,7 @@ test_list =
 ,	test3
 ,	test4
 ,	test5
+,	test6
 }
 
 function do_main()
