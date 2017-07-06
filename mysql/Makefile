@@ -8,7 +8,7 @@ platform:
 CFLAG:=-Wall -std=c++11 
 
 INC:=/usr/local/include/mysql /usr/include/mysql
-LIB_PATH:=
+LIB_PATH:=.
 LIB:=mysql_operator mysqlclient
 
 ifeq "$(OS)" "Linux"
