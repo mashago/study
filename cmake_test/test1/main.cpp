@@ -1,7 +1,7 @@
-#include "test.h"
+#include <stdio.h>
 
 int main(int argc, char **argv)
 {
-	test_print_hello();
+	printf("hello world\n");
 	return 0;
 }

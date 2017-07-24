@@ -3,6 +3,7 @@
 require "util"
 
 function test1()
+	do
 	local t1 = {}
 	t1[1] = 1
 	log("t1[1]=%d", t1[1])
@@ -34,6 +35,16 @@ function test1()
 	t2 = nil
 
 	log("t1=%s", tableToString(t1))
+	end
+
+	do
+	local t1 = {1, 2, 3}
+	local t2 = t1
+	t2 = {}
+	log("t1=%s", tableToString(t1))
+	log("t2=%s", tableToString(t2))
+
+	end
 
 	return 0
 end
@@ -410,6 +421,68 @@ function test8()
 	return 0
 end
 
+function serialize(obj)  
+	local lua = ""  
+	local t = type(obj)  
+	if t == "number" then  
+		lua = lua .. obj  
+	elseif t == "boolean" then  
+		lua = lua .. tostring(obj)  
+	elseif t == "string" then  
+		lua = lua .. string.format("%q", obj)  
+	elseif t == "table" then  
+		lua = lua .. "{\n"  
+	for k, v in pairs(obj) do  
+		lua = lua .. "[" .. serialize(k) .. "]=" .. serialize(v) .. ",\n"  
+	end  
+	local metatable = getmetatable(obj)  
+		if metatable ~= nil and type(metatable.__index) == "table" then  
+		for k, v in pairs(metatable.__index) do  
+			lua = lua .. "[" .. serialize(k) .. "]=" .. serialize(v) .. ",\n"  
+		end  
+	end  
+		lua = lua .. "}"  
+	elseif t == "nil" then  
+		return nil  
+	else  
+		error("can not serialize a " .. t .. " type.")  
+	end  
+	return lua  
+end  
+  
+function unserialize(lua)  
+	local t = type(lua)  
+	if t == "nil" or lua == "" then  
+		return nil  
+	elseif t == "number" or t == "string" or t == "boolean" then  
+		lua = tostring(lua)  
+	else  
+		error("can not unserialize a " .. t .. " type.")  
+	end  
+	lua = "return " .. lua  
+	local func = loadstring(lua)  
+	if func == nil then  
+		return nil  
+	end  
+	return func()  
+end
+
+function test9()
+	local data = {1, true, "hello", {}}
+	local str = serialize(data)
+	log("str=%s", str)
+
+	local data = {a=1, b=true, c="hello", d={}}
+	local str = serialize(data)
+	log("str=%s", str)
+
+	local data = {username="masha", password="ddddd"}
+	local str = serialize(data)
+	log("str=%s", str)
+
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -424,6 +497,7 @@ test_list =
 ,	test6
 ,	test7
 ,	test8
+,	test9
 }
 
 function do_main()
