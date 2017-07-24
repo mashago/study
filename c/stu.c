@@ -2147,6 +2147,22 @@ int test66()
 	return 0;
 }
 
+int test67()
+{
+	/*
+	int ret;
+	ret = 0;
+	*/
+
+	printf("\033[0;32;31m RED \033[m \n");
+	printf("\033[1;31m LIGHT_RED \033[m \n");
+	printf("\033[0;32;32m GREEN \033[m \n");
+	printf("\033[1;32m LIGHT_GREEN \033[m \n");
+	printf("\033[1;33m YELLOW \033[m \n");
+
+	return 0;
+}
+
 int test_tmp()
 {
 	/*
@@ -2227,6 +2243,7 @@ testcase_t test_list[] =
 ,	test64
 ,	test65
 ,	test66
+,	test67
 };
 
 int main(int argc, char * argv[]) 
