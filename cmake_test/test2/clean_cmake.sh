@@ -1,8 +1,9 @@
 #!/bin/bash
 
 echo "rm cmake cache begin..."
-rm `find . -name "cmake_install.cmake"`
-rm -r `find . -name "CMakeFiles"`
-rm -r `find . -name "Makefile"`
-rm -r `find . -name "CMakeCache.txt"`
+find . -name "cmake_install.cmake" | xargs rm -rf
+find . -name "CMakeFiles" | xargs rm -rf
+find . -name "Makefile" | xargs rm -rf
+find . -name "CMakeCache.txt" | xargs rm -rf
+#rm -rf ./sln/*
 echo "rm cmake cache end..."

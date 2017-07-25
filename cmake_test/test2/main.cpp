@@ -7,5 +7,7 @@ int main(int argc, char **argv)
 	Dog d = Dog("kittie");
 	d.Talk();
 
+	getchar();
+
 	return 0;
 }

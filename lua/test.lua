@@ -1282,6 +1282,17 @@ function test31()
 	return 0
 end
 
+function test32()
+	math.randomseed(os.time())
+	local lv = 30
+	local day = 300
+	local r = 0.8 + math.random(0, 40) / 100
+	print("r=" .. r)
+	local time = lv / 5 * (0.5 + 10/(day+10)) * r
+	print("time=" .. time)
+
+	return 0
+end
 
 function test_notyet()
 	return 0
@@ -1320,6 +1331,7 @@ test_list =
 ,	test29
 ,	test30
 ,	test31
+,	test32
 }
 
 function do_main()

@@ -59,7 +59,92 @@ function test1()
 	return 0
 end
 
+local function get_day_start_time(input_time)
+	local t = input_time or os.time()
+	local date = os.date("*t", t)
+	-- print("date=" .. tableToString(date))
+	date.hour = 0
+	date.min = 0
+	date.sec = 0
+	local day_start_time = os.time(date)
+	return day_start_time
+end
+
+-- weekday: monday is 1, sunday is 7
+local function get_next_weekday_time(weekday, hour, min, sec)
+	local now_time = os.time()
+	local now_weekday = tonumber(os.date("%w",os.time())) -- %w: monday is 1, wday: sunday is 1
+	local day_start_time = get_day_start_time(now_time)
+
+	local dtime = hour * 60 * 60 + min * 60 + sec
+
+	if weekday > now_weekday then
+		local next_time = day_start_time + (weekday - now_weekday) * 86400 + dtime
+		return next_time
+	end
+
+	if weekday < now_weekday then
+		local next_time = day_start_time + (weekday + 7 - now_weekday) * 86400 + dtime
+		return next_time
+	end
+
+	-- same weekday
+	local next_time = day_start_time + dtime
+	if next_time < now_time then
+		next_time = next_time + 7 * 86400
+	end
+	return next_time
+end
+
 function test2()
+
+	local now_time = os.time()
+	local now_date = os.date("*t", now_time)
+	log("now_time=%d", now_time)
+	log("now_date=%s", tableToString(now_date))
+
+	log("wday=%d", now_date.wday) -- %w: monday is 1, wday: sunday is 1
+	log("weekday=%d", tonumber(os.date("%w",os.time()))) -- %w: monday is 1, wday: sunday is 1
+
+	do
+		local new_date = os.date("*t", now_time)
+		new_date.wday = 2 -- monday
+		local new_time = os.time(new_date)
+		log("new_time=%d", new_time)
+		log("new_date=%s", tableToString(new_date))
+		log()
+	end
+
+	do
+		local function print_date(d)
+			log("year=%d month=%d day=%d hour=%d min=%d sec=%d", d.year, d.month, d.day, d.hour, d.min, d.sec)
+		end
+		local next_time = get_next_weekday_time(4, 10, 50, 0)
+		log("1 next_time=%d", next_time)
+		print_date(os.date("*t", next_time))
+		log()
+
+		local next_time = get_next_weekday_time(5, 10, 50, 0)
+		log("2 next_time=%d", next_time)
+		print_date(os.date("*t", next_time))
+		log()
+
+		local next_time = get_next_weekday_time(5, 18, 50, 0)
+		log("3 next_time=%d", next_time)
+		print_date(os.date("*t", next_time))
+		log()
+
+		local next_time = get_next_weekday_time(6, 5, 10, 0)
+		log("4 next_time=%d", next_time)
+		print_date(os.date("*t", next_time))
+		log()
+
+	end
+
+	return 0
+end
+
+function test3()
 
 	log(os.getenv("HOME"))
 
@@ -74,6 +159,7 @@ test_list =
 {
 	test1
 ,	test2
+,	test3
 }
 
 function do_main()
