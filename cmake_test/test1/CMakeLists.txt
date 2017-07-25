@@ -1,8 +1,8 @@
-#define project name
-PROJECT(test1)
-
 #define cmake version
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+#define project name
+PROJECT(test1)
 
 #AUX_SOURCE_DIRECTORY(<dir> <variable>)
 #put all files name from dir into variable
