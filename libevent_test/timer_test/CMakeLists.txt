@@ -4,16 +4,16 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET(PROJECT_NAME timer_test)
 SET(TARGET_NAME timer_test)
 
-IF (WIN32)  
-	MESSAGE(STATUS "Now is windows")  
-ELSEIF (APPLE)  
-	MESSAGE(STATUS "Now is Apple systens.")  
-ELSEIF (UNIX)  
-	MESSAGE(STATUS "Now is UNIX-like OS's. Including aPPLE os x  and CygWin")  
-ENDIF ()  
-
 #define project name
 PROJECT(${PROJECT_NAME})
+
+IF (WIN32)  
+	MESSAGE(STATUS "OS: WIN32")  
+ELSEIF (APPLE)  
+	MESSAGE(STATUS "OS: APPLE")  
+ELSEIF (UNIX)  
+	MESSAGE(STATUS "OS: UNIX")  
+ENDIF ()  
 
 #search and put all match files name into variable
 #FILE(GLOB|GLOB_RECURSE <variable> *.h *.hpp)
