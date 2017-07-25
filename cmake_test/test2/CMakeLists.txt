@@ -17,7 +17,7 @@ AUX_SOURCE_DIRECTORY(. DIR_SRCS)
 SOURCE_GROUP("Include" FILES ${DIR_HEADERS})
 SOURCE_GROUP("Source" FILES ${DIR_SRCS})
 
-#add a include dir
+#add a sub dir to build
 ADD_SUBDIRECTORY(src)
 
 #add include file path
@@ -27,7 +27,8 @@ INCLUDE_DIRECTORIES(
 )
 
 #add lib path
-LINK_DIRECTORIES()
+LINK_DIRECTORIES(
+)
 
 #create a execute file, name as main
 ADD_EXECUTABLE(main ${DIR_HEADERS} ${DIR_SRCS})
