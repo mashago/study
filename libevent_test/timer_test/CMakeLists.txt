@@ -1,6 +1,9 @@
 #define cmake version
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
+SET(PROJECT_NAME timer_test)
+SET(TARGET_NAME timer_test)
+
 IF (WIN32)  
 	MESSAGE(STATUS "Now is windows")  
 ELSEIF (APPLE)  
@@ -10,9 +13,7 @@ ELSEIF (UNIX)
 ENDIF ()  
 
 #define project name
-PROJECT(test1)
-
-SET(CMAKE_CXX_FLAGS "-std=c++11")
+PROJECT(${PROJECT_NAME})
 
 #search and put all match files name into variable
 #FILE(GLOB|GLOB_RECURSE <variable> *.h *.hpp)
@@ -27,6 +28,21 @@ AUX_SOURCE_DIRECTORY(. DIR_SRCS)
 SOURCE_GROUP("Include" FILES ${DIR_HEADERS})
 SOURCE_GROUP("Source" FILES ${DIR_SRCS})
 
-#$DIR_SRCS file create a execute file, name as main
-ADD_EXECUTABLE(main ${DIR_HEADERS} ${DIR_SRCS})
+#add include path
+INCLUDE_DIRECTORIES(
+./
+/usr/local/include
+)
 
+#add lib path
+LINK_DIRECTORIES(
+/usr/local/lib
+)
+
+#add lib
+#LINK_LIBRARIES(event)
+
+#$DIR_SRCS file create a execute file, name as main
+ADD_EXECUTABLE(${TARGET_NAME} ${DIR_HEADERS} ${DIR_SRCS})
+
+TARGET_LINK_LIBRARIES(${TARGET_NAME} event)
