@@ -1,8 +1,9 @@
 #define cmake version
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-SET(PROJECT_NAME timer_test)
-SET(TARGET_NAME timer_test)
+SET(PROJECT_NAME sc1)
+SET(TARGET_SERVER server_test)
+SET(TARGET_CLIENT client_test)
 
 #define project name
 PROJECT(${PROJECT_NAME})
@@ -20,6 +21,9 @@ SET(CMAKE_CXX_FLAGS "$ENV{CXXFLAGS} ${CMAKE_CXX_FLAGS} -std=c++11")
 SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -Wall")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 
+SET(SRCS_SERVER "server_test.cpp")
+SET(SRCS_CLIENT "client_test.cpp")
+
 #add include path
 INCLUDE_DIRECTORIES(
 ./
@@ -33,23 +37,12 @@ LINK_DIRECTORIES(
 
 SET(LIBRARIES "event")
 
-#search and put all match files name into variable
-#FILE(GLOB|GLOB_RECURSE <variable> *.h *.hpp)
-#GLOB|GLOB_RECURSE
-FILE(GLOB DIR_HEADERS *.h *.hpp)
-
-#AUX_SOURCE_DIRECTORY(<dir> <variable>)
-#put all files name from dir into variable
-AUX_SOURCE_DIRECTORY(. DIR_SRCS)
-
-#put files into folder in vs
-SOURCE_GROUP("Include" FILES ${DIR_HEADERS})
-SOURCE_GROUP("Source" FILES ${DIR_SRCS})
-
 #add lib
 #LINK_LIBRARIES(event)
 
 #$DIR_SRCS file create a execute file, name as main
-ADD_EXECUTABLE(${TARGET_NAME} ${DIR_HEADERS} ${DIR_SRCS})
+ADD_EXECUTABLE(${TARGET_SERVER} ${SRCS_SERVER})
+ADD_EXECUTABLE(${TARGET_CLIENT} ${SRCS_CLIENT})
 
-TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBRARIES})
+TARGET_LINK_LIBRARIES(${TARGET_SERVER} ${LIBRARIES})
+TARGET_LINK_LIBRARIES(${TARGET_CLIENT} ${LIBRARIES})
