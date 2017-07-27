@@ -6,12 +6,18 @@ extern "C"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
+#ifdef WIN32
+#include <io.h>  
+#include <process.h>
+#include <winsock2.h>
+#else
+#include <unistd.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
+#endif
+#include <sys/types.h>
 #include <time.h>
 #include <errno.h>
 
@@ -123,7 +129,7 @@ struct evconnlistener * create_listener(struct event_base *main_event)
 {
 	// 1. init a sin
 	struct sockaddr_in sin;
-	bzero(&sin, sizeof(sin));
+	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = PF_INET;
 	sin.sin_port = htons(SERVER_PORT);
 	int ip_num = inet_addr(SERVER_HOST);
@@ -147,6 +153,11 @@ struct evconnlistener * create_listener(struct event_base *main_event)
 int main(int argc, char **argv)
 {
 	printf("hello %s\n", argv[0]);
+
+#ifdef WIN32
+	WSADATA wsa_data;
+	WSAStartup(0x0201, &wsa_data);
+#endif
 
 	// 1. main base event init
 	// struct event_base *event_base_new(void);

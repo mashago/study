@@ -5,14 +5,20 @@ extern "C"
 {
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef WIN32
+#include <io.h>  
+#include <process.h>
+#include <winsock2.h>
+#include <conio.h>
+#else
 #include <unistd.h>
-#include <string.h>
-#include <strings.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
+#endif
+#include <string.h>
+#include <sys/types.h>
 #include <time.h>
 #include <errno.h>
 
@@ -23,7 +29,11 @@ extern "C"
 #include <event2/buffer.h>
 }
 
-#define SERVER_HOST "0.0.0.0"
+#include <string>
+
+// #define SERVER_HOST "0.0.0.0"
+// #define SERVER_HOST "192.168.107.210"
+#define SERVER_HOST "127.0.0.1"
 #define SERVER_PORT 7711
 
 // bufferevent data callback
@@ -91,6 +101,55 @@ void event_cb(struct bufferevent *bev, short what, void *user_data)
 
 }
 
+#ifdef WIN32
+// http://www.cnblogs.com/kingstarer/p/6629562.html
+void stdin_cb(evutil_socket_t fd, short what, void *user_data)
+{
+	struct bufferevent *bev = (struct bufferevent *)user_data;
+
+	static bool bLineEnd = false;
+	static std::string buffer = "";
+    
+	// check keyboard hit
+    if (_kbhit())
+    {
+        char cInput = EOF;
+        do
+        {
+			// get input char, _getch() can get char without enter press
+            int nInput = (char) _getch();
+            cInput = (char) nInput;
+
+			if (nInput >= 32 && nInput <= 126)
+			{
+				char tmp[2];
+				tmp[0] = cInput;
+				tmp[1] = '\0';
+				buffer.append(tmp);
+			}
+
+            putch(nInput);
+
+            if (cInput == '\r')
+            {
+                cInput = '\n';
+                putch(cInput);
+				buffer.append("\n");
+				bLineEnd = true;
+                break;
+            }     
+        }
+		while (_kbhit());
+    }
+
+	if (bLineEnd)
+	{
+		printf("buffer=%s", buffer.c_str());
+		buffer = "";
+		bLineEnd = false;
+	}
+}
+#else
 void stdin_cb(evutil_socket_t fd, short what, void *user_data)
 {
 	printf("stdin_cb: fd=%d\n", fd);
@@ -159,13 +218,14 @@ void stdin_cb(evutil_socket_t fd, short what, void *user_data)
 	}
 
 }
+#endif
 
 
 struct bufferevent * create_connect_event(struct event_base *main_event)
 {
 	// 1. init a sin
 	struct sockaddr_in sin;
-	bzero(&sin, sizeof(sin));
+	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = PF_INET;
 	sin.sin_port = htons(SERVER_PORT);
 	int ip_num = inet_addr(SERVER_HOST);
@@ -200,10 +260,33 @@ struct bufferevent * create_connect_event(struct event_base *main_event)
 		bufferevent_free(bev);
 		return NULL;
 	}
+	evutil_socket_t fd = bufferevent_getfd(bev);
+	printf("fd=%d\n", fd);
 
 	return bev;
 }
 
+#ifdef WIN32
+// in win32, cannot add stdin fd into libevent
+// so have to create a timer to check keyboard input
+// good job, microsoft.
+struct event * create_stdin_event(struct event_base *main_event, struct bufferevent *bev)
+{
+	struct event *stdin_event = event_new(main_event, -1, EV_PERSIST, stdin_cb, (void *)bev);
+	struct timeval tv;
+	tv.tv_sec = 0;
+	tv.tv_usec = 100;
+	int ret = event_add(stdin_event, &tv);
+	if (ret != 0)
+	{
+		printf("create_stdin_event: event_add fail\n");
+		event_free(stdin_event);
+		return NULL;
+	}
+	return stdin_event;
+}
+#else
+// in posix system, just add stdin fd into libevent
 struct event * create_stdin_event(struct event_base *main_event, struct bufferevent *bev)
 {
 	struct event *stdin_event = event_new(main_event, STDIN_FILENO, EV_READ | EV_PERSIST, stdin_cb, (void *)bev);
@@ -216,11 +299,17 @@ struct event * create_stdin_event(struct event_base *main_event, struct bufferev
 	}
 	return stdin_event;
 }
+#endif
 
 
 int main(int argc, char **argv)
 {
 	printf("hello %s\n", argv[0]);
+
+#ifdef WIN32
+	WSADATA wsa_data;
+	WSAStartup(0x0201, &wsa_data);
+#endif
 
 	// 1. main base event init
 	// struct event_base *event_base_new(void);
@@ -231,6 +320,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 
+	
 	// 2. create client connect event
 	struct bufferevent *bev = create_connect_event(main_event);
 	if (bev == NULL)
@@ -253,8 +343,8 @@ int main(int argc, char **argv)
 	printf("event_base_dispatch ret=%d\n", ret);
 
 	// 5. clean up
-	bufferevent_free(bev);
-	event_free(stdin_event);
+	//bufferevent_free(bev);
+	//event_free(stdin_event);
 	event_base_free(main_event);
 
 	return 0;
