@@ -4,7 +4,6 @@
 extern "C"
 {
 #include <stdio.h>
-#include <strings.h>
 #include <event2/event.h>
 }
 
@@ -19,6 +18,11 @@ void timer_cb(evutil_socket_t fd, short event, void *arg)
 int main(int argc, char **argv)
 {
 	printf("hello %s\n", argv[0]);
+
+#ifdef WIN32
+	WSADATA wsa_data;
+	WSAStartup(0x0201, &wsa_data);
+#endif
 
 	int v = 0;
 

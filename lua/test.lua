@@ -1294,6 +1294,25 @@ function test32()
 	return 0
 end
 
+function test33()
+	math.randomseed(os.time())
+	local str = ""
+	for i=1, 10 do
+		local r = math.random(0, 1)
+		str = str .. r .. " "
+	end
+	print("random(0,1)=" .. str)
+
+	local str = ""
+	for i=1, 10 do
+		local r = math.random(1, 1)
+		str = str .. r .. " "
+	end
+	print("random(1,1)=" .. str)
+
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -1332,6 +1351,7 @@ test_list =
 ,	test30
 ,	test31
 ,	test32
+,	test33
 }
 
 function do_main()
