@@ -35,7 +35,7 @@ LINK_DIRECTORIES(
 /usr/local/lib
 )
 
-SET(LIBRARIES "libevent")
+SET(LIBRARIES "-levent")
 
 #4.check os to set include or lib dir
 IF(CMAKE_SYSTEM_NAME MATCHES "Windows")
