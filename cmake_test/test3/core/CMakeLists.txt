@@ -1,16 +1,19 @@
-#search and put all match files name into variable
-#FILE(GLOB|GLOB_RECURSE <variable> *.h *.hpp)
-#GLOB|GLOB_RECURSE
-FILE(GLOB DIR_LIB_HEADERS *.h *.hpp)
+#1.define target
+#2.group source
+#3.create lib
+#4.install to folder
 
-#AUX_SOURCE_DIRECTORY(<dir> <variable>)
-#put all source files name from dir into variable
-AUX_SOURCE_DIRECTORY(. DIR_LIB_SRCS)
+#1.define target
+SET(TARGET_NAME mylib)
 
-#put files into folder in vs
-SOURCE_GROUP("Include" FILES ${DIR_LIB_HEADERS})
-SOURCE_GROUP("Source" FILES ${DIR_LIB_SRCS})
+#2.group source
+FILE(GLOB FILES_HEAD *.h *.hpp)
+AUX_SOURCE_DIRECTORY(. FILES_SOURCE)
+SOURCE_GROUP("Include" FILES ${FILES_HEAD})
+SOURCE_GROUP("Source" FILES ${FILES_SOURCE})
 
-#create a lib name "mylib"
-ADD_LIBRARY(mylib ${DIR_LIB_HEADERS} ${DIR_LIB_SRCS})
+#3.create lib
+ADD_LIBRARY(${TARGET_NAME} ${FILES_HEAD} ${FILES_SOURCE})
 
+#4.install to folder
+#INSTALL(TARGETS ${TARGET_NAME} DESTINATION lib)

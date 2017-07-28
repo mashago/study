@@ -5,5 +5,6 @@ find . -name "cmake_install.cmake" | xargs rm -rf
 find . -name "CMakeFiles" | xargs rm -rf
 find . -name "Makefile" | xargs rm -rf
 find . -name "CMakeCache.txt" | xargs rm -rf
+rm -rf install_manifest.txt
 #rm -rf ./sln/*
 echo "rm cmake cache end..."

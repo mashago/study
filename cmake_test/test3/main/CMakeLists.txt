@@ -1,0 +1,35 @@
+#1.define target
+#2.include and lib
+#3.group source
+#4.create lib
+#5.link lib
+#6.install to folder
+
+#1.define target
+SET(TARGET_NAME main)
+
+#2.include and lib
+INCLUDE_DIRECTORIES(
+./
+../core
+)
+
+LINK_DIRECTORIES(
+)
+
+SET(LIBRARIES mylib)
+
+#3.group source
+FILE(GLOB FILES_HEAD *.h *.hpp)
+AUX_SOURCE_DIRECTORY(. FILES_SOURCE)
+SOURCE_GROUP("Include" FILES ${FILES_HEAD})
+SOURCE_GROUP("Source" FILES ${FILES_SOURCE})
+
+#4.create lib
+ADD_EXECUTABLE(${TARGET_NAME} ${FILES_HEAD} ${FILES_SOURCE})
+
+#5.link lib
+TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBRARIES})
+
+#6.install to folder
+INSTALL(TARGETS ${TARGET_NAME} DESTINATION bin)
