@@ -144,7 +144,9 @@ void stdin_cb(evutil_socket_t fd, short what, void *user_data)
 
 	if (bLineEnd)
 	{
-		printf("buffer=%s", buffer.c_str());
+		// printf("buffer=%s", buffer.c_str());
+		struct evbuffer *output = bufferevent_get_output(bev);
+		evbuffer_add(output, buffer.c_str(), buffer.size());
 		buffer = "";
 		bLineEnd = false;
 	}
