@@ -5,9 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 #include <assert.h>
-#include <unistd.h>
 #include <math.h>
 #include <time.h>
 #include <ctype.h>
@@ -754,7 +752,7 @@ int test4()
 		lua_getglobal(L, "_VERSION");
 		const char * pv = lua_tostring(L, -1);
 		char version[50];
-		snprintf(version, sizeof(version), "%s", pv);
+		sprintf(version, "%s", pv);
 		lua_pop(L, 1);
 		printf("version=%s\n", version);
 
@@ -1782,7 +1780,7 @@ int test13()
 		,	{"table", luaopen_table}
 		,	{LUA_IOLIBNAME, luaopen_io}
 		,	{LUA_OSLIBNAME, luaopen_os}
-		,	{LUA_BITLIBNAME, luaopen_bit32}
+		// ,	{LUA_BITLIBNAME, luaopen_bit32}
 		,	{LUA_COLIBNAME, luaopen_coroutine}
 		,	{LUA_MATHLIBNAME, luaopen_math}
 		,	{LUA_DBLIBNAME, luaopen_debug}
