@@ -3,7 +3,9 @@ extern "C"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef WIN32
 #include <sys/time.h>
+#endif
 }
 
 #include <thread>
@@ -19,9 +21,13 @@ extern "C"
 
 double get_time_ms()
 {
+#ifdef WIN32
+	return 0;
+#else
     struct timeval tv;
     gettimeofday(&tv,NULL);
     return tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0;
+#endif
 }
 
 void do_init()
