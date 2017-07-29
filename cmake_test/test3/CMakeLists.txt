@@ -8,6 +8,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 #1.define project and target
 SET(PROJECT_NAME test3)
 PROJECT(${PROJECT_NAME})
+SET(PROJECT_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 #2.define make flags and install path
 SET(CMAKE_BUILD_TYPE "Debug")
