@@ -2,7 +2,9 @@ extern "C"
 {
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include <string.h>
 }
 #include <string>
@@ -98,7 +100,11 @@ int my_query(MYSQL **pconn, const char *q, int len)
 		{
 			// sleep depends on count
 			printf("my_query:retry %d", count);
+			#ifdef WIN32
+			Sleep(count * 1000);
+			#else
 			sleep(count);
+			#endif
 			my_reconn(pconn);
 			count++;
 		}

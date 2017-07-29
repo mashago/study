@@ -1,6 +1,10 @@
 
 #include <stdio.h>
+#ifdef WIN32
+#include <windows.h>
+#else
 #include <unistd.h>
+#endif
 #include "mysql_operator.h"
 
 mysql_operator_t::mysql_operator_t() 
@@ -126,7 +130,12 @@ int mysql_operator_t::query(const char *sql, int len)
 		if (this->err == 2013 || this->err == 2006 || this->err == 8888)
 		{
 			printf("query:disconnect errno=%d\n", this->err);
+			#ifdef WIN32
+			Sleep(1000);
+			#else
 			sleep(1);
+			#endif
+			
 			reconnect();
 			reconn_count++;
 		}
