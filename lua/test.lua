@@ -1313,7 +1313,80 @@ function test33()
 	return 0
 end
 
-function test_notyet()
+function calc_two_point_forward_point(from_x, from_y, to_x, to_y, distance)
+	local side_x_m = 1
+	if from_x > to_x then
+		side_x_m = -1
+	end
+	local side_y_m = 1
+	if from_y > to_y then
+		side_y_m = -1
+	end
+
+	local offset_x = math.abs(to_x - from_x)
+	local offset_y = math.abs(to_y - from_y)
+	if offset_x == 0 and offset_y == 0 then
+		return to_x + distance, to_y
+	end
+
+	if offset_x == 0 then
+		return to_x, to_y + distance * side_y_m
+	end
+
+	if offset_y == 0 then
+		return to_x + distance * side_x_m, to_y
+	end
+
+	local m = offset_y / offset_x
+
+	local from_to_distance = math.pow(offset_x ^ 2 + offset_y ^ 2, 0.5)
+	local from_target_distance = from_to_distance + distance
+
+	local from_target_x = math.pow(from_target_distance ^ 2 / (1 + m ^ 2), 0.5)
+	local from_target_y = from_target_x * m
+
+	return from_x + from_target_x * side_x_m, from_y + from_target_y * side_y_m
+end
+
+function two_point_distance(from_x, from_y, to_x, to_y)
+	local offset_x = math.abs(to_x - from_x)
+	local offset_y = math.abs(to_y - from_y)
+	if offset_x == 0 and offset_y == 0 then
+		return 0
+	end
+
+	if offset_x == 0 then
+		return offset_y
+	end
+
+	if offset_y == 0 then
+		return offset_x
+	end
+
+	return math.pow(offset_x ^ 2 + offset_y ^ 2, 0.5)
+end
+
+function test34()
+
+	math.randomseed(os.time())
+	for i=1, 1000 do
+		local from_x, from_y = math.random(0, 50) , math.random(0, 50)
+		local to_x, to_y = math.random(0, 50) , math.random(0, 50)
+		local distance = math.random(0, 50)
+		local target_x, target_y = calc_two_point_forward_point(from_x, from_y, to_x, to_y, distance)
+		-- print("target_x=", target_x, " target_y=", target_y)
+		local from_to_distance = two_point_distance(from_x, from_y, to_x, to_y)
+		local from_target_distance = two_point_distance(from_x, from_y, target_x, target_y)
+		-- print("from_to_distance=", from_to_distance, " from_target_distance=", from_target_distance)
+		local real_distance = from_target_distance - from_to_distance
+		if math.abs(real_distance - distance) > 0.1 then
+			print("from_x=", from_x, " from_y=", from_y)
+			print("to_x=", to_x, " to_y=", to_y)
+			print("distance=", distance)
+			print("real_distance=", real_distance, " distance=", distance)
+		end
+	end
+	
 	return 0
 end
 
@@ -1352,6 +1425,7 @@ test_list =
 ,	test31
 ,	test32
 ,	test33
+,	test34
 }
 
 function do_main()
