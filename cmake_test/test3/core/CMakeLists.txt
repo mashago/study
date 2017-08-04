@@ -1,7 +1,6 @@
 #1.define target
 #2.group source
 #3.create lib
-#4.install to folder
 
 #1.define target
 SET(TARGET_NAME mylib)
@@ -15,5 +14,3 @@ SOURCE_GROUP("Source" FILES ${FILES_SOURCE})
 #3.create lib
 ADD_LIBRARY(${TARGET_NAME} ${FILES_HEAD} ${FILES_SOURCE})
 
-#4.install to folder
-#INSTALL(TARGETS ${TARGET_NAME} DESTINATION lib)
