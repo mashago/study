@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <iterator>
 #include <iostream>
-#include "aoi.h"
+#include "aoi_old.h"
 
 AOI::AOI()
 	:_cur_check_list_id_creator(0)
