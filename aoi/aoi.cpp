@@ -360,6 +360,10 @@ AOI::EventList& AOI::get_all_events()
 
 void AOI::clear_events()
 {
+	for (auto ptr : _event_list)
+	{
+		delete ptr;
+	}
 	_event_list.clear();
 }
 
