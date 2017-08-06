@@ -18,7 +18,6 @@ class Event
 {
 public:
 	AOIEventType _event; //事件 => 触发者 进入/立刻/移动 观察者 范围，要将触发者消息告诉观察者
-	uint64_t _check_list_id; //检测列表的id
 	uint64_t _marker_aoi_id; //触发者
 	uint64_t _watcher_aoi_id; //观察者
 	uint64_t _marker_entity_id;
@@ -29,7 +28,6 @@ class CheckObj {
 public:
 	uint64_t _aoi_id; // aoi unique id //区别标记每个对象
 	uint64_t _entity_id;
-	uint64_t _check_list_id; //检测列表的id
 
 	uint32_t _x_len; //检测x的长度
 	uint32_t _y_len; //检测y的长度
@@ -52,15 +50,11 @@ public:
 	typedef std::list<uint64_t> ObjIDList;
 	typedef ObjIDList::iterator ObjIDListIt;
 	
-	//构造函数
-	AOI();
+	AOI(uint32_t aoi_x_len, uint32_t aoi_y_len);
 	~AOI();
 
-	//创建一个检测列表，返回对应的检测列表id(根据x_len和y_len进行分组检测)
-	int make_check_list(uint32_t aoi_x_len, uint32_t aoi_y_len);
-
 	//加入AOI中的检测列表中，并返回一个唯一id
-	bool add(int check_list_id, int x, int y, bool is_marker, bool is_watcher, uint64_t& out_aoi_id, uint64_t entity_id)
+	bool add(int x, int y, bool is_marker, bool is_watcher, uint64_t& out_aoi_id, uint64_t entity_id);
 
 	//移除AOI
 	void remove(uint64_t aoi_id);
@@ -83,7 +77,7 @@ public:
 	void print_all_events();
 
 private:
-	void make_event(CheckObj* marker, CheckObj* watcher, EventType ev_type);
+	void make_event(CheckObj* marker, CheckObj* watcher, AOIEventType ev_type);
 	void obj_create_event(CheckObj *aoi_obj, AOIEventType event_type);
 
 	//测试生成事件
@@ -91,18 +85,20 @@ private:
 	void check_right_move_make_event(CheckObj* check_object,CheckObj* x_check_object, int old_min_x, int old_max_x, int new_min_x, int new_max_x, int old_min_y, int old_max_y, int new_min_y, int new_max_y);
 	void check_no_move_make_event(CheckObj* check_object, CheckObj* x_check_object, int old_min_x, int old_max_x, int new_min_x, int new_max_x, int old_min_y, int old_max_y, int new_min_y, int new_max_y);
 
-	//检测列表id和x_len/y_len对应
-	typedef std::unordered_map<int, std::pair<uint32_t, uint32_t>> CheckListIDMap;
-	// typedef CheckListIDMap::iterator CheckListIDMapIt;
-	CheckListIDMap _check_list_id_map;
+	uint64_t m_cur_aoi_id;
+	uint32_t m_aoi_x_len;
+	uint32_t m_aoi_y_len;
+	CheckObj *m_head_aoi_obj;
 
-	int _cur_check_list_id; //当前检测列表索引生成
-	uint64_t _cur_aoi_id; //当前对象id生成
+	//检测列表id和x_len/y_len对应
+	// typedef std::unordered_map<int, std::pair<uint32_t, uint32_t>> CheckListIDMap;
+	// typedef CheckListIDMap::iterator CheckListIDMapIt;
+	// CheckListIDMap _check_list_id_map;
 
 	//check_list_id, check_obj_list(检测对象列表，首对象为系统默认对象)
-	typedef std::unordered_map<int, CheckObj*> CheckObjListMap;
+	// typedef std::unordered_map<int, CheckObj*> CheckObjListMap;
 	// typedef CheckObjListMap::iterator CheckObjListMapIt;
-	CheckObjListMap _check_obj_list_map;
+	// CheckObjListMap _check_obj_list_map;
 
 	//check_obj_id, check_obj
 	typedef std::unordered_map<uint64_t, CheckObj*> CheckObjMap;
