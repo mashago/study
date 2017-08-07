@@ -100,7 +100,8 @@ public:
 	void print_all_events();
 
 private:
-	std::vector<uint64_t> get_around_obj_vec(CheckObj *aoi_obj);
+	std::vector<uint64_t> get_around_obj_id(CheckObj *aoi_obj);
+	std::vector<CheckObj *> get_around_obj(CheckObj *aoi_obj);
 
 	void make_event(CheckObj* marker, CheckObj* watcher, AOIEventType ev_type);
 	void obj_create_event(CheckObj *aoi_obj, AOIEventType event_type);

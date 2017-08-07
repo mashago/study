@@ -133,13 +133,13 @@ void AOI::move(uint64_t aoi_id, int x, int y)
 		return;
 	}
 
-	// 1. get old pos effect vec
+	// 1. get old pos around vec
 	// 2. move aoi obj
-	// 3. get new pos effect vec
+	// 3. get new pos around vec
 	// 4. intersection for move, diff for remove and add
 
-	// 1. get old pos effect vec
-	std::vector<uint64_t> old_around_obj_vec = get_around_obj_vec(aoi_obj);
+	// 1. get old pos around vec
+	std::vector<CheckObj *> old_around_obj_vec = get_around_obj(aoi_obj);
 
 	// 2. move aoi obj
 	auto aoi_obj_move = [](CheckObj *aoi_obj, AOIAxis axis, int new_pos)
@@ -207,45 +207,44 @@ void AOI::move(uint64_t aoi_id, int x, int y)
 	aoi_obj_move(aoi_obj, AOIAxis::X_AXIS, x);
 	aoi_obj_move(aoi_obj, AOIAxis::Y_AXIS, y);
 
-	// 3. get new pos effect vec
-	std::vector<uint64_t> new_pos_effect_vec = get_around_obj_vec(aoi_obj);
+	// 3. get new pos around vec
+	std::vector<CheckObj *> new_around_obj_vec = get_around_obj(aoi_obj);
 	
 	// 4. intersection for move, diff for remove and add
-	std::vector<uint64_t> effect_move_vec(old_around_obj_vec.size() + new_pos_effect_vec.size());
+	uint32_t old_around_obj_num = old_around_obj_vec.size();
+	uint32_t new_around_obj_num = new_around_obj_vec.size();
+	uint32_t diff_num = old_around_obj_num >= new_around_obj_num ? old_around_obj_num : new_around_obj_num;
+
+	std::vector<CheckObj *> notify_move_vec(old_around_obj_num + new_around_obj_num);
 	{
-	auto iter = std::set_intersection(old_around_obj_vec.begin(), old_around_obj_vec.end(), new_pos_effect_vec.begin(), new_pos_effect_vec.end(), effect_move_vec.begin());
-	effect_move_vec.resize(iter - effect_move_vec.begin());
+	auto iter = std::set_intersection(old_around_obj_vec.begin(), old_around_obj_vec.end(), new_around_obj_vec.begin(), new_around_obj_vec.end(), notify_move_vec.begin());
+	notify_move_vec.resize(iter - notify_move_vec.begin());
 	}
 
-	std::vector<uint64_t> effect_leave_vec(old_around_obj_vec.size() + new_pos_effect_vec.size());
+	
+	std::vector<CheckObj *> notify_leave_vec(diff_num);
 	{
-	auto iter = std::set_difference(old_around_obj_vec.begin(), old_around_obj_vec.end(), new_pos_effect_vec.begin(), new_pos_effect_vec.end(), effect_leave_vec.begin());
-	effect_leave_vec.resize(iter - effect_leave_vec.begin());
+	auto iter = std::set_difference(old_around_obj_vec.begin(), old_around_obj_vec.end(), new_around_obj_vec.begin(), new_around_obj_vec.end(), notify_leave_vec.begin());
+	notify_leave_vec.resize(iter - notify_leave_vec.begin());
 	}
 
-	std::vector<uint64_t> effect_enter_vec(old_around_obj_vec.size() + new_pos_effect_vec.size());
+	std::vector<CheckObj *> notify_enter_vec(diff_num);
 	{
-	auto iter = std::set_difference(new_pos_effect_vec.begin(), new_pos_effect_vec.end(), old_around_obj_vec.begin(), old_around_obj_vec.end(), effect_enter_vec.begin());
-	effect_enter_vec.resize(iter - effect_enter_vec.begin());
+	auto iter = std::set_difference(new_around_obj_vec.begin(), new_around_obj_vec.end(), old_around_obj_vec.begin(), old_around_obj_vec.end(), notify_enter_vec.begin());
+	notify_enter_vec.resize(iter - notify_enter_vec.begin());
 	}
 
 	// 5. make event
-	auto make_event_list = [this](CheckObj *aoi_obj, std::vector<uint64_t> &aoi_id_vec, AOIEventType event_type)
+	auto make_event_list = [this](CheckObj *aoi_obj, std::vector<CheckObj *> &notify_obj_vec, AOIEventType event_type)
 	{
-		for (uint64_t aoi_id : aoi_id_vec)
+		for (CheckObj *notify_obj : notify_obj_vec)
 		{
-			auto iter = _check_obj_map.find(aoi_id);
-			if (iter == _check_obj_map.end())
-			{
-				// something go wrong
-				continue;
-			}
-			make_event(aoi_obj, iter->second, event_type);
+			make_event(aoi_obj, notify_obj, event_type);
 		}
 	};
-	make_event_list(aoi_obj, effect_move_vec, AOIEventType::IN);
-	make_event_list(aoi_obj, effect_leave_vec, AOIEventType::LEAVE);
-	make_event_list(aoi_obj, effect_enter_vec, AOIEventType::ENTER);
+	make_event_list(aoi_obj, notify_move_vec, AOIEventType::IN);
+	make_event_list(aoi_obj, notify_leave_vec, AOIEventType::LEAVE);
+	make_event_list(aoi_obj, notify_enter_vec, AOIEventType::ENTER);
 
 }
 
@@ -274,7 +273,7 @@ AOI::ObjIDList& AOI::get_all_around_ids(uint64_t check_obj_id)
 	}
 
 
-	_all_around_ids = get_around_obj_vec(aoi_obj);
+	_all_around_ids = get_around_obj_id(aoi_obj);
 
 	return _all_around_ids;
 }
@@ -365,7 +364,7 @@ void AOI::print_all_events()
 //////////////////////////////////////////////////////
 
 
-std::vector<uint64_t> AOI::get_around_obj_vec(CheckObj *aoi_obj)
+std::vector<uint64_t> AOI::get_around_obj_id(CheckObj *aoi_obj)
 {
 
 	// 1. get range
@@ -373,9 +372,8 @@ std::vector<uint64_t> AOI::get_around_obj_vec(CheckObj *aoi_obj)
 	// 3. check next aoi obj
 	// 4. get intersection
 	
-	auto get_effect_axis = [](CheckObj *aoi_obj, AOIAxis axis)
+	auto func_get_around_axis = [](CheckObj *aoi_obj, AOIAxis axis, std::vector<uint64_t> &out_vec)
 	{
-		std::vector<uint64_t> ret;
 		// 1. get range
 		int pos_min = aoi_obj->_pos_array[axis] - aoi_obj->_aoi_len_array[axis];
 		int pos_max = aoi_obj->_pos_array[axis] + aoi_obj->_aoi_len_array[axis];
@@ -392,7 +390,7 @@ std::vector<uint64_t> AOI::get_around_obj_vec(CheckObj *aoi_obj)
 				break;
 			}
 
-			ret.push_back(point_aoi_obj->_aoi_id);
+			out_vec.push_back(point_aoi_obj->_aoi_id);
 			point_aoi_obj = point_aoi_obj->_pre_array[axis];
 		}
 
@@ -406,22 +404,82 @@ std::vector<uint64_t> AOI::get_around_obj_vec(CheckObj *aoi_obj)
 				break;
 			}
 
-			ret.push_back(point_aoi_obj->_aoi_id);
+			out_vec.push_back(point_aoi_obj->_aoi_id);
 			point_aoi_obj = point_aoi_obj->_next_array[axis];
 		}
-		std::sort(ret.begin(), ret.end());
-		return ret;
+		std::sort(out_vec.begin(), out_vec.end());
 	};
-	std::vector<uint64_t> x_effect_vec = get_effect_axis(aoi_obj, AOIAxis::X_AXIS);
-	std::vector<uint64_t> y_effect_vec = get_effect_axis(aoi_obj, AOIAxis::Y_AXIS);
+	std::vector<uint64_t> x_around_vec; 
+	std::vector<uint64_t> y_around_vec;
+	func_get_around_axis(aoi_obj, AOIAxis::X_AXIS, x_around_vec);
+	func_get_around_axis(aoi_obj, AOIAxis::Y_AXIS, y_around_vec);
 
 	// 4. get intersection
-	std::vector<uint64_t> effect_vec(x_effect_vec.size() + y_effect_vec.size());
-	auto iter = std::set_intersection(x_effect_vec.begin(), x_effect_vec.end()
-	, y_effect_vec.begin(), y_effect_vec.end(), effect_vec.begin());
-	effect_vec.resize(iter - effect_vec.begin());
+	std::vector<uint64_t> around_vec(x_around_vec.size() + y_around_vec.size());
+	auto iter = std::set_intersection(x_around_vec.begin(), x_around_vec.end()
+	, y_around_vec.begin(), y_around_vec.end(), around_vec.begin());
+	around_vec.resize(iter - around_vec.begin());
 
-	return effect_vec;
+	return around_vec;
+}
+
+std::vector<CheckObj *> AOI::get_around_obj(CheckObj *aoi_obj)
+{
+
+	// 1. get range
+	// 2. check pre aoi obj
+	// 3. check next aoi obj
+	// 4. get intersection
+	
+	auto func_get_around_axis = [](CheckObj *aoi_obj, AOIAxis axis, std::vector<CheckObj *> &out_vec)
+	{
+		// 1. get range
+		int pos_min = aoi_obj->_pos_array[axis] - aoi_obj->_aoi_len_array[axis];
+		int pos_max = aoi_obj->_pos_array[axis] + aoi_obj->_aoi_len_array[axis];
+
+		CheckObj* point_aoi_obj = nullptr;
+		
+		// 2. check pre aoi obj
+		point_aoi_obj = aoi_obj->_pre_array[axis];
+		while (point_aoi_obj)
+		{
+			if (point_aoi_obj->_pos_array[axis] < pos_min)
+			{
+				// min over
+				break;
+			}
+
+			out_vec.push_back(point_aoi_obj);
+			point_aoi_obj = point_aoi_obj->_pre_array[axis];
+		}
+
+		// 3. check next aoi obj
+		point_aoi_obj = aoi_obj->_next_array[axis];
+		while (point_aoi_obj)
+		{
+			if (point_aoi_obj->_pos_array[axis] > pos_max)
+			{
+				// max over
+				break;
+			}
+
+			out_vec.push_back(point_aoi_obj);
+			point_aoi_obj = point_aoi_obj->_next_array[axis];
+		}
+		std::sort(out_vec.begin(), out_vec.end());
+	};
+	std::vector<CheckObj *> x_around_vec; 
+	std::vector<CheckObj *> y_around_vec;
+	func_get_around_axis(aoi_obj, AOIAxis::X_AXIS, x_around_vec);
+	func_get_around_axis(aoi_obj, AOIAxis::Y_AXIS, y_around_vec);
+
+	// 4. get intersection
+	std::vector<CheckObj *> around_vec(x_around_vec.size() + y_around_vec.size());
+	auto iter = std::set_intersection(x_around_vec.begin(), x_around_vec.end()
+	, y_around_vec.begin(), y_around_vec.end(), around_vec.begin());
+	around_vec.resize(iter - around_vec.begin());
+
+	return around_vec;
 }
 
 void AOI::make_event(CheckObj* marker, CheckObj* watcher, AOIEventType ev_type)
@@ -438,16 +496,10 @@ void AOI::make_event(CheckObj* marker, CheckObj* watcher, AOIEventType ev_type)
 
 void AOI::obj_create_event(CheckObj *aoi_obj, AOIEventType event_type)
 {
-	std::vector<uint64_t> effect_vec = get_around_obj_vec(aoi_obj);
-	for (uint64_t aoi_id : effect_vec)
+	std::vector<CheckObj *> around_vec = get_around_obj(aoi_obj);
+	for (CheckObj *around_obj : around_vec)
 	{
-		auto iter = _check_obj_map.find(aoi_id);
-		if (iter == _check_obj_map.end())
-		{
-			// something go wrong
-			continue;
-		}
-		make_event(aoi_obj, iter->second, event_type);
+		make_event(aoi_obj, around_obj, event_type);
 	}
 }
 

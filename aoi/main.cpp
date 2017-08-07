@@ -52,10 +52,10 @@ int main(int argc, char **argv)
 
 	srand(time(NULL));
 
-	uint32_t aoi_x_len = 10;
-	uint32_t aoi_y_len = 10;
-	uint32_t x_range = 50;
-	uint32_t y_range = 50;
+	uint32_t aoi_x_len = 50;
+	uint32_t aoi_y_len = 50;
+	uint32_t x_range = 1000;
+	uint32_t y_range = 1000;
 	int ENTITY_NUM = 1000;
 
 	uint64_t entity_id = 1;
@@ -72,38 +72,83 @@ int main(int argc, char **argv)
 	}
 
 	{
+	using namespace AOI_X_SPACE;
+	double start_time = get_time_ms();
+	AOI *aoi = new AOI(aoi_x_len, aoi_y_len);
+
+	double add_start_time = get_time_ms();
+	for (Entity &e : entity_list)
+	{
+		aoi->add(e.x, e.y, true, true, e.aoi_id, e.entity_id);
+	}
+	printf("insert time = %lfms\n", get_time_ms() - add_start_time);
+	// aoi->print_x_objs();
+	// aoi->print_y_objs();
+	// aoi->print_all_events();
+	// printf("***************************\n");
+
+	double move_start_time = get_time_ms();
+	for (Entity &e : entity_list)
+	{
+		aoi->move(e.aoi_id, e.move_x, e.move_y);
+	}
+	printf("move time = %lfms\n", get_time_ms() - move_start_time);
+	// aoi->print_x_objs();
+	// aoi->print_y_objs();
+	// aoi->print_all_events();
+	// printf("***************************\n");
+	printf("event num=%zu\n", aoi->get_all_events().size());
+
+	double remove_start_time = get_time_ms();
+	for (Entity &e : entity_list)
+	{
+		aoi->remove(e.aoi_id);
+	}
+	printf("remove time = %lfms\n", get_time_ms() - remove_start_time);
+	// aoi->print_x_objs();
+	// aoi->print_y_objs();
+	// aoi->print_all_events();
+	aoi->clear_events();
+
+	delete aoi;
+	double end_time = get_time_ms();
+	printf("time offset = %lfms\n", end_time - start_time);
+	}
+	printf("\n");
+	{
 	using namespace AOI_ORI_SPACE;
 	double start_time = get_time_ms();
 	AOI *aoi = new AOI(aoi_x_len, aoi_y_len);
-	// aoi->print_x_objs();
-	// aoi->print_y_objs();
-	// aoi->print_all_events();
-	// printf("***************************\n");
 
+	double add_start_time = get_time_ms();
 	for (Entity &e : entity_list)
 	{
 		aoi->add(e.x, e.y, true, true, e.aoi_id, e.entity_id);
 	}
-	printf("insert time = %lfms\n", get_time_ms() - start_time);
+	printf("insert time = %lfms\n", get_time_ms() - add_start_time);
 	// aoi->print_x_objs();
 	// aoi->print_y_objs();
 	// aoi->print_all_events();
 	// printf("***************************\n");
 
+	double move_start_time = get_time_ms();
 	for (Entity &e : entity_list)
 	{
 		aoi->move(e.aoi_id, e.move_x, e.move_y);
 	}
+	printf("move time = %lfms\n", get_time_ms() - move_start_time);
 	// aoi->print_x_objs();
 	// aoi->print_y_objs();
 	// aoi->print_all_events();
 	// printf("***************************\n");
 	printf("event num=%zu\n", aoi->get_all_events().size());
 
+	double remove_start_time = get_time_ms();
 	for (Entity &e : entity_list)
 	{
 		aoi->remove(e.aoi_id);
 	}
+	printf("remove time = %lfms\n", get_time_ms() - remove_start_time);
 	// aoi->print_x_objs();
 	// aoi->print_y_objs();
 	// aoi->print_all_events();
@@ -115,49 +160,7 @@ int main(int argc, char **argv)
 	}
 
 
-	{
-	using namespace AOI_X_SPACE;
-	// using namespace AOI_ORI_SPACE;
-	double start_time = get_time_ms();
-	AOI *aoi = new AOI(aoi_x_len, aoi_y_len);
-	// aoi->print_x_objs();
-	// aoi->print_y_objs();
-	// aoi->print_all_events();
-	// printf("***************************\n");
 
-	for (Entity &e : entity_list)
-	{
-		aoi->add(e.x, e.y, true, true, e.aoi_id, e.entity_id);
-	}
-	printf("insert time = %lfms\n", get_time_ms() - start_time);
-	// aoi->print_x_objs();
-	// aoi->print_y_objs();
-	// aoi->print_all_events();
-	// printf("***************************\n");
-
-	for (Entity &e : entity_list)
-	{
-		aoi->move(e.aoi_id, e.move_x, e.move_y);
-	}
-	// aoi->print_x_objs();
-	// aoi->print_y_objs();
-	// aoi->print_all_events();
-	// printf("***************************\n");
-	printf("event num=%zu\n", aoi->get_all_events().size());
-
-	for (Entity &e : entity_list)
-	{
-		aoi->remove(e.aoi_id);
-	}
-	// aoi->print_x_objs();
-	// aoi->print_y_objs();
-	// aoi->print_all_events();
-	aoi->clear_events();
-
-	delete aoi;
-	double end_time = get_time_ms();
-	printf("time offset = %lfms\n", end_time - start_time);
-	}
 
 
 	// getchar();
