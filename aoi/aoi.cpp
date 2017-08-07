@@ -97,13 +97,13 @@ void AOI::remove(uint64_t aoi_id)
 	CheckObjMapIt it = _check_obj_map.find(aoi_id);
 	if (it == _check_obj_map.end())
 	{
-		printf("AOI::remove aoi obj not exists %llu\n", aoi_id);
+		// printf("AOI::remove aoi obj not exists %llu\n", aoi_id);
 		return;
 	}
 
 	if (it->second->_is_org)
 	{
-		printf("AOI::remove head aoi obj %llu\n", aoi_id);
+		// printf("AOI::remove head aoi obj %llu\n", aoi_id);
 		return;
 	}
 
@@ -128,13 +128,13 @@ void AOI::move(uint64_t aoi_id, int x, int y)
 	CheckObjMapIt it = _check_obj_map.find(aoi_id);
 	if (it == _check_obj_map.end())
 	{
-		printf("AOI::move aoi obj not exists %llu\n", aoi_id);
+		// printf("AOI::move aoi obj not exists %llu\n", aoi_id);
 		return;
 	}
 
 	if (it->second->_is_org)
 	{
-		printf("AOI::move head aoi obj %llu\n", aoi_id);
+		// printf("AOI::move head aoi obj %llu\n", aoi_id);
 		return;
 	}
 

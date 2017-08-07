@@ -50,20 +50,13 @@ int main(int argc, char **argv)
 {
 	printf("hello %s\n", argv[0]);
 
-	double start_time = get_time_ms();
-	printf("start_time = %lfms\n", start_time);
-	sleep(1);
-	double end_time = get_time_ms();
-	printf("end_time = %lfms\n", end_time);
-	printf("insert time = %lfms\n", get_time_ms() - start_time);
-
 	srand(time(NULL));
 
 	uint32_t aoi_x_len = 10;
 	uint32_t aoi_y_len = 10;
 	uint32_t x_range = 50;
 	uint32_t y_range = 50;
-	int ENTITY_NUM = 100;
+	int ENTITY_NUM = 1000;
 
 	uint64_t entity_id = 1;
 	std::list<Entity> entity_list;
@@ -105,6 +98,7 @@ int main(int argc, char **argv)
 	// aoi->print_y_objs();
 	// aoi->print_all_events();
 	// printf("***************************\n");
+	printf("event num=%zu\n", aoi->get_all_events().size());
 
 	for (Entity &e : entity_list)
 	{
@@ -122,8 +116,8 @@ int main(int argc, char **argv)
 
 
 	{
-	// using namespace AOI_X_SPACE;
-	using namespace AOI_ORI_SPACE;
+	using namespace AOI_X_SPACE;
+	// using namespace AOI_ORI_SPACE;
 	double start_time = get_time_ms();
 	AOI *aoi = new AOI(aoi_x_len, aoi_y_len);
 	// aoi->print_x_objs();
@@ -149,6 +143,7 @@ int main(int argc, char **argv)
 	// aoi->print_y_objs();
 	// aoi->print_all_events();
 	// printf("***************************\n");
+	printf("event num=%zu\n", aoi->get_all_events().size());
 
 	for (Entity &e : entity_list)
 	{
