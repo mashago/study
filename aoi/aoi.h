@@ -5,6 +5,9 @@
 #include <unordered_map>
 #include <list>
 
+namespace AOI_ORI_SPACE
+{
+
 enum AOIEventType
 {
 	ENTER = 1, //进入
@@ -108,4 +111,6 @@ private:
 	EventList _event_list; //事件列表
 
 	std::list<uint64_t> _all_around_ids; //范围内id列表
+};
+
 };

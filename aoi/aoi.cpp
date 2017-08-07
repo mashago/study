@@ -3,6 +3,9 @@
 #include <iostream>
 #include "aoi.h"
 
+namespace AOI_ORI_SPACE
+{
+
 AOI::AOI(uint32_t aoi_x_len, uint32_t aoi_y_len) : m_cur_aoi_id(0), m_aoi_x_len(aoi_x_len), m_aoi_y_len(aoi_y_len), m_head_aoi_obj(nullptr)
 {
 	// add a head aoi obj
@@ -618,3 +621,4 @@ void AOI::check_no_move_make_event(CheckObj* check_object, CheckObj* x_check_obj
 	}
 }
 
+};

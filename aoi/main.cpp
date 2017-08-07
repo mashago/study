@@ -11,6 +11,7 @@
 #include <set>
 #include <utility>
 #include "aoi.h"
+#include "aoi_x.h"
 
 #ifdef WIN32
 inline void gettimeofday(struct timeval *tp, void *ptr)
@@ -32,47 +33,85 @@ double get_time_ms()
 {
 	struct timeval tv;    
 	gettimeofday(&tv, NULL);
-	double time_ms = tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0;
-	return time_ms;
+	return tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0;
 }
 
+struct Entity
+{
+	uint64_t entity_id;
+	uint64_t aoi_id;
+	int x;
+	int y;
+	int move_x;
+	int move_y;
+};
 
 int main(int argc, char **argv)
 {
 	printf("hello %s\n", argv[0]);
 
+	double start_time = get_time_ms();
+	printf("start_time = %lfms\n", start_time);
+	sleep(1);
+	double end_time = get_time_ms();
+	printf("end_time = %lfms\n", end_time);
+	printf("insert time = %lfms\n", get_time_ms() - start_time);
+
 	srand(time(NULL));
 
 	uint32_t aoi_x_len = 10;
 	uint32_t aoi_y_len = 10;
+	uint32_t x_range = 50;
+	uint32_t y_range = 50;
 	int ENTITY_NUM = 100;
 
-	{
-	double start_time = get_time_ms();
-	AOI *aoi = new AOI(aoi_x_len, aoi_y_len);
 	uint64_t entity_id = 1;
-	uint64_t out_aoi_id = 0;
-	std::set<uint64_t> aoi_id_set;
+	std::list<Entity> entity_list;
 	for (int i = 0; i < ENTITY_NUM; ++i)
 	{
-		int x = rand() % 100;
-		int y = rand() % 100;
-		aoi->add(x, y, true, true, out_aoi_id, entity_id++);
-		aoi_id_set.insert(out_aoi_id);
+		Entity e;
+		e.entity_id = entity_id++;
+		e.x = rand() % x_range;
+		e.y = rand() % y_range;
+		e.move_x = rand() % x_range;
+		e.move_y = rand() % y_range;
+		entity_list.push_back(e);
 	}
 
-	for (uint64_t aoi_id : aoi_id_set)
 	{
-		int x = rand() % 100;
-		int y = rand() % 100;
-		aoi->move(aoi_id, x, y);
-	}
+	using namespace AOI_ORI_SPACE;
+	double start_time = get_time_ms();
+	AOI *aoi = new AOI(aoi_x_len, aoi_y_len);
+	// aoi->print_x_objs();
+	// aoi->print_y_objs();
+	// aoi->print_all_events();
+	// printf("***************************\n");
 
-	for (uint64_t aoi_id : aoi_id_set)
+	for (Entity &e : entity_list)
 	{
-		aoi->remove(aoi_id);
+		aoi->add(e.x, e.y, true, true, e.aoi_id, e.entity_id);
+	}
+	printf("insert time = %lfms\n", get_time_ms() - start_time);
+	// aoi->print_x_objs();
+	// aoi->print_y_objs();
+	// aoi->print_all_events();
+	// printf("***************************\n");
+
+	for (Entity &e : entity_list)
+	{
+		aoi->move(e.aoi_id, e.move_x, e.move_y);
 	}
 	// aoi->print_x_objs();
+	// aoi->print_y_objs();
+	// aoi->print_all_events();
+	// printf("***************************\n");
+
+	for (Entity &e : entity_list)
+	{
+		aoi->remove(e.aoi_id);
+	}
+	// aoi->print_x_objs();
+	// aoi->print_y_objs();
 	// aoi->print_all_events();
 	aoi->clear_events();
 
@@ -82,7 +121,51 @@ int main(int argc, char **argv)
 	}
 
 
-	getchar();
+	{
+	// using namespace AOI_X_SPACE;
+	using namespace AOI_ORI_SPACE;
+	double start_time = get_time_ms();
+	AOI *aoi = new AOI(aoi_x_len, aoi_y_len);
+	// aoi->print_x_objs();
+	// aoi->print_y_objs();
+	// aoi->print_all_events();
+	// printf("***************************\n");
+
+	for (Entity &e : entity_list)
+	{
+		aoi->add(e.x, e.y, true, true, e.aoi_id, e.entity_id);
+	}
+	printf("insert time = %lfms\n", get_time_ms() - start_time);
+	// aoi->print_x_objs();
+	// aoi->print_y_objs();
+	// aoi->print_all_events();
+	// printf("***************************\n");
+
+	for (Entity &e : entity_list)
+	{
+		aoi->move(e.aoi_id, e.move_x, e.move_y);
+	}
+	// aoi->print_x_objs();
+	// aoi->print_y_objs();
+	// aoi->print_all_events();
+	// printf("***************************\n");
+
+	for (Entity &e : entity_list)
+	{
+		aoi->remove(e.aoi_id);
+	}
+	// aoi->print_x_objs();
+	// aoi->print_y_objs();
+	// aoi->print_all_events();
+	aoi->clear_events();
+
+	delete aoi;
+	double end_time = get_time_ms();
+	printf("time offset = %lfms\n", end_time - start_time);
+	}
+
+
+	// getchar();
 	return 0;
 }
 

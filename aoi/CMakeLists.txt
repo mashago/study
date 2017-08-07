@@ -65,12 +65,14 @@ ENDIF()
 #FILE(GLOB|GLOB_RECURSE <variable> *.h *.hpp)
 #GLOB|GLOB_RECURSE
 #FILE(GLOB FILES_HEAD *.h *.hpp)
-SET(FILES_HEAD aoi.h)
+#SET(FILES_HEAD aoi.h)
+SET(FILES_HEAD aoi_x.h aoi.h)
 
 #AUX_SOURCE_DIRECTORY(<dir> <variable>)
 #put all files name from dir into variable
 #AUX_SOURCE_DIRECTORY(. FILES_SRC)
-SET(FILES_SRC main.cpp aoi.cpp)
+#SET(FILES_SRC main.cpp aoi.cpp)
+SET(FILES_SRC main.cpp aoi_x.cpp aoi.cpp)
 
 #put files into folder in vs
 SOURCE_GROUP("Include" FILES ${FILES_HEAD})

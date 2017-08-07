@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <unordered_map>
 #include <list>
+#include <vector>
+
+namespace AOI_X_SPACE
+{
 
 enum AOIEventType
 {
@@ -17,8 +21,8 @@ enum AOIEventType
 enum AOIAxis
 {
 	X_AXIS = 0,
-	Y_AXIS = 0,
-	Z_AXIS = 0,
+	Y_AXIS = 1,
+	Z_AXIS = 2,
 };
 
 class Event 
@@ -65,7 +69,7 @@ class AOI
 public:
 	typedef std::list<Event*> EventList;
 	typedef EventList::iterator EventListIt;
-	typedef std::list<uint64_t> ObjIDList;
+	typedef std::vector<uint64_t> ObjIDList;
 	typedef ObjIDList::iterator ObjIDListIt;
 	
 	AOI(uint32_t aoi_x_len, uint32_t aoi_y_len);
@@ -88,20 +92,18 @@ public:
 	AOI::ObjIDList& get_all_around_ids(uint64_t aoi_id);
 
 	//得到对应的对象
-	CheckObj* get_check_object(uint64_t aoi_id);
+	CheckObj* get_aoi_obj(uint64_t aoi_id);
 
 	//打印所有列表
 	void print_x_objs();
+	void print_y_objs();
 	void print_all_events();
 
 private:
+	std::vector<uint64_t> get_around_obj_vec(CheckObj *aoi_obj);
+
 	void make_event(CheckObj* marker, CheckObj* watcher, AOIEventType ev_type);
 	void obj_create_event(CheckObj *aoi_obj, AOIEventType event_type);
-
-	//测试生成事件
-	void check_left_move_make_event(CheckObj* check_object, CheckObj* x_check_object, int old_min_x, int old_max_x, int new_min_x, int new_max_x, int old_min_y, int old_max_y, int new_min_y, int new_max_y);
-	void check_right_move_make_event(CheckObj* check_object,CheckObj* x_check_object, int old_min_x, int old_max_x, int new_min_x, int new_max_x, int old_min_y, int old_max_y, int new_min_y, int new_max_y);
-	void check_no_move_make_event(CheckObj* check_object, CheckObj* x_check_object, int old_min_x, int old_max_x, int new_min_x, int new_max_x, int old_min_y, int old_max_y, int new_min_y, int new_max_y);
 
 	uint64_t m_cur_aoi_id;
 	uint32_t m_aoi_x_len;
@@ -116,5 +118,7 @@ private:
 
 	EventList _event_list; //事件列表
 
-	std::list<uint64_t> _all_around_ids; //范围内id列表
+	std::vector<uint64_t> _all_around_ids; //范围内id列表
+};
+
 };
