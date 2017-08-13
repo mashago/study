@@ -22,11 +22,29 @@ extern "C"
 void http_conn_close_callback(struct evhttp_connection *http_conn, void *user_data)
 {
 	printf("http_conn_close_callback\n");
+
 }
 
 void http_done_callback(struct evhttp_request *http_request, void *user_data)
 {
 	printf("http_done_callback\n");
+
+	int response_code = http_request->response_code;
+	printf("response_code=%d\n", response_code);
+	if (response_code == HTTP_OK)
+	{
+		struct evkeyvalq *output_headers = http_request->output_headers;
+		struct evkeyval *node = output_headers->tqh_first;
+		while (node)
+		{
+			printf("key=[%s] value=[%s]\n", node->key, node->value);
+			node = node->next.tqe_next;
+		}
+
+	}
+
+	struct event_base *main_event = (struct event_base*)user_data;
+	event_base_loopbreak(main_event);
 }
 
 int main(int argc, char **argv)
@@ -38,7 +56,8 @@ int main(int argc, char **argv)
 	WSAStartup(0x0201, &wsa_data);
 #endif
 
-	const char *url = "http://www.baidu.com";
+	const char *url = "http://www.qq.com/";
+	// const char *url = "http://cn.bing.com/";
 
 	// 1. main base event init
 	// 2. new evdns
@@ -65,16 +84,21 @@ int main(int argc, char **argv)
 		printf("evhttp_uri_get_host fail\n");
 		return 0;
 	}
+	printf("host=%s\n", host);
+	
 	int port = evhttp_uri_get_port(uri);
 	if (port == -1)
 	{
 		port = 80;
 	}
+	printf("port=%d\n", port);
+
 	const char *path = evhttp_uri_get_path(uri);
 	if (!path)
 	{
 		path = "/";
 	}
+	printf("path=%s\n", path);
 
 	struct evdns_base *dns = evdns_base_new(main_event, 1);
 	if (!dns)
@@ -91,11 +115,13 @@ int main(int argc, char **argv)
 		return 0;
 	}
 	evhttp_connection_set_timeout(http_conn, 600);
-	evhttp_connection_set_closecb(http_conn, http_conn_close_callback, NULL);
+	evhttp_connection_set_closecb(http_conn, http_conn_close_callback, (void *)main_event);
 
-	struct evhttp_request *http_request = evhttp_request_new(http_done_callback, NULL);
-	evhttp_make_request(http_conn, http_request, EVHTTP_REQ_GET, path);
+	struct evhttp_request *http_request = evhttp_request_new(http_done_callback, (void *)main_event);
+	// evhttp_make_request(http_conn, http_request, EVHTTP_REQ_GET, path);
+	evhttp_make_request(http_conn, http_request, EVHTTP_REQ_GET, host);
 
+	printf("loop start\n");
 	event_base_dispatch(main_event);
 
 	event_base_free(main_event);
