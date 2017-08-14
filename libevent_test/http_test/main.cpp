@@ -34,7 +34,7 @@ void http_done_callback(struct evhttp_request *http_request, void *user_data)
 {
 	printf("******* http_done_callback *******\n");
 
-	int response_code = http_request->response_code;
+	int response_code = evhttp_request_get_response_code(http_request);
 	printf("response_code=%d\n", response_code);
 	if (response_code == HTTP_OK)
 	{
@@ -55,16 +55,16 @@ void http_done_callback(struct evhttp_request *http_request, void *user_data)
 
 		char *content = (char *)calloc(1, input_len+1); 
 		int n = evbuffer_copyout(input_buffer, content, input_len);
-		printf("n=%d content=%s\n", n, content);
+		// printf("n=%d content=%s\n", n, content);
 
 		evbuffer_drain(input_buffer, n);
 
 		free(content);
-
+		
 	}
 
-	struct event_base *main_event = (struct event_base*)user_data;
-	event_base_loopbreak(main_event);
+	// struct event_base *main_event = (struct event_base*)user_data;
+	// event_base_loopbreak(main_event);
 }
 
 int main(int argc, char **argv)
