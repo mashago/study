@@ -50,6 +50,13 @@ void show_pair(const pair<int, string> & t)
 	cout << " [" << t.first << ":" << t.second << "]";
 }
 
+template <typename T1, typename T2>
+void show_pair_x(const pair<T1, T2> & t)
+{
+	cout << " [" << t.first << ":" << t.second << "]";
+}
+
+
 struct sort_int_desc
 {
 	bool operator() (int d1, int d2) { std::cout<<"into sort_int_desc()"<<std::endl; return d1 > d2; }
@@ -1035,6 +1042,118 @@ int test_iter()
 }
 
 
+int test_erase()
+{
+	cout << endl << "-----------------test_erase----------------" << endl;
+
+	int target = 0;
+
+	// erase from vector
+	std::vector<int> v1{1, 1, 2, 2, 3, 3};
+	target = 2;
+	for (auto iter = v1.begin(); iter != v1.end();)
+	{
+		if (*iter == target)
+		{
+			iter = v1.erase(iter);
+		}
+		else
+		{
+			++iter;
+		}
+	}
+	for_each(v1.begin(), v1.end(), show_value);
+	printf("\n");
+
+	target = 3;
+	for (auto iter = v1.begin(); iter != v1.end();)
+	{
+		if (*iter == target)
+		{
+			iter = v1.erase(iter);
+		}
+		else
+		{
+			++iter;
+		}
+	}
+	for_each(v1.begin(), v1.end(), show_value);
+	printf("\n\n");
+
+	// erase from list
+	std::list<int> l1{1, 1, 2, 2, 3, 3};
+	target = 2;
+	for (auto iter = l1.begin(); iter != l1.end();)
+	{
+		if (*iter == target)
+		{
+			iter = l1.erase(iter);
+		}
+		else
+		{
+			++iter;
+		}
+	}
+	for_each(l1.begin(), l1.end(), show_value);
+	printf("\n");
+
+	target = 3;
+	for (auto iter = l1.begin(); iter != l1.end();)
+	{
+		if (*iter == target)
+		{
+			iter = l1.erase(iter);
+		}
+		else
+		{
+			++iter;
+		}
+	}
+	for_each(l1.begin(), l1.end(), show_value);
+	printf("\n\n");
+
+	// erase from map
+	std::map<int, int> m1;
+	m1[1] = 1;
+	m1[2] = 1;
+	m1[3] = 2;
+	m1[4] = 2;
+	m1[5] = 3;
+	m1[6] = 3;
+	target = 2;
+	for (auto iter = m1.begin(); iter != m1.end();)
+	{
+		if (iter->second == target)
+		{
+			m1.erase(iter++);
+		}
+		else
+		{
+			++iter;
+		}
+	}
+	for_each(m1.begin(), m1.end(), show_pair_x<int, int>);
+	printf("\n");
+
+	target = 3;
+	for (auto iter = m1.begin(); iter != m1.end();)
+	{
+		if (iter->second == target)
+		{
+			m1.erase(iter++);
+		}
+		else
+		{
+			++iter;
+		}
+	}
+	for_each(m1.begin(), m1.end(), show_pair_x<int, int>);
+	printf("\n\n");
+
+
+	return 0;
+}
+
 int main(int argc, char *argv[])
 {
 	cout << "hello container" << endl;
@@ -1050,6 +1169,7 @@ int main(int argc, char *argv[])
 	test_map();
 	test_functor();
 	test_iter();
+	test_erase();
 
 
 	return 0;
