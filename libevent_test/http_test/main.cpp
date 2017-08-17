@@ -278,9 +278,12 @@ int main(int argc, char **argv)
 	}
 
 	// 5. new request
+	// const char *post_data = "{\"login_account\":\"m1\",\"session_id\":\"123456\"}";
 	struct evhttp_request *http_request = evhttp_request_new(http_done_callback, (void *)main_event);
 	evhttp_add_header(evhttp_request_get_output_headers(http_request), "Host", host);
+	// evbuffer_add(evhttp_request_get_output_buffer(http_request), post_data, strlen(post_data));
 	evhttp_make_request(http_conn, http_request, EVHTTP_REQ_GET, path);
+	// evhttp_make_request(http_conn, http_request, EVHTTP_REQ_POST, path);
 
 	// 6. free uri
 	evhttp_uri_free(uri);
