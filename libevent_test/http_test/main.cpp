@@ -71,6 +71,14 @@ void http_conn_close_callback(struct evhttp_connection *http_conn, void *user_da
 void http_done_callback(struct evhttp_request *http_request, void *user_data)
 {
 	printf("******* http_done_callback *******\n");
+	struct event_base *main_event = (struct event_base *)user_data;
+	printf("http_request=%p\n", http_request);
+	if (!http_request)
+	{
+		printf("http_done_callback request nil\n");
+		event_base_loopbreak(main_event);
+		return;
+	}
 
 	// struct event_base *main_event = (struct event_base*)user_data;
 
@@ -89,7 +97,7 @@ void http_done_callback(struct evhttp_request *http_request, void *user_data)
 		printf("\n");
 
 		// handle content
-		struct evbuffer *input_buffer = http_request->input_buffer;
+		struct evbuffer *input_buffer = evhttp_request_get_input_buffer(http_request);
 		size_t input_len = evbuffer_get_length(input_buffer);
 		printf("input_len=%lu\n", input_len);
 
@@ -103,8 +111,6 @@ void http_done_callback(struct evhttp_request *http_request, void *user_data)
 	}
 
 	// no need to free response!!!
-
-	// event_base_loopbreak(main_event);
 }
 
 struct evhttp_connection * create_connection(struct event_base *main_event, struct evdns_base *dns, const char *host, int port)
@@ -280,6 +286,7 @@ int main(int argc, char **argv)
 	// 5. new request
 	// const char *post_data = "{\"login_account\":\"m1\",\"session_id\":\"123456\"}";
 	struct evhttp_request *http_request = evhttp_request_new(http_done_callback, (void *)main_event);
+	printf("http_request=%p\n", http_request);
 	evhttp_add_header(evhttp_request_get_output_headers(http_request), "Host", host);
 	// evbuffer_add(evhttp_request_get_output_buffer(http_request), post_data, strlen(post_data));
 	evhttp_make_request(http_conn, http_request, EVHTTP_REQ_GET, path);
@@ -313,6 +320,7 @@ int main(int argc, char **argv)
 
 	printf("loop start\n");
 	event_base_dispatch(main_event);
+	printf("loop end\n");
 
 	event_base_free(main_event);
 
