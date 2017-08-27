@@ -18,7 +18,7 @@ local M = {}
 
 g_n = 0
 g_func = function()
-	print("old g_func")
+	print("old g_func g_n=", g_n)
 end
 local l_n = 0
 M.m_n = 0
@@ -44,13 +44,17 @@ local M = {}
 
 g_n = 1
 g_func = function()
-	print("new g_func")
+	print("new g_func g_n=", g_n)
 end
 local l_n = 1
-M.m_n = 1
+M.m_n = 1 -- table value will not change
 M.func = function()
+	-- upvalue will replace by old value: l_n
 	print("new g_n=", g_n, " l_n=", l_n, " M.m_n=", M.m_n)
 	return 1
+end
+M.func2 = function()
+	print("new function func2")
 end
 
 return M
@@ -64,6 +68,7 @@ return M
 	g_func()
 	local ret = my_test.func()
 	print("ret=", ret)
+	my_test.func2()
 
 	os.remove(file_name)
 
@@ -118,12 +123,17 @@ function M:new()
 	setmetatable(obj, M)
 
 	obj.o_n = 1
+	obj.o_n2 = 2 -- new value, new obj is ok, but old obj will nil
 
 	return obj
 end
 
 function M:func()
-	print("new l_n=", l_n," M.m_n=", M.m_n, " self.o_n=", self.o_n)
+	print("new l_n=", l_n," M.m_n=", M.m_n, " self.o_n=", self.o_n, " self.o_n2=", self.o_n2)
+end
+
+function M:func2()
+	print("new function func2")
 end
 
 return M
@@ -134,9 +144,63 @@ return M
 	print("new module")
 	hotfix.hotfix_module(module_name)
 	obj1:func()
+	obj1:func2()
 	local obj2 = my_test:new()
 	print()
 	obj2:func()
+	obj2:func2()
+
+	os.remove(file_name)
+
+	return 0
+end
+
+function test3()
+
+	local module_name = "my_test"
+	local file_name = module_name .. ".lua"
+
+	local buffer = [[
+local M = {}
+
+function M.func()
+	local n = 1
+	local f = function()
+		print("f n=", n)
+	end
+	f()
+end
+
+return M
+]]
+
+	write_file(file_name, buffer)
+
+	print("old module")
+	local my_test = require(module_name)
+	my_test.func()
+	print()
+
+	local buffer = [[
+local M = {}
+
+function M.func()
+	local n = 2
+	local f = function()
+		print("f n=", n)
+	end
+	f()
+end
+
+return M
+]]
+
+	write_file(file_name, buffer)
+
+	print("new module")
+	hotfix.hotfix_module(module_name)
+	my_test.func()
+	print()
 
 	os.remove(file_name)
 
@@ -147,6 +211,7 @@ test_list =
 {
 	test1
 ,	test2
+,	test3
 }
 
 function do_main()
