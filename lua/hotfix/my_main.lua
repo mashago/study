@@ -207,11 +207,65 @@ return M
 	return 0
 end
 
+function test4()
+
+	local module_name = "my_test"
+	local file_name = module_name .. ".lua"
+
+	local buffer = [[
+local M = {}
+
+function M.func()
+	local n = 1
+	local f = function()
+		print("f n=", n)
+	end
+	f()
+end
+
+return M
+]]
+
+	write_file(file_name, buffer)
+
+	print("old module")
+	local my_test = require(module_name)
+	my_test.func()
+	print()
+
+	local buffer = [[
+local M = {}
+
+function M.func()
+	local n = 2
+	local f = function()
+		print("f n=", n)
+	end
+	f()
+end
+
+return M
+]]
+
+	write_file(file_name, buffer)
+
+	print("new module")
+	-- hotfix.hotfix_module(module_name)
+	local hotfix_helper = require("helper.hotfix_helper")
+	my_test.func()
+	print()
+
+	os.remove(file_name)
+
+	return 0
+end
+
 test_list =
 {
 	test1
 ,	test2
 ,	test3
+,	test4
 }
 
 function do_main()

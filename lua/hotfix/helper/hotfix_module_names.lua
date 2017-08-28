@@ -1,5 +1,6 @@
 local hotfix_module_names = {
-  "test",
+  --"test",
+  "my_test",
 }
 
 return hotfix_module_names
