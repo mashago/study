@@ -5,7 +5,8 @@
 #5.group header and sourse
 #6.add sub dir if necessary
 #7.add executable or library
-#8.set output path
+#8.link lib
+#9.set output path
 
 #define cmake version
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
@@ -68,6 +69,9 @@ SOURCE_GROUP("Source" FILES ${FILES_SRC})
 
 #7.add executable or library
 ADD_LIBRARY(${TARGET_NAME} SHARED ${FILES_HEAD} ${FILES_SRC})
+
+#8.link lib if use other library
+#TARGET_LINK_LIBRARIES(${TARGET_NAME} ${LIBRARIES})
 
 #8.set output path
 IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
