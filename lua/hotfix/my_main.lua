@@ -1,5 +1,6 @@
 -- @see https://github.com/jinq0123/hotfix
 
+package.path = "helper/?.lua;" .. package.path
 local hotfix = require("hotfix")
 
 function write_file(file_name, buffer)
@@ -250,8 +251,9 @@ return M
 	write_file(file_name, buffer)
 
 	print("new module")
-	-- hotfix.hotfix_module(module_name)
 	local hotfix_helper = require("helper.hotfix_helper")
+	hotfix_helper.init()
+	hotfix_helper.check()
 	my_test.func()
 	print()
 
