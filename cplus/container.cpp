@@ -608,6 +608,17 @@ struct node {
 		return n1.value < n2.value;
 	}
 };
+
+struct priority_node
+{
+	int x;
+	int y;
+	friend bool operator<(const priority_node &n1, const priority_node &n2)
+	{
+		return n1.x > n2.x;
+	}
+};
+
 int test_priority_queue()
 {
 	cout << endl << "-----------------test_priority_queue----------------" << endl;
@@ -646,6 +657,20 @@ int test_priority_queue()
 	cout << "q2.top().value=" << q2.top().value << endl;
 	q2.pop(); // pop() not search data, only delete
 	cout << "q2.top().value=" << q2.top().value << endl;
+
+	cout << "-----------------------------" << endl;
+	priority_queue<priority_node> q3;
+	priority_node pri_nodes[3];
+	pri_nodes[0].x = 2, pri_nodes[0].y = 2;
+	pri_nodes[1].x = 1, pri_nodes[1].y = 3;
+	pri_nodes[2].x = 1, pri_nodes[2].y = 2;
+	q3.push(pri_nodes[0]);
+	q3.push(pri_nodes[1]);
+	q3.push(pri_nodes[2]);
+
+	printf("q3.top() x=%d y=%d\n", q3.top().x, q3.top().y);
+	q3.pop(); // pop() not search data, only delete
+	printf("q3.top() x=%d y=%d\n", q3.top().x, q3.top().y);
 
 
 	return 0;
