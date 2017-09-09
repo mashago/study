@@ -1219,6 +1219,11 @@ function test27()
 	print("math.floor(0.3)=", math.floor(0.3))
 	print("math.floor(1.3)=", math.floor(1.3))
 
+	for i=1, 5 do
+		local r = math.random()
+		print("r=", r)
+	end
+
 	return 0
 end
 
