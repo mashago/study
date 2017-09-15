@@ -96,6 +96,11 @@ function test3()
 		end
 	end
 
+	do
+		local str_function = "return " .. "function (lv) return 5*lv+5 end"
+		local func = load(str_function)()
+		print("ret=", func(3))
+	end
 
 	return 0
 end
