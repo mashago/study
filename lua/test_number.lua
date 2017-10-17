@@ -53,6 +53,20 @@ function test2()
 	return 0
 end
 
+function test3()
+	local a = 123
+	local b = 456
+	local c = (a << 16) | b
+
+	local x = (c >> 16)
+	local y = (x << 16) ~ c
+
+	print("a=", a, " b=", b, " c=", c)
+	print("x=", x, " y=", y)
+
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -61,6 +75,7 @@ test_list =
 {
 	test1
 ,	test2
+,	test3
 }
 
 function do_main()

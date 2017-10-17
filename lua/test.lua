@@ -1201,7 +1201,7 @@ end
 function test27()
 	math.randomseed(os.time())
 	for i=1, 20 do
-		local n = math.random(100)
+		local n = math.random(100) -- 1 to 100
 		print("n=", n)
 	end
 
@@ -1212,12 +1212,35 @@ function test27()
 	print()
 
 	for i=1, 20 do
-		local n = math.random(3)
+		local n = math.random(3) -- 1 to 3
 		print("n=", n)
 	end
 
 	print("math.floor(0.3)=", math.floor(0.3))
 	print("math.floor(1.3)=", math.floor(1.3))
+
+	for i=1, 5 do
+		local r = math.random() -- 0 to 1
+		print("r=", r)
+	end
+	print()
+
+	for i=1, 5 do
+		local r = math.random(1, 5) -- 1 to 5
+		print("r=", r)
+	end
+	print()
+
+	for i=1, 10 do
+		local r = math.random(100000000000000000, 600000000000000000)
+		print("r=", "XMXP" .. string.format("%d", r))
+	end
+	print()
+
+	for i=1, 5 do
+		local r = math.random(2, 2) -- 1 to 1
+		print("r=", r)
+	end
 
 	return 0
 end

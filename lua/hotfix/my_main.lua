@@ -216,12 +216,22 @@ function test4()
 	local buffer = [[
 local M = {}
 
+local function l_func()
+	print("l_func old")
+end
+
+function g_func()
+	print("g_func old")
+end
+
 function M.func()
 	local n = 1
 	local f = function()
 		print("f n=", n)
 	end
 	f()
+	l_func()
+	g_func()
 end
 
 return M
@@ -237,12 +247,22 @@ return M
 	local buffer = [[
 local M = {}
 
+local function l_func()
+	print("l_func new")
+end
+
+function g_func()
+	print("g_func new")
+end
+
 function M.func()
 	local n = 2
 	local f = function()
 		print("f n=", n)
 	end
 	f()
+	l_func()
+	g_func()
 end
 
 return M
@@ -262,12 +282,83 @@ return M
 	return 0
 end
 
+function test5()
+
+	local module_name = "my_test"
+	local file_name = module_name .. ".lua"
+
+	local buffer = [[
+local function l_func()
+	print("l_func old")
+end
+
+function g_func()
+	print("g_func old")
+	l_func()
+
+	local func = func_map[1]
+	func()
+end
+
+function g_init()
+	func_map = {}
+	func_map[1] = l_func
+end
+
+-- if not run init, func_map will not hotfix
+-- g_init()
+]]
+
+	write_file(file_name, buffer)
+
+	print("old module")
+	require(module_name)
+	g_init()
+	g_func()
+	print()
+
+	local buffer = [[
+local function l_func()
+	print("l_func new")
+end
+
+function g_func()
+	print("g_func new")
+	l_func()
+
+	local func = func_map[1]
+	func()
+end
+
+function g_init()
+	func_map = {}
+	func_map[1] = l_func
+end
+
+-- g_init()
+]]
+
+	write_file(file_name, buffer)
+
+	print("new module")
+	local hotfix_helper = require("helper.hotfix_helper")
+	hotfix_helper.init()
+	hotfix_helper.check()
+	g_func()
+	print()
+
+	os.remove(file_name)
+
+	return 0
+end
+
 test_list =
 {
 	test1
 ,	test2
 ,	test3
 ,	test4
+,	test5
 }
 
 function do_main()
