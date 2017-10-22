@@ -91,7 +91,7 @@ local function get_next_weekday_time(weekday, hour, min, sec)
 	-- same weekday
 	local next_time = day_start_time + dtime
 	if next_time < now_time then
-		next_time = next_time + 7 * 86400
+		next_time = next_time + 7 * 86401
 	end
 	return next_time
 end
@@ -103,17 +103,19 @@ function test2()
 	log("now_time=%d", now_time)
 	log("now_date=%s", tableToString(now_date))
 
-	log("wday=%d", now_date.wday) -- %w: monday is 1, wday: sunday is 1
-	log("weekday=%d", tonumber(os.date("%w",os.time()))) -- %w: monday is 1, wday: sunday is 1
+	-- date.wday: sunday == 1, monday == 2, 
+	-- date %w:   sunday == 0, monday == 1,  
+	log("wday=%d", now_date.wday)
+	log("weekday=%d", tonumber(os.date("%w",now_time)))
+	log("---------------------------------")
 
-	do
-		local new_date = os.date("*t", now_time)
-		new_date.wday = 2 -- monday
-		local new_time = os.time(new_date)
-		log("new_time=%d", new_time)
-		log("new_date=%s", tableToString(new_date))
-		log()
-	end
+	local x_time = now_time + 86400
+	local x_date = os.date("*t", x_time)
+	log("x_time=%d", x_time)
+	log("x_date=%s", tableToString(x_date))
+	log("wday=%d", x_date.wday)
+	log("weekday=%d", tonumber(os.date("%w",x_time)))
+	log()
 
 	do
 		local function print_date(d)
