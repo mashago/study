@@ -2221,6 +2221,13 @@ int test59()
 	printf("sizeof(struct item_k_t)=%lu\n", sizeof(struct item_k_t));	// 5(char) = 5
 	printf("sizeof(struct item_l_t)=%lu\n", sizeof(struct item_l_t));	// 8(long) + 4(char[4] = 12, but 8 times, so = 16
 
+	struct item_l_t t;
+	struct item_l_t *ptr_t = &t;
+	printf("sizeof(ptr_t->buffer)=%lu\n", sizeof(ptr_t->buffer));	// 4
+	char *ptr_buffer = ptr_t->buffer;
+	printf("sizeof(ptr_buffer)=%lu\n", sizeof(ptr_buffer)); // 8
+
+
 	return 0;
 	return 0;
 }

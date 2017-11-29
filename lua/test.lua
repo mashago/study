@@ -1217,7 +1217,10 @@ function test27()
 	end
 
 	print("math.floor(0.3)=", math.floor(0.3))
+	print("math.floor(0.9)=", math.floor(0.9))
 	print("math.floor(1.3)=", math.floor(1.3))
+	print("math.floor(1.9)=", math.floor(1.9))
+	print("math.floor(9999/500)=", math.floor(9999/500))
 
 	for i=1, 5 do
 		local r = math.random() -- 0 to 1
@@ -1424,6 +1427,20 @@ function test34()
 	end
 	
 	return 0
+end
+
+function test35()
+
+	for i=1, 5 do
+		print(i)
+	end
+	print()
+
+	for i=5, 1, -1 do
+		print(i)
+	end
+	print()
+
 end
 
 test_list =
