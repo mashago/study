@@ -2,7 +2,11 @@
 
 require "util"
 
-local _class={}
+-- store all class all member map
+local _class={} 
+
+-- _class = {[class_ptr] = { k=v, __index=func search from super}}
+-- x_class = {__index = _class[x_class], __newindex=func set into _class[x_class]} 
  
 function class(super)
 	local class_type={}
@@ -39,6 +43,7 @@ function class(super)
 	_class[class_type]=vtbl
 	setmetatable(class_type,{__newindex=
 		function(t,k,v)
+			print("__newindex k=", k)
 			vtbl[k]=v
 		end
 	})
@@ -48,6 +53,7 @@ function class(super)
 	if super then
 		setmetatable(vtbl,{__index=
 			function(t,k)
+				print("__index k=", k)
 				local ret=_class[super][k]
 				vtbl[k]=ret
 				return ret
@@ -67,42 +73,69 @@ function test1()
 		self.x = x
 	end
 
-	function BaseClass:print_x()
-		print("BaseClass print_x", self.x)
+	function BaseClass:func1()
+		print("BaseClass func1", self.x)
 	end
 
-	function BaseClass:hello()
-		print("BaseClass hello")
+	function BaseClass:func2()
+		print("BaseClass func2")
 	end
+
+	function BaseClass:func3()
+		print("BaseClass func3")
+	end
+
+	function BaseClass:func3()
+		print("BaseClass func3 again")
+	end
+
+	print("111")
 
 
 	-- define ExtendClass
-	ExtClass = class(BaseClass)
-	function ExtClass:ctor(a, b)
-		print("ExtClass ctor")
+	ExtendClass = class(BaseClass)
+	function ExtendClass:ctor(a, b)
+		print("ExtendClass ctor")
 		self.a = a
 		self.b = b
 	end
 
-	function ExtClass:print_ab()
-		print("ExtClass print_ab", self.a, self.b)
+	function ExtendClass:print_ab()
+		print("ExtendClass print_ab", self.a, self.b)
 	end
 
-	function ExtClass:hello()
-		print("ExtClass hello")
+	function ExtendClass:func2()
+		print("ExtendClass func2")
 	end
 
+	print("222")
+
+	-- define MoreExtendClass
+	ThirdExtendClass = class(ExtendClass)
+	function ThirdExtendClass:ctor(a, b)
+		print("ThirdExtendClass ctor")
+		self.a = a
+		self.b = b
+	end
+
+	print("222")
 
 	local b1 = BaseClass.new(10)
-	b1:print_x()
-	b1:hello()
+	b1:func1()
+	b1:func2()
 
 	log()
 
-	local e1 = ExtClass.new(20, 30)
-	e1:print_x()
+	local e1 = ExtendClass.new(20, 30)
+	e1:func1()
 	e1:print_ab()
-	e1:hello()
+	e1:func2()
+
+	log()
+
+	local te1 = ThirdExtendClass.new(400, 500)
+	te1.func3()
+	local func4 = te1.func4
 
 	return 0
 end

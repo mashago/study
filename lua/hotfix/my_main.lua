@@ -352,6 +352,229 @@ end
 	return 0
 end
 
+function test6()
+
+	
+	-- write class
+	do
+	local module_name = "class"
+	local file_name = module_name .. ".lua"
+
+	local buffer = [[
+local _class={} 
+function class(super)
+	local class_type={}
+	class_type.ctor=false
+	class_type.super=super
+
+	class_type.new=function(...) 
+		-- function to new a obj
+		local obj={}
+		do
+			local create
+			create = function(c,...)
+				-- recursion do create super
+				if c.super then
+					create(c.super,...)
+				end
+				-- call constructor
+				if c.ctor then
+					c.ctor(obj,...)
+				end
+			end
+
+			create(class_type,...)
+		end
+
+		-- set obj get metatable(get from base class)
+		setmetatable(obj,{ __index=_class[class_type] })
+		return obj
+	end
+
+ 	-- set base class set metatable
+	-- therefore base class set data or function, obj can get it
+	local vtbl={}
+	_class[class_type]=vtbl
+	setmetatable(class_type,{__newindex=
+		function(t,k,v)
+			print("__newindex k=", k)
+			vtbl[k]=v
+		end
+	})
+ 
+ 	-- set base class get metatable(get from super)
+	-- if base class has super, base class can get data from super which not found in base class
+	if super then
+		setmetatable(vtbl,{__index=
+			function(t,k)
+				print("__index k=", k)
+				local ret=_class[super][k]
+				vtbl[k]=ret
+				return ret
+			end
+		})
+	end
+ 
+	return class_type
+end
+]]
+	write_file(file_name, buffer)
+
+	print("require ", module_name)
+	require(module_name)
+	print()
+	end
+
+	-- write base class
+	do
+	local module_name = "baseclass"
+	local file_name = module_name .. ".lua"
+
+	local buffer = [[
+BaseClass = class()
+function BaseClass:ctor(x)
+	print("BaseClass ctor")
+	self.x = x
+end
+
+function BaseClass:func1()
+	print("BaseClass func1", self.x)
+end
+
+function BaseClass:func2()
+	print("BaseClass func2")
+end
+
+function BaseClass:func3()
+	print("BaseClass func3")
+end
+]]
+	write_file(file_name, buffer)
+
+	print("require ", module_name)
+	require(module_name)
+	print()
+	end
+
+	-- write extend class
+	do
+	local module_name = "extendclass"
+	local file_name = module_name .. ".lua"
+
+	local buffer = [[
+ExtendClass = class(BaseClass)
+function ExtendClass:ctor(a, b)
+	print("ExtendClass ctor")
+	self.a = a
+	self.b = b
+end
+
+function ExtendClass:print_ab()
+	print("ExtendClass print_ab", self.a, self.b)
+end
+
+function ExtendClass:func2()
+	print("ExtendClass func2")
+end
+]]
+	write_file(file_name, buffer)
+
+	print("require ", module_name)
+	require(module_name)
+	print()
+	end
+
+	local b1 = BaseClass.new(10)
+	b1:func1()
+	b1:func2()
+
+
+	local e1 = ExtendClass.new(20, 30)
+	e1:func1()
+	e1:print_ab()
+	e1:func2()
+
+
+	-----------------------------------------
+
+	-- write base class new
+	do
+	local module_name = "baseclass"
+	local file_name = module_name .. ".lua"
+
+	local buffer = [[
+BaseClass = class()
+function BaseClass:ctor(x)
+	print("BaseClass ctor new")
+	self.x = x
+end
+
+function BaseClass:func1()
+	print("BaseClass func1 new", self.x)
+end
+
+function BaseClass:func2()
+	print("BaseClass func2 new")
+end
+
+function BaseClass:func3()
+	print("BaseClass func3 new")
+end
+]]
+	write_file(file_name, buffer)
+
+	print("write ", module_name)
+	print()
+	end
+
+	-- write extend class new
+	do
+	local module_name = "extendclass"
+	local file_name = module_name .. ".lua"
+
+	local buffer = [[
+ExtendClass = class(BaseClass)
+function ExtendClass:ctor(a, b)
+	print("ExtendClass ctor new")
+	self.a = a
+	self.b = b
+end
+
+function ExtendClass:print_ab()
+	print("ExtendClass print_ab new", self.a, self.b)
+end
+
+function ExtendClass:func2()
+	print("ExtendClass func2 new")
+end
+]]
+	write_file(file_name, buffer)
+	print("write ", module_name)
+	print()
+	end
+	
+
+	print("new module")
+	local hotfix_helper = require("helper.hotfix_helper")
+	hotfix_helper.init()
+	hotfix_helper.check()
+
+
+	b1:func1()
+	b1:func2()
+
+	e1:func1()
+	e1:print_ab()
+	e1:func2()
+
+
+	os.remove("class.lua")
+	os.remove("baseclass.lua")
+	os.remove("extendclass.lua")
+
+	return 0
+end
+
 test_list =
 {
 	test1
@@ -359,6 +582,7 @@ test_list =
 ,	test3
 ,	test4
 ,	test5
+,	test6
 }
 
 function do_main()

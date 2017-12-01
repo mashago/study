@@ -1443,6 +1443,14 @@ function test35()
 
 end
 
+function test36()
+	local minlv = 35
+	local maxlv = 43
+	local lv_key = (minlv << 16) | maxlv
+	print(lv_key)
+	return 0
+end
+
 test_list =
 {
 	test1
@@ -1480,6 +1488,7 @@ test_list =
 ,	test33
 ,	test34
 ,	test35
+,	test36
 }
 
 function do_main()
