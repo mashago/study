@@ -89,6 +89,10 @@ function test1()
 		print("BaseClass func3 again")
 	end
 
+	function BaseClass:func4()
+		print("BaseClass func4")
+	end
+
 	print("111")
 
 
@@ -108,6 +112,11 @@ function test1()
 		print("ExtendClass func2")
 	end
 
+	function ExtendClass:func4()
+		print("ExtendClass func4")
+		_class[ExtendClass.super].func4(self)
+	end
+
 	print("222")
 
 	-- define MoreExtendClass
@@ -118,24 +127,30 @@ function test1()
 		self.b = b
 	end
 
-	print("222")
+	function ThirdExtendClass:func4()
+		print("ThirdExtendClass func4")
+		_class[ThirdExtendClass.super].func4(self)
+	end
+
+	print("333")
 
 	local b1 = BaseClass.new(10)
 	b1:func1()
 	b1:func2()
 
-	log()
+	print("444")
 
 	local e1 = ExtendClass.new(20, 30)
 	e1:func1()
 	e1:print_ab()
 	e1:func2()
+	e1:func4()
 
-	log()
+	print("555")
 
 	local te1 = ThirdExtendClass.new(400, 500)
-	te1.func3()
-	local func4 = te1.func4
+	te1:func3()
+	te1:func4()
 
 	return 0
 end

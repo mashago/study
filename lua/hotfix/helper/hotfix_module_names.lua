@@ -3,7 +3,7 @@ local hotfix_module_names = {
   -- "my_test",
   -- "class",
   "baseclass",
-  "extendclass",
+  --"extendclass",
 }
 
 return hotfix_module_names

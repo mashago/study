@@ -354,7 +354,6 @@ end
 
 function test6()
 
-	
 	-- write class
 	do
 	local module_name = "class"
@@ -448,8 +447,14 @@ end
 function BaseClass:func3()
 	print("BaseClass func3")
 end
+return BaseClass
 ]]
 	write_file(file_name, buffer)
+
+	local func = assert(load(buffer))
+	local ok, obj = assert(pcall(func))
+	print("ok=", ok)
+	print("type(obj)=", type(obj))
 
 	print("require ", module_name)
 	require(module_name)
@@ -476,6 +481,7 @@ end
 function ExtendClass:func2()
 	print("ExtendClass func2")
 end
+return ExtendClass
 ]]
 	write_file(file_name, buffer)
 
@@ -520,6 +526,7 @@ end
 function BaseClass:func3()
 	print("BaseClass func3 new")
 end
+return BaseClass
 ]]
 	write_file(file_name, buffer)
 
@@ -547,6 +554,7 @@ end
 function ExtendClass:func2()
 	print("ExtendClass func2 new")
 end
+return ExtendClass
 ]]
 	write_file(file_name, buffer)
 	print("write ", module_name)
