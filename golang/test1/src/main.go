@@ -37,7 +37,8 @@ func test1()(int) {
 	var i1 int = 111
 	var i2 int32 = 222
 	var i3 int64 = 333
-	fmt.Printf("i1=%d i2=%d i3=%d\n", i1, i2, i3)
+	var i4 = 444
+	fmt.Printf("i1=%d i2=%d i3=%d i4=%d\n", i1, i2, i3, i4)
 
 	var f1 float32 = 3.14
 	var f2 float64 = 3.1415926123456
@@ -47,6 +48,33 @@ func test1()(int) {
 }
 
 func test2()(int) {
+	// array
+	var a1 [4]int = [4]int{1, 2, 3, 4}
+	fmt.Printf("a1=%v len=%d\n", a1, len(a1))
+	var a2 [4]int = [4]int{2, 3, 4}
+	fmt.Printf("a2=%v len=%d\n", a2, len(a2))
+	a3 := [...]int{2, 3, 4} // auto size len
+	fmt.Printf("a3=%v len=%d\n", a3, len(a3))
+	var a4 = [4]int{2, 3, 4}
+	fmt.Printf("a4=%v len=%d\n", a4, len(a4))
+	fmt.Printf("a4[1]=%d\n", a4[1])
+
+	fmt.Println()
+
+	// slice
+	var s1 = []int{1, 2, 3, 4}
+	fmt.Printf("s1=%v len=%d\n", s1, len(s1)) 
+	s2 := []int{1, 2, 3, 4}
+	fmt.Printf("s2=%v len=%d\n", s2, len(s2)) 
+	var s3 = []int{}
+	fmt.Printf("s3=%v len=%d\n", s3, len(s3)) 
+	s3 = append(s3, 111)
+	fmt.Printf("s3=%v len=%d\n", s3, len(s3)) 
+	s3 = make([]int, 10) // 0 * 10
+	fmt.Printf("s3=%v len=%d\n", s3, len(s3)) 
+
+	// map
+
 	return 0
 }
 
