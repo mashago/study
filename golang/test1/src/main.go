@@ -63,15 +63,15 @@ func test2()(int) {
 
 	// slice
 	var s1 = []int{1, 2, 3, 4}
-	fmt.Printf("s1=%v len=%d\n", s1, len(s1)) 
+	fmt.Printf("s1=%v len=%d\n", s1, len(s1))
 	s2 := []int{1, 2, 3, 4}
-	fmt.Printf("s2=%v len=%d\n", s2, len(s2)) 
+	fmt.Printf("s2=%v len=%d\n", s2, len(s2))
 	var s3 = []int{}
-	fmt.Printf("s3=%v len=%d\n", s3, len(s3)) 
+	fmt.Printf("s3=%v len=%d\n", s3, len(s3))
 	s3 = append(s3, 111)
-	fmt.Printf("s3=%v len=%d\n", s3, len(s3)) 
+	fmt.Printf("s3=%v len=%d\n", s3, len(s3))
 	s3 = make([]int, 10) // 0 * 10
-	fmt.Printf("s3=%v len=%d\n", s3, len(s3)) 
+	fmt.Printf("s3=%v len=%d\n", s3, len(s3))
 
 	// map
 
@@ -92,8 +92,9 @@ var test5 func()(int) = func()(int) {
 	return 0
 }
 
-var test_list = []testcast_f{
-// var test_list = []func()(int){ -- is ok
+// var test_list = []testcast_f{ // as slice
+// var test_list = []func()(int){ // is ok
+var test_list = [...]testcast_f{ // as array
 test0,
 test1,
 test2,
@@ -116,9 +117,10 @@ func main() {
 
 	if argc > 1 {
 		if 0 == strings.Compare(argv[1], "all") {
-			for i:= 0; i < maxcase; i++ {
+			// for i, fnc := range test_list[:] {
+			for i, fnc := range test_list {
 				fmt.Printf("\nrun case[%d]\n", i)
-				ret := test_list[i]()
+				ret := fnc()
 				if ret != 0 {
 					fmt.Printf("cast[%d] ret=%d\n", i, ret)
 					return
