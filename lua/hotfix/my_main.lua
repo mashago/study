@@ -302,11 +302,13 @@ end
 
 function g_init()
 	func_map = {}
-	func_map[1] = l_func
+	local func_node = function()
+		print("old closure call l_func")
+		l_func()
+	end
+	func_map[1] = func_node
 end
 
--- if not run init, func_map will not hotfix
--- g_init()
 ]]
 
 	write_file(file_name, buffer)
@@ -332,10 +334,13 @@ end
 
 function g_init()
 	func_map = {}
-	func_map[1] = l_func
+	local func_node = function()
+		print("old closure call l_func")
+		l_func()
+	end
+	func_map[1] = func_node
 end
 
--- g_init()
 ]]
 
 	write_file(file_name, buffer)
@@ -353,6 +358,7 @@ end
 end
 
 function test6()
+	-- must set in hotfix_module_names
 
 	-- write class
 	do
@@ -583,6 +589,153 @@ return ExtendClass
 	return 0
 end
 
+function test7()
+
+	local module_name = "my_test"
+	local file_name = module_name .. ".lua"
+
+	local buffer = [[
+g_func_list = g_func_list or {} 
+g_func_list = {} 
+local function l_func()
+	print("old l_func")
+end
+
+local class = 
+{
+	tmp_list = {}
+}
+
+function class.func_a()
+	print("func_a old")
+end
+
+function class.func_b()
+	print("func_b old")
+	class.tmp_list[1]()
+	class.tmp_list[2]()
+	class.tmp_list[3]()
+	print("------")
+	g_func_list[1]()
+	g_func_list[2]()
+	g_func_list[3]()
+end
+
+function class.func_c()
+	print("func_c old")
+	-- l_func()
+end
+
+function class.init()
+	local func_node = function()
+		print("old closure call class.func_a %p", class.func_a)
+		class.func_a()
+	end
+	local func_node2 = function()
+		print("old closure call l_func %p", l_func)
+		l_func()
+	end
+	local cfa = class.func_a
+	local func_node3 = function()
+		print("old closure call cfa %p", cfa)
+		cfa()
+	end
+	class.tmp_list[1] = func_node
+	class.tmp_list[2] = func_node2
+	class.tmp_list[3] = func_node3
+	g_func_list[1] = func_node
+	g_func_list[2] = func_node2
+	g_func_list[3] = func_node3
+end
+
+--[==[
+function init()
+	local func_node = function()
+		print("old closure call class.func_a %p", class.func_a)
+		class.func_a()
+	end
+	local func_node2 = function()
+		print("old closure call l_func %p", l_func)
+		l_func()
+	end
+	local cfa = class.func_a
+	local func_node3 = function()
+		print("old closure call cfa %p", cfa)
+		cfa()
+	end
+	class.tmp_list[1] = func_node
+	class.tmp_list[2] = func_node2
+	class.tmp_list[3] = func_node3
+	g_func_list[1] = func_node
+	g_func_list[2] = func_node2
+	g_func_list[3] = func_node3
+end
+--]==]
+
+return class
+]]
+
+	write_file(file_name, buffer)
+
+	print("old module")
+	c = require(module_name)
+	c.init()
+	print()
+	c.func_b()
+	print()
+	c.func_c()
+	print()
+
+	local buffer = [[
+g_func_list = g_func_list or {}
+-- g_func_list = {} -- g_func_list will be clear
+local function l_func()
+	print("new l_func")
+end
+
+local class = 
+{
+	tmp_list = {}
+}
+function class.func_a()
+	print("func_a new")
+end
+
+function class.func_b()
+	print("func_b new")
+	class.tmp_list[1]()
+	class.tmp_list[2]()
+	class.tmp_list[3]()
+	print("------")
+	g_func_list[1]()
+	g_func_list[2]()
+	g_func_list[3]()
+end
+
+function class.func_c()
+	print("func_c new")
+	-- l_func()
+end
+
+return class
+]]
+
+	write_file(file_name, buffer)
+
+	print("new module")
+	local hotfix_helper = require("helper.hotfix_helper")
+	hotfix_helper.init()
+	hotfix_helper.check()
+	c.func_b()
+	print()
+	c.func_c()
+	print()
+
+	os.remove(file_name)
+
+	return 0
+end
+
 test_list =
 {
 	test1
@@ -591,6 +744,7 @@ test_list =
 ,	test4
 ,	test5
 ,	test6
+,	test7
 }
 
 function do_main()
