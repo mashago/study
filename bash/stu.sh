@@ -12,11 +12,25 @@ function func0()
 		echo "P1 -ne"
 	fi
 
-	local P2="10"
-	if [ $P2 == "10" ]; then
-		echo "P2 == \"10\""
+	local P2="abc"
+	if [[ $P2 == "abc" || $P2 == "qwe" ]]; then
+		echo "P2 == \"abc\""
 	else
-		echo "P2 != \"10\""
+		echo "P2 != \"abc\""
+	fi
+
+	local file_name="no_such_file.txt"
+	if [ ! -f $file_name ]; then
+		echo "not file $file_name"
+	fi
+
+	if [ ! -e $file_name ]; then
+		echo "file not exists $file_name"
+	fi
+
+	local empty_str=
+	if [ -z $empty_str ]; then
+		echo "str empty"
 	fi
 
 	return 0
@@ -24,13 +38,47 @@ function func0()
 
 function func1()
 {
-	echo "---- for test ----"
+	cat > ttt.sh 2>&1 < stu.sh 
+	cat /dev/null > ttt.sh
+	ls not_exists_file.txt stu.sh 2> /dev/null
+
+	return 0
+}
+
+function func2()
+{
+	local -i T1=0
+	local sum=0
+	while [ $T1 -lt 10 ]
+	do
+		T1=$T1+1
+		sum=`expr $T1 + $sum`
+	done
+	echo "T1=$T1 sum=$sum"
+	return 0
+}
+
+function func3()
+{
 	local LIST="aaa bbb ccc"
 
 	for file in $LIST
 	do
 		echo file=$file
 	done
+	echo
+
+	for file in *
+	do
+		if [ -f $file ]; then
+			echo "$file is a file"
+		elif [ -d $file ]; then
+			echo "$file is a dir"
+		else
+			echo "$file is not a file and not a dir"
+		fi
+	done
+	echo
 
 	local F1=0
 	for ((i=1; i<10; i=i+1))
@@ -42,7 +90,55 @@ function func1()
 	return 0
 }
 
-function func2()
+function func4()
+{
+	local -i P1=456
+	case $P1 in
+		123)
+			echo "P1==123"
+			;;
+		456)
+			echo "P1==456"
+			;;
+		*)
+			echo "P1==other thing"
+			;;
+	esac
+
+	local P2="abc"
+	case $P2 in
+		"qwe")
+			echo "P2==qwe"
+			;;
+		"abc")
+			echo "P2==abc"
+			;;
+		*)
+			echo "P2==other thing"
+			;;
+	esac
+
+	return 0
+}
+
+function func5()
+{
+	# sed
+	local file_name="edit_test.txt"
+	echo "aaa bbb ccc" > $file_name
+	sed -i 's/aaa/xxx/g' $file_name
+	cat $file_name
+	rm $file_name
+	echo
+
+	# awk
+	ls -l | awk '{print "["$9"]" "\t" $1}'
+	echo
+	awk -F":" '{print $1}' /etc/passwd 2>/dev/null
+	return 0
+}
+
+function func6()
 {
 	local T1="abc"
 	local T2="T1"
@@ -64,7 +160,7 @@ function func2()
 	return 0
 }
 
-function func3()
+function func7()
 {
 	declare -A L1
 	L1=([KEY1]="a1" [KEY2]="a2" [KEY3]="a3")
@@ -100,6 +196,10 @@ FUNC_LIST[0]=func0
 FUNC_LIST[1]=func1
 FUNC_LIST[2]=func2
 FUNC_LIST[3]=func3
+FUNC_LIST[4]=func4
+FUNC_LIST[5]=func5
+FUNC_LIST[6]=func6
+FUNC_LIST[7]=func7
 
 function main()
 {
@@ -136,3 +236,4 @@ function main()
 
 main $@
 
+exit
