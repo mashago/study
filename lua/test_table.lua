@@ -483,6 +483,23 @@ function test9()
 	return 0
 end
 
+function test10()
+	local t1 = {'a', 'b', 'c', 'd', 'e'}
+	print("t1:")
+	for k, v in ipairs(t1) do
+		print(k, v)
+	end
+
+	local t2 = {}
+	table.move(t1, 1, #t1, 1, t2)
+	print("t2:")
+	for k, v in ipairs(t2) do
+		print(k, v)
+	end
+
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -498,6 +515,7 @@ test_list =
 ,	test7
 ,	test8
 ,	test9
+,	test10
 }
 
 function do_main()
