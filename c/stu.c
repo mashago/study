@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <math.h>
+#include <stdbool.h>
 
 // #include "xxx.h" // local location
 
@@ -2163,6 +2164,342 @@ int test67()
 	return 0;
 }
 
+void reserver_str(char *str)
+{
+	int len = strlen(str);
+	for (int i=0; i<len/2; i++)
+	{
+		char c = str[i];
+		str[i] = str[len-1-i];
+		str[len-1-i] = c;
+	}
+}
+
+char * sum_str(const char *in1, const char *in2)
+{
+	if (!in1 || !in2)
+	{
+		return NULL;
+	}
+
+	char *str1 = calloc(strlen(in1)+1, sizeof(char));
+	char *str2 = calloc(strlen(in2)+1, sizeof(char));
+	strcpy(str1, in1);
+	strcpy(str2, in2);
+
+	char *abs_str1 = str1;
+	char *abs_str2 = str2;
+
+	// check op
+	char *a = NULL;
+	char *b = NULL;
+	// a must >= b
+	bool do_add = true;		
+	bool is_minus = false;
+	bool is_zero = false;
+
+	if (str1[0] != '-' && str2[0] != '-') 
+	{
+		do_add = true;		
+		is_minus = false;
+		a = str1;
+		b = str2;
+		if (strlen(a) < strlen(b))
+		{
+			char *t = a;
+			a = b;
+			b = t;
+		}
+	}
+	else if (str1[0] == '-' && str2[0] != '-') 
+	{
+		a = str1+1;
+		b = str2;
+		if (strlen(a) < strlen(b))
+		{
+			char *t = a;
+			a = b;
+			b = t;
+			do_add = false;
+			is_minus = false;
+		}
+		else if (strcmp(a, b) == 0)
+		{
+			is_zero = true;
+		}
+		else if (strcmp(a, b) > 0)
+		{
+			do_add = false;
+			is_minus = true;
+		}
+		else if (strcmp(a, b) < 0)
+		{
+			char *t = a;
+			a = b;
+			b = t;
+			do_add = false;
+			is_minus = false;
+		}
+
+	}
+	else if (str1[0] != '-' && str2[0] == '-')
+	{
+		a = str1;
+		b = str2+1;
+		if (strlen(a) < strlen(b))
+		{
+			char *t = a;
+			a = b;
+			b = t;
+			do_add = false;
+			is_minus = true;
+		}
+		else if (strcmp(a, b) == 0)
+		{
+			is_zero = true;
+		}
+		else if (strcmp(a, b) > 0)
+		{
+			do_add = false;
+			is_minus = false;
+		}
+		else if (strcmp(a, b) < 0)
+		{
+			char *t = a;
+			a = b;
+			b = t;
+			do_add = false;
+			is_minus = true;
+		}
+	}
+	else if (str1[0] == '-' && str2[0] == '-')
+	{
+		do_add = true;
+		is_minus = true;
+		a = str1+1;
+		b = str2+1;
+		if (strlen(a) < strlen(b))
+		{
+			char *t = a;
+			a = b;
+			b = t;
+		}
+	}
+
+
+	if (is_zero)
+	{
+		char *out_str = calloc(2, sizeof(char));
+		out_str[0] = '0';
+		return out_str;
+	}
+
+	printf("a=%s\n", a);
+	printf("b=%s\n", b);
+	printf("do_add=%d\n", do_add);
+	printf("is_minus=%d\n", is_minus);
+
+	int a_len = strlen(a);
+	int b_len = strlen(b);
+
+	reserver_str(a);
+	reserver_str(b);
+
+
+	// do merge a and b to out_str
+	char *out_str = calloc(a_len+3, sizeof(char));
+	short offset = 0;
+	int i = 0;
+	for (; i < b_len; i++)
+	{
+		if (do_add)
+		{
+			short t = 0;
+			if (offset == 1)
+			{
+				t = a[i] + b[i] - '0' - '0' + 1;
+				offset = 0;
+			}
+			else
+			{
+				t = a[i] + b[i] - '0' - '0';
+			}
+			if (t > 9)
+			{
+				offset = 1;
+				t = t - 10;
+			}
+			out_str[i] = t + '0';
+		}
+		else
+		{
+			short t = 0;
+			if (offset == -1)
+			{
+				t = a[i] - b[i] - 1;
+				offset = 0;
+			}
+			else
+			{
+				t = a[i] - b[i];
+			}
+			if (t < 0)
+			{
+				offset = -1;
+				t = t + 10;
+			}
+			out_str[i] = t + '0';
+		}
+	}
+
+	// do merge a to out_str
+	for (; i < a_len; i++)
+	{
+		if (do_add)
+		{
+			short t = 0;
+			if (offset == 1)
+			{
+				t = a[i] - '0' + 1;
+				offset = 0;
+			}
+			else
+			{
+				t = a[i] - '0';
+			}
+			if (t > 9)
+			{
+				offset = 1;
+				t = t - 10;
+			}
+			out_str[i] = t + '0';
+		}
+		else
+		{
+			short t = 0;
+			if (offset == -1)
+			{
+				t = a[i] - '0' - 1;
+				offset = 0;
+			}
+			else
+			{
+				t = a[i] - '0';
+			}
+			if (t < 0)
+			{
+				offset = -1;
+				t = t + 10;
+			}
+			out_str[i] = t + '0';
+		}
+	}
+
+	// this is impossible
+	assert(offset != -1);
+
+	// fix head num and flag
+	if (offset == 1)
+	{
+		out_str[i] = '1';
+		++i;
+	}
+	if (is_minus)
+	{
+		out_str[i] = '-';	
+	}
+
+	reserver_str(out_str);
+
+	free(str1);
+	free(str2);
+	return out_str;
+}
+
+int test68()
+{
+	{
+		char str1[] = "123";
+		char str2[] = "456";
+		char *out = sum_str(str1, str2);
+		printf("str1=%s str2=%s out=%s\n", str1, str2, out);
+		free(out);
+		printf("\n");
+	}
+	{
+		char str1[] = "1234";
+		char str2[] = "456";
+		char *out = sum_str(str1, str2);
+		printf("str1=%s str2=%s out=%s\n", str1, str2, out);
+		free(out);
+		printf("\n");
+	}
+	{
+		char str1[] = "345";
+		char str2[] = "12345";
+		char *out = sum_str(str1, str2);
+		printf("str1=%s str2=%s out=%s\n", str1, str2, out);
+		free(out);
+		printf("\n");
+	}
+
+	{
+		char str1[] = "-456";
+		char str2[] = "12345";
+		char *out = sum_str(str1, str2);
+		printf("str1=%s str2=%s out=%s\n", str1, str2, out);
+		free(out);
+		printf("\n");
+	}
+
+	{
+		char str1[] = "-456";
+		char str2[] = "-12345";
+		char *out = sum_str(str1, str2);
+		printf("str1=%s str2=%s out=%s\n", str1, str2, out);
+		free(out);
+		printf("\n");
+	}
+
+	{
+		char str1[] = "-456";
+		char str2[] = "-999";
+		char *out = sum_str(str1, str2);
+		printf("str1=%s str2=%s out=%s\n", str1, str2, out);
+		free(out);
+		printf("\n");
+	}
+
+	{
+		char str1[] = "-123";
+		char str2[] = "123";
+		char *out = sum_str(str1, str2);
+		printf("str1=%s str2=%s out=%s\n", str1, str2, out);
+		free(out);
+		printf("\n");
+	}
+
+	{
+		char str1[] = "-122";
+		char str2[] = "123";
+		char *out = sum_str(str1, str2);
+		printf("str1=%s str2=%s out=%s\n", str1, str2, out);
+		free(out);
+		printf("\n");
+	}
+
+	{
+		char str1[] = "-124";
+		char str2[] = "123";
+		char *out = sum_str(str1, str2);
+		printf("str1=%s str2=%s out=%s\n", str1, str2, out);
+		free(out);
+		printf("\n");
+	}
+
+	return 0;
+}
+
 int test_tmp()
 {
 	/*
@@ -2244,6 +2581,7 @@ testcase_t test_list[] =
 ,	test65
 ,	test66
 ,	test67
+,	test68
 };
 
 int main(int argc, char * argv[]) 

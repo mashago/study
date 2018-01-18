@@ -131,6 +131,14 @@ function func5()
 	rm $file_name
 	echo
 
+	# sed trim
+	echo "  aaa bbb ccc  " > $file_name
+	sed -i -e 's/^[[:space:]]\+//' -e 's/[[:space:]]\+$//' $file_name
+	cat $file_name | awk '{print "["$0"]"}'
+	rm $file_name
+
+	echo
+
 	# awk
 	ls -l | awk '{print "["$9"]" "\t" $1}'
 	echo
