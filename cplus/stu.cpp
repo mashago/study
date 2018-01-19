@@ -21,6 +21,7 @@
 #include <sstream>
 #include <queue>
 #include <list>
+#include <mutex>
 
 #include "stu.h"
 #include "stock.h"
@@ -3265,6 +3266,105 @@ int test84()
 	return 0;
 }
 
+class SingletonTest
+{
+public:
+	static SingletonTest *Instance()
+	{
+		static SingletonTest *ptr = new SingletonTest();
+		return ptr;
+	}
+	void print()
+	{
+		printf("m_a=%d\n", m_a);
+	}
+	void add()
+	{
+		++m_a;
+	}
+private:
+	SingletonTest() : m_a(0)
+	{
+	}
+
+	int m_a;
+};
+
+class SingletonTest2
+{
+private:
+	SingletonTest2() : m_a(0)
+	{
+	}
+
+	int m_a;
+public:
+
+	static std::mutex mtx;
+	static SingletonTest2 *ptr;
+	static SingletonTest2 *Instance()
+	{
+		if (!ptr)
+		{
+			std::unique_lock<std::mutex> lock(mtx);
+			if (!ptr)
+			{
+				ptr = new SingletonTest2();
+			}
+		}
+
+		return ptr;
+	}
+	static void Clear()
+	{
+		if (ptr)
+		{
+			std::unique_lock<std::mutex> lock(mtx);
+			if (ptr)
+			{
+				delete ptr;
+				ptr = NULL;
+			}
+		}
+	}
+	void print()
+	{
+		printf("m_a=%d\n", m_a);
+	}
+	void add()
+	{
+		++m_a;
+	}
+
+};
+std::mutex SingletonTest2::mtx;
+SingletonTest2 * SingletonTest2::ptr = NULL;
+
+int test85()
+{
+	SingletonTest *ins = SingletonTest::Instance();
+	ins->print();
+	ins->add();
+	ins->print(); // 1
+
+	SingletonTest *ins2 = SingletonTest::Instance();
+	ins2->print(); // 1
+
+
+	SingletonTest2 *ins21 = SingletonTest2::Instance();
+	ins21->print(); // 1
+	ins21->add();
+	ins21->print(); // 1
+
+	SingletonTest2 *ins22 = SingletonTest2::Instance();
+	ins22->print(); // 1
+	SingletonTest2::Clear();
+	SingletonTest2 *ins23 = SingletonTest2::Instance();
+	ins23->print(); // 1
+
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -3361,6 +3461,7 @@ testcase_t test_list[] =
 ,	test82
 ,	test83
 ,	test84
+,	test85
 };
 
 int main(int argc, char *argv[]) 

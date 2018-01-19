@@ -143,6 +143,8 @@ function func5()
 	ls -l | awk '{print "["$9"]" "\t" $1}'
 	echo
 	awk -F":" '{print $1}' /etc/passwd 2>/dev/null
+	echo
+	awk -F"|" 'NR==FNR{uid2name[$1]=$2; name2income[$2]=0} NR>FNR{name2income[uid2name[$1]] += $2} END{for (name in name2income) {printf "%s\t%d\n", name, name2income[name]}}' role_info.txt role_income.txt
 	return 0
 }
 
