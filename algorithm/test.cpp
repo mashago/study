@@ -13,6 +13,10 @@
 using std::cout;
 using std::endl;
 
+#if (defined __WIN32) || (defined __CYGWIN__)
+#define bzero(a, b) memset(a, 0, b)
+#endif
+
 // utility
 template <typename T>
 void fill_list(T *list, int size, int range)
