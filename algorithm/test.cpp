@@ -1546,6 +1546,7 @@ void __rbtree_adjust(RBTree *tree, RBTNode * node)
 
 	while (node->p != NULL && node->p->color == RED) {
 
+		/*
 		// first. node father is node grand father left child
 		//
 		//     G
@@ -1554,14 +1555,16 @@ void __rbtree_adjust(RBTree *tree, RBTNode * node)
 		//    \
 		//     node
 		//
+		*/
 		if (node->p == node->p->p->left) {
+			/*
 			// case 1. father and uncle are red, change color, use grand father for next step
 			//     G(B)                  G(R)(node)
 			//    /  \_                 /  \_
 			//   F(R)  U(R)       -->  F(B)  U(B)
 			//    \_                    \
 			//     D(R)(node)            D(R)
-			//
+			*/
 			RBTNode * uncle = node->p->p->right;
 			if (uncle->color == RED) {
 				cout << "left case 1" << endl;
@@ -1571,13 +1574,14 @@ void __rbtree_adjust(RBTree *tree, RBTNode * node)
 				node = node->p->p; // use node grand father
 			}
 
+			/*
 			// case 2. node is father right child, change node to father, node left_rotate()
 			//     G               G                               G
 			//    /               /          node left_rotate     /
 			//   C         -->   C(node)    ----------------->   D
 			//    \_              \_                            /
 			//     D(node)          D                          C(node)
-			//
+			*/
 			else if (node == node->p->right) {
 				cout << "left case 2" << endl;
 				node = node->p;
@@ -1585,13 +1589,14 @@ void __rbtree_adjust(RBTree *tree, RBTNode * node)
 				__rbtree_left_rotate(tree, node);
 			}
 
+			/*
 			// case 3. node is father left child, change father and grand father color, grand father right_rotate()
 			//     G(B)            G(R)                               D(B)
 			//    /               /            G right_rotate        / \
 			//   D(R)    ---->   D(B)          ----------------->   /   \
 			//  /               /                                  /     \
 			// C(node)         C(node)                            C(node) G(R)
-			//
+			*/
 			else {
 				cout << "left case 3" << endl;
 				node->p->color = BLACK;
@@ -1601,6 +1606,7 @@ void __rbtree_adjust(RBTree *tree, RBTNode * node)
 			}
 		} 
 
+		/*
 		// second. node father is node grand father right child
 		//
 		//     G
@@ -1608,7 +1614,7 @@ void __rbtree_adjust(RBTree *tree, RBTNode * node)
 		//   U   F
 		//        \
 		//        node
-		//
+		*/
 		else if (node->p == node->p->p->right) {
 			// case 1. father and uncle are red, change color, use grand father for next step
 			RBTNode * uncle = node->p->p->left;
