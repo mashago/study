@@ -6,6 +6,16 @@
 #include <stdexcept>
 #include <exception>
 #include <string>
+#include <iostream>
+
+template <typename T>
+void print_list(T * list, int size)
+{
+	for (int i=0; i<size; i++) {
+		std::cout << " " << list[i];
+	}
+	std::cout << std::endl;
+}
 
 int test0()
 {
@@ -503,6 +513,206 @@ int test8()
 	return 0;
 }
 
+template <typename T> class CQueue
+{
+public:
+	CQueue() {};
+	~CQueue() {};
+
+	void appendTail(const T &node)
+	{
+		stack1.push(node);
+	}
+	T deleteHead()
+	{
+		if (stack2.empty())
+		{
+			while (!stack1.empty())
+			{
+				T &node = stack1.top();
+				stack1.pop();
+				stack2.push(node);
+			}
+		}
+
+		if (stack2.empty())
+		{
+			throw std::runtime_error("queue empty");
+		}
+
+		T node = stack2.top();
+		stack2.pop();
+		return node;
+	}
+private:
+	std::stack<T> stack1;
+	std::stack<T> stack2;
+};
+
+int test9() 
+{
+	return 0;
+}
+
+long long Fibonacci(unsigned n)
+{
+	int result[2] = {0, 1};
+	if (n < 2)
+		return result[n];
+
+	long long front = 0;
+	long long back = 1;
+	long long ret = 0;
+	for (unsigned i=2; i<=n; ++i)
+	{
+		ret = front + back;
+		front = back;
+		back = ret;
+	}
+	return ret;
+}
+
+long long FlogJump(unsigned n)
+{
+	/*
+	{
+		f(1) = 1,
+		f(2) = 2,
+		f(n) = f(n-1) + f(n-2)
+	}
+	*/
+
+	int result[3] = {0, 1, 2};
+	if (n < 3)
+		return result[n];
+	
+	long long front = 1;
+	long long back = 2;
+	long long ret = 0;
+	for (unsigned i=3; i<=n; ++i)
+	{
+		ret = front + back;
+		front = back;
+		back = ret;
+	}
+	return ret;
+
+}
+
+long long RectangleCover(unsigned n)
+{
+	/*
+	f(8) = f(7) + f(6)
+	{
+		f(1) = 1,
+		f(2) = 2,
+		f(n) = f(n-1) + f(n-2)
+	}
+	*/
+
+	int result[3] = {0, 1, 2};
+	if (n < 3)
+		return result[n];
+	
+	long long front = 1;
+	long long back = 2;
+	long long ret = 0;
+	for (unsigned i=3; i<=n; ++i)
+	{
+		ret = front + back;
+		front = back;
+		back = ret;
+	}
+	return ret;
+}
+
+int test10() 
+{
+	unsigned n = 2;
+	printf("n=%d ret=%lld\n", n, Fibonacci(n));
+
+	n = 3;
+	printf("n=%d ret=%lld\n", n, Fibonacci(n));
+
+	n = 4;
+	printf("n=%d ret=%lld\n", n, Fibonacci(n));
+
+	n = 5;
+	printf("n=%d ret=%lld\n", n, Fibonacci(n));
+
+	n = 100;
+	printf("n=%d ret=%lld\n", n, Fibonacci(n));
+
+	printf("----------\n");
+	n = 3;
+	printf("n=%d ret=%lld\n", n, FlogJump(n));
+	n = 4;
+	printf("n=%d ret=%lld\n", n, FlogJump(n));
+	n = 5;
+	printf("n=%d ret=%lld\n", n, FlogJump(n));
+	return 0;
+}
+
+void quick_sort(int *list, int end, int start = 0);
+void quick_sort(int *list, int end, int start)
+{
+	if (!list || end <= 0 || start < 0 || end < start)
+	{
+		return;
+	}
+
+	int i = start;
+	int j = start+1;
+	if (j >= end)
+		return;
+
+	int key = list[start];
+	while (j < end)
+	{
+		if (list[j] >= key)
+		{
+			++j;
+			continue;
+		}
+
+		int t = list[++i];
+		list[i] = list[j];
+		list[j] = t;
+		j++;
+	}
+	int t = list[i];
+	list[i] = key;
+	list[start] = t;
+
+	quick_sort(list, i, start);
+	quick_sort(list, end, i+1);
+};
+
+int test11() 
+{
+	{
+	int list[] = {1, 1, 2, 2, 3, 3, 1, 1, 2};
+	quick_sort(list, sizeof(list)/sizeof(int));
+	print_list(list, sizeof(list)/sizeof(int));
+	}
+	{
+	int list[] = {2, 1, 2, 2, 3, 3, 1, 1, 2};
+	quick_sort(list, sizeof(list)/sizeof(int));
+	print_list(list, sizeof(list)/sizeof(int));
+	}
+	{
+	int list[] = {2, 3, 3, 2, 3, 3, 1, 1, 2};
+	quick_sort(list, sizeof(list)/sizeof(int));
+	print_list(list, sizeof(list)/sizeof(int));
+	}
+	return 0;
+}
+
+int test12() 
+{
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -522,6 +732,11 @@ testcase_t test_list[] =
 ,	test5
 ,	test6
 ,	test7
+,	test8
+,	test9
+,	test10
+,	test11
+,	test12
 };
 
 int main(int argc, char *argv[]) 
