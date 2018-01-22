@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <stack>
 #include <stdexcept>
 #include <exception>
@@ -714,8 +715,255 @@ int test11()
 	return 0;
 }
 
+int MinInSpin(int *numbers, int length)
+{
+	if (!numbers || length <= 0)
+		throw std::runtime_error("input error");
+	
+	int index1 = 0;
+	int index2 = length - 1;
+	int indexMid = index1;
+
+	// check head and tail
+	while (numbers[index1] >= numbers[index2])
+	{
+		if (index2 - index1 == 1)
+		{
+			// only 2 num, tail is min
+			indexMid = index2;
+			break;
+		}
+
+		indexMid = (index2 + index1) / 2;
+
+		if (numbers[index1] == numbers[index2] && numbers[index1] == numbers[indexMid])
+		{
+			// head, mid, tail same, loop all
+			int result = numbers[index1];
+			for (int i = index1+1; i <= index2; ++i)
+			{
+				if (numbers[i] > result)
+				{
+					result = numbers[i];
+				}
+			}
+			return result;
+		}
+
+		if (numbers[indexMid] >= numbers[index1])
+		{
+			// mid >= head, min in [mid, tail]
+			index1 = indexMid;
+		}
+		else if (numbers[indexMid] <= numbers[index2])
+		{
+			// mid <= head, min in [head, mid]
+			index2 = indexMid;
+		}
+	}
+
+	return numbers[indexMid];
+}
+
 int test12() 
 {
+	int numbers[] = {3, 4, 7, 1, 2};
+	printf("%d\n", MinInSpin(numbers, sizeof(numbers)/sizeof(int)));
+	return 0;
+}
+
+bool matrixHasPathCore(char *matrix, int rows, int cols, int row, int col, char *str, int &pathLength, bool *visited)
+{
+	if (str[pathLength] == '\0')
+	{
+		return true;
+	}
+
+	bool hasPath = false;
+	if (row >= 0 && row < rows && col >= 0 && col < cols
+		&& matrix[row * cols + col] == str[pathLength]
+		&& !visited[row * cols + col])
+	{
+		// is in str
+		++pathLength;
+		visited[row * cols + col] = true;
+
+		// check if around position is ok
+		hasPath = matrixHasPathCore(matrix, rows, cols, row - 1, col, str, pathLength, visited)
+				|| matrixHasPathCore(matrix, rows, cols, row + 1, col, str, pathLength, visited)
+				|| matrixHasPathCore(matrix, rows, cols, row, col - 1, str, pathLength, visited)
+				|| matrixHasPathCore(matrix, rows, cols, row, col + 1, str, pathLength, visited);
+
+		if (!hasPath)
+		{
+			// wrong path, roll back
+			--pathLength;
+			visited[row * cols + col] = false;
+		}
+	}
+
+	return hasPath;
+}
+
+bool matrixHasPath(char *matrix, int rows, int cols, char *str)
+{
+	if (!matrix || rows < 1 || cols < 1|| !str)
+		return false;
+	
+	bool *visited = new bool[rows * cols];
+	memset(visited, 0, rows * cols);
+
+	int pathLength = 0;
+	for (int row = 0; row < rows; ++row)
+	{
+		for (int col = 0; col < cols; ++col)
+		{
+			// check every position
+			if (matrixHasPathCore(matrix, rows, cols, row, col, str, pathLength, visited))
+			{
+				return true;
+			}
+		}
+	}
+
+	delete [] visited;
+	return false;
+}
+
+int getDigitSum(int number)
+{
+	int sum = 0;
+	while (number > 0)
+	{
+		sum += number % 10;
+		number /= 10;
+	}
+	return sum;
+}
+
+int robotMoveCountCore(int threshold, int rows, int cols, int row, int col, bool *visited)
+{
+	int count = 0;
+	bool is_ok = rows >= 0 && cols >= 0 && row < rows && col < cols
+	&& getDigitSum(row) + getDigitSum(col) <= threshold && !visited[row * cols + col];
+
+	if (is_ok)
+	{
+		count = 1 + robotMoveCountCore(threshold, rows, cols, row + 1, col, visited)
+		+ robotMoveCountCore(threshold, rows, cols, row - 1, col, visited)
+		+ robotMoveCountCore(threshold, rows, cols, row, col + 1, visited)
+		+ robotMoveCountCore(threshold, rows, cols, row, col - 1, visited);
+	}
+
+	return count;
+}
+
+int robotMoveCount(int threshold, int rows, int cols)
+{
+	if (threshold < 0 || rows <= 0 || cols <= 0)
+		return 0;
+	
+	bool *visited = new bool[rows * cols];
+	memset(visited, 0, rows * cols);
+
+	int count = robotMoveCountCore(threshold, rows, cols, 0, 0, visited);
+	delete [] visited;
+
+	return count;
+}
+
+int test13() 
+{
+	return 0;
+}
+
+int maxProductAfterCutting_solution1(int length)
+{
+	if (length < 2)
+		return 0;
+	if (length == 2)
+		return 1;
+	if (length == 3)
+		return 2;
+	
+	int *products = new int[length + 1];
+	products[0] = 0;
+	products[1] = 1;
+	products[2] = 1;
+	products[3] = 2;
+	
+	// f(n) = max(f(i) * f(n-i))
+	int max = 0;
+	for (int i = 4; i <= length; ++i)
+	{
+		max = 0;
+		// for (int j = 1; j <= i; ++j)
+		for (int j = 1; j <= i/2; ++j)
+		{
+			int product = products[j] * products[i-j];
+			if (product > max)
+			{
+				max = product;
+			}
+			products[i] = max;
+		}
+	}
+
+	max = products[length];
+	delete [] products;
+
+	return max;
+}
+
+int maxProductAfterCutting_solution2(int length)
+{
+	if (length < 2)
+		return 0;
+	if (length == 2)
+		return 1;
+	if (length == 3)
+		return 2;
+
+	int timesOf3 = length / 3;
+	if (length - timesOf3 * 3 == 1)
+	{
+		timesOf3 -= 1;
+	}
+	int timesOf2 = (length - timesOf3 * 3) / 2;
+
+	return (int)(pow(3, timesOf3)) * (int)(pow(2, timesOf2));
+}
+
+int test14() 
+{
+	{
+	int n = 5;
+	printf("n=%d ret=%d\n", n, maxProductAfterCutting_solution1(n));
+	}
+	{
+	int n = 6;
+	printf("n=%d ret=%d\n", n, maxProductAfterCutting_solution1(n));
+	}
+	{
+	int n = 7;
+	printf("n=%d ret=%d\n", n, maxProductAfterCutting_solution1(n));
+	}
+	{
+	int n = 8;
+	printf("n=%d ret=%d\n", n, maxProductAfterCutting_solution1(n));
+	}
+	{
+	int n = 9;
+	printf("n=%d ret=%d\n", n, maxProductAfterCutting_solution1(n));
+	}
+	{
+	int n = 10;
+	printf("n=%d ret=%d\n", n, maxProductAfterCutting_solution1(n));
+	}
+	{
+	int n = 10;
+	printf("n=%d ret=%d\n", n, maxProductAfterCutting_solution2(n));
+	}
 	return 0;
 }
 
@@ -743,6 +991,8 @@ testcase_t test_list[] =
 ,	test10
 ,	test11
 ,	test12
+,	test13
+,	test14
 };
 
 int main(int argc, char *argv[]) 
