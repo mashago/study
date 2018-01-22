@@ -503,6 +503,51 @@ int test8()
 	return 0;
 }
 
+template <typename T> class CQueue
+{
+public:
+	CQueue(void)
+	{
+	}
+	~CQueue(void)
+	{
+	}
+	void appendTail(const T &node)
+	{
+		// always push into stack1
+		stack1.push(node);
+	}
+	T deleteHead()
+	{
+		if (stack2.empty())
+		{
+			// stack2 is empty, pop stack1 and push into stack2
+			while (!stack1.empty())
+			{
+				T &node = stack1.top();
+				stack1.pop();
+				stack2.push(node);
+			}
+		}
+
+		if (stack2.empty())
+			throw std::runtime_error("queue is empty");
+
+		// pop stack2
+		T node = stack2.top();
+		stack2.pop();
+		return node;
+	}
+private:
+	std::stack<T> stack1;
+	std::stack<T> stack2;
+};
+
+int test9() 
+{
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -522,6 +567,8 @@ testcase_t test_list[] =
 ,	test5
 ,	test6
 ,	test7
+,	test8
+,	test9
 };
 
 int main(int argc, char *argv[]) 
