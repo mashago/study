@@ -181,6 +181,36 @@ function test5()
 	return 0
 end
 
+function write_file(file_name, buffer)
+    local f = assert(io.open(file_name, "w"))
+    f:write(buffer)
+    assert(f:close())
+end  -- write_file()
+
+function test6()
+	local filename = "for_test_module_tmp.lua"
+	local buffer = [[
+local l_var_a = 123
+local function l_func_a()
+	print("call l_func_a")
+end
+
+g_var_a = 456
+function g_func_a()
+	print("call g_func_a")
+end
+]]
+	write_file(filename, buffer)
+
+	local f1 = load(buffer)
+	local f2 = loadfile(filename)
+	
+
+	-- os.remove(file_name)
+
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -192,6 +222,7 @@ test_list =
 ,	test3
 ,	test4
 ,	test5
+,	test6
 }
 
 function do_main()
