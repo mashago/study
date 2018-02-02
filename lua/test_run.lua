@@ -188,8 +188,7 @@ function write_file(file_name, buffer)
 end  -- write_file()
 
 function test6()
-	local filename = "for_test_module_tmp.lua"
-	local buffer = [[
+	local buffer1 = [[
 local l_var_a = 123
 local function l_func_a()
 	print("call l_func_a")
@@ -199,14 +198,67 @@ g_var_a = 456
 function g_func_a()
 	print("call g_func_a")
 end
+
+function g_func_b()
+	return l_var_a
+end
+
+local l_var_c = 111
+function g_func_c()
+	return l_var_c
+end
 ]]
-	write_file(filename, buffer)
+	local f1 = load(buffer1)
 
-	local f1 = load(buffer)
-	local f2 = loadfile(filename)
-	
+	local file_name = "for_test_module_tmp.lua"
+	local buffer2 = [[
+local l_var_a = 314
+local function l_func_a()
+	print("call l_func_a")
+end
 
-	-- os.remove(file_name)
+g_var_a = 789
+function g_func_a()
+	print("call g_func_a")
+end
+
+function g_func_b()
+	return l_var_a
+end
+
+local l_var_c = 222
+]]
+	write_file(file_name, buffer2)
+
+	local f2 = loadfile(file_name)
+
+	print("type(f1)=", type(f1))
+	print("type(f2)=", type(f2))
+
+	local f1_ret = f1()
+	print("type(f1_ret)=", type(f1_ret))
+	print("l_var_a=", l_var_a)
+	print("g_var_a=", g_var_a)
+	print("g_func_b()=", g_func_b())
+	print("g_func_c()=", g_func_c())
+	for i = 1, math.huge do
+		local name, value = debug.getupvalue(g_func_b, i)
+		if not name then 
+			break 
+		end
+		print("name=", name, " value=", value)
+	end
+
+	print()
+
+	local f2_ret = f2()
+	print("type(f1_ret)=", type(f1_ret))
+	print("l_var_a=", l_var_a)
+	print("g_var_a=", g_var_a)
+	print("g_func_b()=", g_func_b())
+	print("g_func_c()=", g_func_c())
+
+	os.remove(file_name)
 
 	return 0
 end
