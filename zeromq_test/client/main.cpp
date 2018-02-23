@@ -4,6 +4,9 @@
 #include <zmq.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
+
+// #define TRY_FORK 1
 
 int main(int argc, char **argv)
 {
@@ -38,18 +41,38 @@ int main(int argc, char **argv)
 	
 	const int buff_size = 1000;
 	char buff[buff_size] = {0};
+
 	int num = 0;
+
+#ifdef TRY_FORK
+	pid_t pid;
+	if ((pid = fork()) < 0)
+	{
+		printf("fork error\n");
+		exit(1);
+	}
+#else
+	int pid = 0;
+#endif
+
+#ifdef TRY_FORK
+	if (pid != 0)
+	{
+		sleep(1);
+	}
+#endif
+
 	while (1)
 	{
 		++num;
-		snprintf(buff, buff_size, "client send buff[%d]", num);
+		snprintf(buff, buff_size, "client send buff[%d][%d]", pid, num);
 		int len = zmq_send(pSocket, buff, strlen(buff), 0);
 		if (len < 0)
 		{
-			printf("error=%s\n", zmq_strerror(errno));
+			printf("pid=%d errno=%d error=%s\n", pid, errno, zmq_strerror(errno));
 			continue;
 		}
-		printf("len=%d\n", len);
+		printf("pid=%d len=%d\n", pid, len);
 
 		sleep(2);
 	}
