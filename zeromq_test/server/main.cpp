@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 // #define TRY_FORK 1
+// #define TRY_MUTI 1
 
 int main(int argc, char **argv)
 {
@@ -21,6 +22,7 @@ int main(int argc, char **argv)
 		printf("pCtx NULL\n");
 		return -1;
 	}
+	printf("ctx\n");
 
 	if ((pSocket = zmq_socket(pCtx, ZMQ_XREQ)) == NULL)
 	{
@@ -28,6 +30,7 @@ int main(int argc, char **argv)
 		zmq_ctx_destroy(pCtx);
 		return -1;
 	}
+	printf("socket\n");
 
 	if (zmq_bind(pSocket, endpoint) != 0)
 	{
@@ -47,11 +50,34 @@ int main(int argc, char **argv)
 		printf("fork error\n");
 		exit(1);
 	}
+	printf("fork\n");
 #else
 	int pid = 0;
 #endif
-	
-	while (1)
+
+#ifdef TRY_MUTI
+	void *pCtx2 = NULL;
+	void *pSocket2 = NULL;
+
+	if ((pCtx2 = zmq_ctx_new()) == NULL)
+	{
+		printf("pCtx2 NULL\n");
+		return -1;
+	}
+	printf("ctx2\n");
+	getchar();
+
+	if ((pSocket2 = zmq_socket(pCtx2, ZMQ_XREQ)) == NULL)
+	{
+		printf("pSocket2 NULL\n");
+		zmq_ctx_destroy(pCtx2);
+		return -1;
+	}
+	printf("socket2\n");
+	getchar();
+#endif
+
+	while (0)
 	{
 		char buff[buff_size] = {0};
 		int len = zmq_recv(pSocket, buff, buff_size, 0);
@@ -63,9 +89,15 @@ int main(int argc, char **argv)
 		}
 		printf("pid=%d len=%d buff=%s\n", pid, len, buff);
 	}
-	
+
 	zmq_close(pSocket);
+	printf("close socket\n");
+	getchar();
+
 	zmq_ctx_destroy(pCtx);
+	printf("ctx destory\n");
+	getchar();
+
 
 	return 0;
 }

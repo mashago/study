@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-// #define TRY_FORK 1
+#define TRY_FORK 1
 
 int main(int argc, char **argv)
 {
@@ -22,6 +22,8 @@ int main(int argc, char **argv)
 		printf("pCtx NULL\n");
 		return -1;
 	}
+	printf("ctx\n");
+	getchar();
 
 	if ((pSocket = zmq_socket(pCtx, ZMQ_XREQ)) == NULL)
 	{
@@ -29,6 +31,8 @@ int main(int argc, char **argv)
 		zmq_ctx_destroy(pCtx);
 		return -1;
 	}
+	printf("socket\n");
+	getchar();
 
 	if (zmq_connect(pSocket, endpoint) != 0)
 	{
@@ -37,10 +41,11 @@ int main(int argc, char **argv)
 		zmq_ctx_destroy(pCtx);
 		return -1;
 	}
-	printf("bind [%s]\n", endpoint);
+	printf("connect [%s]\n", endpoint);
+	getchar();
 	
 	const int buff_size = 1000;
-	char buff[buff_size] = {0};
+	char buff[buff_size+1] = {0};
 
 	int num = 0;
 
@@ -51,6 +56,8 @@ int main(int argc, char **argv)
 		printf("fork error\n");
 		exit(1);
 	}
+	printf("socket\n");
+	getchar();
 #else
 	int pid = 0;
 #endif
@@ -70,6 +77,7 @@ int main(int argc, char **argv)
 		if (len < 0)
 		{
 			printf("pid=%d errno=%d error=%s\n", pid, errno, zmq_strerror(errno));
+			sleep(2);
 			continue;
 		}
 		printf("pid=%d len=%d\n", pid, len);
