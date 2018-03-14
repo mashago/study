@@ -1451,6 +1451,230 @@ function test36()
 	return 0
 end
 
+function test37()
+	local buff= '{["__class_type__"]="User",["__temp_args__"]={["RealIp"]="192.168.20.209",["Vfd"]=1,},["__init_args__"]={["Exp"]=0,["TotalLoginDays"]=1,["URS"]="m0308a",["TotalGameTime"]=2494,["SaveTime"]=1520925311,["PetMgr"]={["__class_type__"]="PetMgr",["__init_args__"]={["Pets"]={[1]={["__class_type__"]="Pet",["__init_args__"]={["GuardRate"]=100,["Id"]=1000002,["Uid"]=4401,["Hp"]=800,["Level"]=1,["Y"]=10515,["X"]=27985,["PetStatus"]=1,["MasterUid"]=20000702,["PetUid"]=1,["SceneUid"]=536871001,["BornTime"]=1520925027.870243,["MissingRate"]=100,},},},["PetUid"]=1,["BornTime"]=1520922029,["IdCounter"]=1,},},["ShapeId"]=1000,["BirthDay"]=1520922029,["Attach"]={[1]={["Key"]=101,["Value"]=31002,},[2]={["Key"]=110,["Value"]=31003,},},["LastLogout"]="2018-03-13 15:15:11",["BaseAttach"]={},["Job"]=101,["TotalDayTime"]=2494,["CreateTime"]=1520922029,["ChannelID"]=0,["ItemMgr"]={["__class_type__"]="ItemMgr",["__init_args__"]={["BornTime"]=1520922029,["Item"]={},},},["ShopMgr"]={["__class_type__"]="ShopMgr",["__init_args__"]={["WeekItem"]={[1008]=20,[1010]=5,[1012]=10,[1009]=10,[1011]=1,},["BornTime"]=1520922029,["WeekItemTime"]=1520922031,},},["Uid"]=20000702,["StageMgr"]={["__class_type__"]="StageMgr",["__init_args__"]={["ChapterMgr"]={["__class_type__"]="ChapterMgr",["__init_args__"]={["BornTime"]=1520922029,["ChapterInfo"]={[101]={["Status"]=0,["RewardList"]={[1]={["Status"]=0,["Process"]=0,},[2]={["Status"]=0,["Process"]=0,},[3]={["Status"]=0,["Process"]=0,},},},},},},["ChapterStage"]={["__class_type__"]="ChapterStage",["__init_args__"]={["BornTime"]=1520922029,["ChapterStageInfo"]={},},},["BornTime"]=1520922029,["DramaStage"]={["__class_type__"]="DramaStage",["__init_args__"]={["BornTime"]=1520922029,["DramaStageInfo"]={[10011]={["Status"]=1,["Score"]=1,},[10012]={["Status"]=0,["Score"]=0,},},},},},},["LogoutTime"]=1520925311,["SaveCount"]=8,["EnterSceneInfo"]={["Y"]=10515,["Type"]="Line",["LineId"]=1,["GsId"]=1,["SceneId"]=1001,["SceneUid"]=536871001,["X"]=27785,},["Hp"]=3100,["Angle"]=0,["PfId"]=0,["TaskMgr"]={["__class_type__"]="TaskMgr",["__init_args__"]={["BornTime"]=1520922029,["TaskInfo"]={[10000]={["Id"]=10000,["State"]=2,["Time"]=1520922031,["Progress"]={},},},},},["Level"]=1,["BornTime"]=1520922029,["SeeVer"]=0,["SkillCoolDownInfo"]={},["SubChannel"]="",["EquipMentMgr"]={["__class_type__"]="EquipMentMgr",["__init_args__"]={["BornTime"]=1520922029,},},["HaloMgr"]={["__class_type__"]="clsHaloMgr",["__init_args__"]={["AllHalo"]={},["BornTime"]=1520922029,["LastSaveTime"]=1520925311,},},["DelEquipAtRename"]={},["SrvId"]=702,["Grade"]=0,["BuffMgr"]={["__class_type__"]="clsBuffMgr",["__init_args__"]={["LastSaveTime"]=1520925311,["AllBuff"]={[1]={["__class_type__"]="clsBuffObj",["__init_args__"]={["Id"]=7,["RunCount"]=1,["BornTime"]=1520922031,["UpdateTime"]=1520922031,},},},["BornTime"]=1520922029,},},["Y"]=10515,["X"]=27785,["Name"]="m0308a1",["Sex"]=1,["DevOS"]=1,["SceneUid"]=536871001,["LastDailyTime"]=1520922031,["LoginTime"]=1520925027,},}'
+
+	local t = load('return ' .. buff)
+
+	require("util")
+	printf("%s", tableToString(t))
+
+	return 0
+end
+
+
+--[[
+local t = 
+{
+	[1] = {
+		[11] =
+		{
+			[111] = true,
+			[112] = true,
+		},
+		[12] =
+		{
+			[121] = true,
+		},
+	},
+	[2] = {
+		[21] =
+		{
+		},
+		[22] =
+		{
+			[221] = true,
+		},
+	},
+}
+==>
+{
+	{1, 11, 111},
+	{1, 11, 112},
+	{1, 12, 121},
+	{2, 22, 221},
+}
+--]]
+
+local function map2path(input, output, tmp)
+    for k, v in pairs(input) do
+        local mid = {}
+        if tmp then
+            for _, key in ipairs(tmp) do
+                table.insert(mid, key)
+            end
+        end
+
+        if type(v) == 'table' then
+        	table.insert(mid, k)
+            map2path(v, output, mid)
+        elseif type(v) == 'boolean' and v == true then
+        	table.insert(mid, k)
+            table.insert(output, mid)
+        end
+    end
+end
+
+--[[
+local t = 
+{
+	[1] = {
+		[11] =
+		{
+			[111] = true,
+			[112] = true,
+		},
+		[12] =
+		{
+			[121] = true,
+		},
+	},
+	[2] = {
+		[21] =
+		{
+		},
+		[22] =
+		{
+			[221] = true,
+		},
+	},
+}
+==>
+{
+	{1, 11, {111,112}},
+	{1, 12, {121}},
+	{2, 22, {221}},
+}
+--]]
+
+local function map2mergepath(input, output, tmp)
+	local terminal = {}
+    for k, v in pairs(input) do
+        if type(v) == 'table' then
+			local mid = {}
+			if tmp then
+				for _, key in ipairs(tmp) do
+					table.insert(mid, key)
+				end
+			end
+        	table.insert(mid, k)
+            local terminal = map2mergepath(v, output, mid)
+			if next(terminal) then
+				table.insert(mid, terminal)
+            	table.insert(output, mid)
+			end
+        elseif type(v) == 'boolean' and v == true then
+        	table.insert(terminal, k)
+        end
+    end
+	if next(terminal) and not tmp then
+		table.insert(output, {terminal})
+	end
+	return terminal
+end
+
+function test38()
+	require("util")
+	do
+		local t = 
+		{
+			[1] = {
+				[11] = true
+			},
+		}
+
+		local out = {}
+		map2path(t, out)
+		printf("out=%s\n", tableToString(out))
+	end
+	do
+		local t = 
+		{
+			[1] = {
+				[11] =
+				{
+					[111] = true,
+					[112] = true,
+					[113] = 
+					{
+						[1131] = true,
+					}
+				},
+				[12] =
+				{
+					[121] = true,
+				},
+			},
+			[2] = {
+				[21] =
+				{
+				},
+				[22] =
+				{
+					[221] = true,
+				},
+			},
+		}
+
+		local out = {}
+		map2path(t, out)
+		printf("out=%s\n", tableToString(out))
+	end
+	printf("\n")
+
+	do
+		local t = 
+		{
+			[1] = {
+				[11] = true
+			},
+			[2] = true,
+			[3] = true,
+		}
+
+		local out = {}
+		map2mergepath(t, out)
+		printf("out=%s\n", tableToString(out))
+	end
+	do
+		local t = 
+		{
+			[1] = {
+				[11] =
+				{
+					[111] = true,
+					[112] = true,
+				},
+				[12] =
+				{
+					[121] = true,
+					[122] = 
+					{
+						[1221] = true,
+					},
+					[123] = true,
+							
+				},
+			},
+			[2] = {
+				[21] =
+				{
+				},
+				[22] =
+				{
+					[221] = true,
+				},
+			},
+		}
+
+		local out = {}
+		map2mergepath(t, out)
+		printf("out=%s\n", tableToString(out))
+	end
+
+	return 0
+end
+
 test_list =
 {
 	test1
@@ -1489,6 +1713,8 @@ test_list =
 ,	test34
 ,	test35
 ,	test36
+,	test37
+,	test38
 }
 
 function do_main()
