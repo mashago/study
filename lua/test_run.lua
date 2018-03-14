@@ -263,6 +263,23 @@ local l_var_c = 222
 	return 0
 end
 
+function test7()
+	print("_G=", _G)
+	print("_ENV=", _ENV)
+	_G.gt = 10
+	print("gt=", gt)
+
+	local func = function()
+		local print = _G.print
+		local _ENV = {}
+		print("gt=", gt)
+	end
+
+	func()
+
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -275,6 +292,7 @@ test_list =
 ,	test4
 ,	test5
 ,	test6
+,	test7
 }
 
 function do_main()
