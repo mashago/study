@@ -500,6 +500,35 @@ function test10()
 	return 0
 end
 
+function test11()
+	local t = 
+	{
+		a = 1,
+		b = 2,
+		c = 3,
+	}
+	for k, v in pairs(t) do
+		print("1", k, v)
+		t["x" .. k] = v * 100
+		print("2", k, v)
+	end
+	return 0
+end
+
+function ret_3_params()
+	return 1, 2, 3
+end
+
+function recv_4_params(a, b, c, d)
+	print(a, b, c, d)
+end
+
+function test12()
+	recv_4_params("x", ret_3_params())
+	recv_4_params(ret_3_params(), "x")
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -516,6 +545,8 @@ test_list =
 ,	test8
 ,	test9
 ,	test10
+,	test11
+,	test12
 }
 
 function do_main()
