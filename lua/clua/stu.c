@@ -45,6 +45,7 @@ static void print_stack(lua_State *L)
 	printf("\n");
 	*/
 	int top = lua_gettop(L);
+	printf("top=%d\n", top);
 	for (int i = -1; i >= -top; i--)
 	{
 		int type = lua_type(L, i);
@@ -1833,6 +1834,35 @@ int test13()
 	return 0;
 }
 
+
+
+int test14()
+{
+	lua_State *L = luaL_newstate();
+	luaL_openlibs(L);
+	
+	int a = 1;
+	lua_pushlightuserdata(L, (void *)&a);
+	luaL_newmetatable(L, "t_m_14a");
+	lua_setmetatable(L, -2);
+	lua_setglobal(L, "g_a");
+	print_stack(L);
+
+	int b = 2;
+	lua_pushlightuserdata(L, (void *)&b);
+	luaL_newmetatable(L, "t_m_14b");
+	lua_setmetatable(L, -2);
+	lua_setglobal(L, "g_b");
+	print_stack(L);
+
+	lua_getglobal(L, "g_a");
+	luaL_checkudata(L, 1, "t_m_14a");
+
+	// getchar();
+
+	return 0;
+}
+
 int test_tmp()
 {
 	/*
@@ -1877,6 +1907,7 @@ testcase_t test_list[] =
 ,	test11
 ,	test12
 ,	test13
+,	test14
 };
 
 int main(int argc, char **argv) 
