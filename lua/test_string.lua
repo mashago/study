@@ -99,6 +99,8 @@ function test3()
 
 	-- string.sub(s, from, to)
 	print("string.sub(x, 1, 1)=", string.sub(x, 1, 1))
+	print("string.sub(x, 1, 2)=", string.sub(x, 1, 2))
+	print("string.sub(x, 2, 1)=", string.sub(x, 2, 1))
 	print("string.sub(x, 1, 5)=", string.sub(x, 1, 5))
 	print("string.sub(x, -1, -1)=", string.sub(x, -1, -1))
 	print("string.sub(x, -5, -1)=", string.sub(x, -5, -1))
