@@ -508,10 +508,46 @@ function test11()
 		c = 3,
 	}
 	for k, v in pairs(t) do
-		print("1", k, v)
+		print("k=", k, " v=", v)
 		t["x" .. k] = v * 100
-		print("2", k, v)
 	end
+	print()
+
+	local t2 = 
+	{
+		["1"] = "8",
+		["2"] = "7",
+		["3"] = "6",
+		["4"] = "5",
+		["5"] = "4",
+		["6"] = "3",
+		["7"] = "2",
+		["8"] = "1",
+	}
+
+	for k, v in pairs(t2) do
+		print("k=", k, " v=", v)
+		t2[v] = nil
+	end
+	print()
+
+	local t3 = 
+	{
+		[1] = 8,
+		[2] = 7,
+		[3] = 6,
+		[4] = 5,
+		[5] = 4,
+		[6] = 3,
+		[7] = 2,
+		[8] = 1,
+	}
+
+	for k, v in pairs(t3) do
+		print("k=", k, " v=", v)
+		t3[v] = nil
+	end
+
 	return 0
 end
 

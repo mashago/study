@@ -67,6 +67,72 @@ function test3()
 	return 0
 end
 
+
+-- https://blog.csdn.net/chienchia/article/details/41356973
+--[[
+-- random_state =
+-- {
+-- 		seed = x,
+-- }
+--]]
+local custom_random = 
+{
+	new = function(self, seed)
+		local obj = 
+		{
+			seed = seed or 1,
+		}
+		setmetatable(obj, self)
+		return obj
+	end,
+
+	randomseed = function(self, seed)
+		self.seed = seed or 1
+	end,
+
+	random = function(self, min, max)
+		-- X(n+1) = (a * X(n) + c) % m
+		local t = math.floor(self.seed * 1103515245 + 12345)
+		-- print("t=", t)
+		t = ((t >> 32) << 32) ~ t
+		-- print("self.seed=", self.seed)
+		self.seed = t
+
+		if not min or min > max then
+			return t
+		end
+		return min + t % (max-min + 1)
+	end,
+}
+custom_random.__index = custom_random
+
+function test4()
+	local rand = custom_random:new()
+	rand:randomseed(os.time())
+	for i=1, 20 do
+		local r = rand:random()
+		print("r1=", r)
+	end
+	print()
+
+	local rand = custom_random:new(os.time())
+	local counter = {}
+	local MIN = 1
+	local MAX = 10
+	for i=MIN, MAX do
+		counter[i] = 0
+	end
+	for i=1, 10000 do
+		local r = rand:random(MIN, MAX)
+		-- print("r1=", r)
+		counter[r] = counter[r] + 1
+	end
+	for k, v in ipairs(counter) do
+		print("k=", k, " v=", v)
+	end
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -76,6 +142,7 @@ test_list =
 	test1
 ,	test2
 ,	test3
+,	test4
 }
 
 function do_main()
