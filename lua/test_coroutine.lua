@@ -69,6 +69,58 @@ function test2()
 	return 0
 end
 
+local CoroutineMgr
+CoroutineMgr = 
+{
+	_cor_list = {},
+	create = function(func)
+		-- 1. first resume in create, pass the call func, and yield self coroutine
+		-- 2. second resume in logic code, pass params for func, and call func
+		-- 3. if no yield in func, just yield func ret
+
+		local self = CoroutineMgr
+		local cor = table.remove(self._cor_list)
+		if cor then
+			coroutine.resume(cor, func)
+			return cor	
+		end
+		cor = coroutine.create(function(f)
+			local params = table.pack(coroutine.yield(coroutine.running()))
+			while true do
+				local ret = table.pack(f(table.unpack(params)))
+				table.insert(self._cor_list, coroutine.running())
+				f = coroutine.yield(table.unpack(ret))
+				params = table.pack(coroutine.yield(coroutine.running()))
+			end
+		end)
+		return select(2, coroutine.resume(cor, func))
+	end,
+
+	resume = function(cor, ...)
+		return coroutine.resume(cor, ...)
+	end,
+
+	yield = function(...)
+		return coroutine.yield(...)
+	end
+}
+
+function test3()
+	local cor_func1 = function(n)
+		n = CoroutineMgr.yield(n + 1)
+		log("n=%d", n)
+		return n + 1
+	end
+
+	local cor = CoroutineMgr.create(cor_func1)
+	local b, n = CoroutineMgr.resume(cor, 1)
+	log("b=%s n2=%d", b, n)
+	b, n = CoroutineMgr.resume(cor, n)
+	log("b=%s n3=%d", b, n)
+
+	return 0
+end
+
 function test_notyet()
 	return 0
 end
@@ -77,6 +129,7 @@ test_list =
 {
 	test1
 ,	test2
+,	test3
 }
 
 function do_main()
