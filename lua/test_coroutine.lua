@@ -81,6 +81,7 @@ CoroutineMgr =
 		local self = CoroutineMgr
 		local cor = table.remove(self._cor_list)
 		if cor then
+			print("reuse cor 2")
 			coroutine.resume(cor, func)
 			return cor	
 		end
@@ -88,7 +89,8 @@ CoroutineMgr =
 			local params = table.pack(coroutine.yield(coroutine.running()))
 			while true do
 				local ret = table.pack(f(table.unpack(params)))
-				table.insert(self._cor_list, coroutine.running())
+				print("reuse cor 1")
+				table.insert(self._cor_list, cor)
 				f = coroutine.yield(table.unpack(ret))
 				params = table.pack(coroutine.yield(coroutine.running()))
 			end
@@ -108,15 +110,22 @@ CoroutineMgr =
 function test3()
 	local cor_func1 = function(n)
 		n = CoroutineMgr.yield(n + 1)
-		log("n=%d", n)
+		print("cor_func1 n1=", n)
+		n = CoroutineMgr.yield(n + 1)
+		print("cor_func1 n2=", n)
 		return n + 1
 	end
 
-	local cor = CoroutineMgr.create(cor_func1)
-	local b, n = CoroutineMgr.resume(cor, 1)
-	log("b=%s n2=%d", b, n)
-	b, n = CoroutineMgr.resume(cor, n)
-	log("b=%s n3=%d", b, n)
+	local cor1 = CoroutineMgr.create(cor_func1)
+	print("a1 ", CoroutineMgr.resume(cor1, 1))
+	print("a2 ", CoroutineMgr.resume(cor1, 3))
+
+	local cor2 = CoroutineMgr.create(cor_func1)
+	print("b1 ", CoroutineMgr.resume(cor2, 2))
+	print("b2 ", CoroutineMgr.resume(cor2, 4))
+
+	print("a3 ", CoroutineMgr.resume(cor1, 5))
+	print("b3 ", CoroutineMgr.resume(cor2, 6))
 
 	return 0
 end
