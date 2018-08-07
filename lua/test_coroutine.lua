@@ -73,59 +73,102 @@ local CoroutineMgr
 CoroutineMgr = 
 {
 	_cor_list = {},
-	create = function(func)
-		-- 1. first resume in create, pass the call func, and yield self coroutine
-		-- 2. second resume in logic code, pass params for func, and call func
-		-- 3. if no yield in func, just yield func ret
-
-		local self = CoroutineMgr
-		local cor = table.remove(self._cor_list)
-		if cor then
-			print("reuse cor 2")
-			coroutine.resume(cor, func)
-			return cor	
-		end
-		cor = coroutine.create(function(f)
-			local params = table.pack(coroutine.yield(coroutine.running()))
-			while true do
-				local ret = table.pack(f(table.unpack(params)))
-				print("reuse cor 1")
-				table.insert(self._cor_list, cor)
-				f = coroutine.yield(table.unpack(ret))
-				params = table.pack(coroutine.yield(coroutine.running()))
-			end
-		end)
-		return select(2, coroutine.resume(cor, func))
-	end,
-
-	resume = function(cor, ...)
-		return coroutine.resume(cor, ...)
-	end,
-
-	yield = function(...)
-		return coroutine.yield(...)
-	end
 }
+function CoroutineMgr:create(func)
+	local cor = table.remove(self._cor_list)
+	if cor then
+		coroutine.resume(cor, func)
+		return cor	
+	end
+
+	cor = coroutine.create(function(...)
+		-- local ret = table.pack(func(...))
+		local ret = func(...)
+		while true do
+			table.insert(self._cor_list, cor)
+			-- func = coroutine.yield(table.unpack(ret))
+			func = coroutine.yield(ret)
+			-- ret = table.pack(func(coroutine.yield()))
+			ret = func(coroutine.yield())
+		end
+	end)
+	return cor
+end
+function CoroutineMgr:size()
+	return #self._cor_list
+end
 
 function test3()
 	local cor_func1 = function(n)
-		n = CoroutineMgr.yield(n + 1)
+		n = coroutine.yield(n + 1)
 		print("cor_func1 n1=", n)
-		n = CoroutineMgr.yield(n + 1)
+		n = coroutine.yield(n + 1)
 		print("cor_func1 n2=", n)
 		return n + 1
 	end
 
-	local cor1 = CoroutineMgr.create(cor_func1)
-	print("a1 ", CoroutineMgr.resume(cor1, 1))
-	print("a2 ", CoroutineMgr.resume(cor1, 3))
+	local cor1 = CoroutineMgr:create(cor_func1)
+	print("a1 ", coroutine.resume(cor1, 1))
+	print("a2 ", coroutine.resume(cor1, 3))
 
-	local cor2 = CoroutineMgr.create(cor_func1)
-	print("b1 ", CoroutineMgr.resume(cor2, 2))
-	print("b2 ", CoroutineMgr.resume(cor2, 4))
+	local cor2 = CoroutineMgr:create(cor_func1)
+	print("b1 ", coroutine.resume(cor2, 2))
+	print("b2 ", coroutine.resume(cor2, 4))
 
-	print("a3 ", CoroutineMgr.resume(cor1, 5))
-	print("b3 ", CoroutineMgr.resume(cor2, 6))
+	print("a3 ", coroutine.resume(cor1, 5))
+	print("b3 ", coroutine.resume(cor2, 6))
+
+	print("*************************")
+
+	local cor = CoroutineMgr:create(cor_func1)
+	print(coroutine.resume(cor, 1))
+	print(coroutine.resume(cor, 3))
+	print(coroutine.resume(cor, 5))
+	print("*************************")
+	local cor = CoroutineMgr:create(cor_func1)
+	print(coroutine.resume(cor, 2))
+	print(coroutine.resume(cor, 4))
+	print(coroutine.resume(cor, 6))
+
+	print("*************************")
+
+	-- compare
+
+	local cor_func2 = function(n)
+		n = coroutine.yield(n)
+		n = coroutine.yield(n)
+		return n
+	end
+
+	local total = 100000
+	local each = 100
+	local times = total / each
+
+	local benchmark = function(creator, ...)
+		local clock = os.clock()
+		for i=1, times do
+			local cor_queue = {}
+			for i=1, each do
+				local cor = creator(...)
+				table.insert(cor_queue, cor)
+			end
+			for k, cor in ipairs(cor_queue) do
+				coroutine.resume(cor, 1)
+				coroutine.resume(cor, 3)
+				coroutine.resume(cor, 5)
+			end
+		end
+		return os.clock()-clock
+	end
+
+	-- normal coroutine
+	print("normal coroutine use clock =", benchmark(coroutine.create, cor_func2))
+
+	-- my coroutine
+	print("my coroutine use clock =", benchmark(CoroutineMgr.create, CoroutineMgr, cor_func2))
+	print(CoroutineMgr:size())
+
+	print()
 
 	return 0
 end
