@@ -3365,6 +3365,79 @@ int test85()
 	return 0;
 }
 
+struct st86
+{
+	int a = 1;
+	double b = 1.1;
+	char c[50] = "k1";
+	void print()
+	{
+		printf("a=%d b=%lf c=%s\n", a, b, c);
+	}
+};
+
+struct st86b
+{
+	int a;
+	double b;
+	char c[50] = {0};
+
+	st86b() : a(2), b(2.2)
+	{
+		sprintf(c, "k2");
+	}
+
+	void print()
+	{
+		printf("a=%d b=%lf c=%s\n", a, b, c);
+	}
+};
+
+class cls86
+{
+public:
+	int a = 3;
+	double b = 3.3;
+	char c[50] = "k3";
+	void print()
+	{
+		printf("a=%d b=%lf c=%s\n", a, b, c);
+	}
+};
+
+class cls86b
+{
+public:
+	int a;
+	double b;
+	char c[50];
+
+	cls86b() : a(4), b(4.4)
+	{
+		sprintf(c, "k4");
+	}
+	void print()
+	{
+		printf("a=%d b=%lf c=%s\n", a, b, c);
+	}
+};
+
+int test86()
+{
+
+	st86 s1;
+	st86b s2;
+	cls86 c1;
+	cls86b c2;
+
+	s1.print();
+	s2.print();
+	c1.print();
+	c2.print();
+
+	return 0;
+}
+
 int test_notyet() 
 {
 	// int ret;
@@ -3462,6 +3535,7 @@ testcase_t test_list[] =
 ,	test83
 ,	test84
 ,	test85
+,	test86
 };
 
 int main(int argc, char *argv[]) 
