@@ -268,13 +268,15 @@ function test7()
 	print("_ENV=", _ENV)
 	_G.gt = 10
 	print("gt=", gt)
+    print("_ENV.gt=", _ENV.gt)
+    print()
 
 	local func = function()
 		local print = _G.print
 		local _ENV = {}
 		print("gt=", gt)
+        print("_G=", _G)
 	end
-
 	func()
 
 	return 0
