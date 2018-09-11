@@ -32,6 +32,15 @@ def test1():
 		print ""
 		break
 
+	while True:
+		mylist = []
+		mylist.append(None)
+		mylist.append(None)
+		mylist.append(None)
+		print mylist
+		print ""
+		break
+
 	return 0
 
 test_funcs = [

@@ -11,15 +11,25 @@ class Task:
     def __init__(self, req_queue, rsp_queue):
         self.req_queue = req_queue
         self.rsp_queue = rsp_queue
+        self.player_list = []
     def work_loop(self):
         while True:
-            need = random.randint(1, MAX_PLAYER)
-            print "need=%s" % need
-            self.req_queue.put([need, self.rsp_queue], block=True)
-            player_list = self.rsp_queue.get(block=True)
+            num = random.randint(1, MAX_PLAYER)
+            print "num=%s" % num
+            player_list = self.pop_player(num)
             print "len(player_list)=%s" % (len(player_list))
             gevent.sleep(1) # TODO should be real client logic
-            self.req_queue.put([0, player_list], block = True)
+            self.push_player()
+
+    def pop_player(self, num):
+        self.req_queue.put([num, self.rsp_queue], block=True)
+        player_list = self.rsp_queue.get(block=True)
+        self.player_list.extend(player_list)
+        return player_list
+
+    def push_player(self):
+        self.req_queue.put([0, self.player_list], block = True)
+        self.player_list = []
 
 
 def start(req_queue, rsp_queue):
