@@ -1,4 +1,4 @@
-default: platform simple_server exec_test select_client poll_client dns_test syslog_test usock_test usock_server usock_client pthread_test pthread_test2 pthread_test3 udp_server udp_client fork_client
+default: platform simple_server exec_test select_client poll_client dns_test syslog_test usock_test usock_server usock_client pthread_test pthread_test2 pthread_test3 udp_server udp_client fork_client epoll_client epoll_server
 
 OS:=$(shell uname -s)
 SRC:=$(wildcard *.cpp) $(wildcard *.c)
@@ -23,6 +23,7 @@ clean:
 	rm -rf usock_server
 	rm -rf usock_client
 	rm -rf epoll_client
+	rm -rf epoll_server
 	rm -rf pthread_test
 	rm -rf pthread_test2
 	rm -rf udp_server
@@ -58,6 +59,9 @@ usock_client: usock_client.c
 
 epoll_client: epoll_client.c
 	gcc $(CFLAG) -o epoll_client epoll_client.c
+
+epoll_server: epoll_server.c
+	gcc $(CFLAG) -o epoll_server epoll_server.c
 
 pthread_test:	pthread_test.c
 	gcc $(CFLAG) -o pthread_test pthread_test.c -lpthread
