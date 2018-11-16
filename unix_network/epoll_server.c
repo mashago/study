@@ -158,6 +158,22 @@ void do_accept(int epfd, int listen_fd)
 	}
 }
 
+void reset_client_events(int epfd, struct epoll_event *ev, struct client_t *cli)
+{
+	ev->events = 0;
+	int size = client_can_read_size(cli);
+	if (size > 0)
+	{
+		ev->events = ev->events | EPOLLIN;
+	}
+	size = client_can_write_size(cli);
+	if (size > 0)
+	{
+		ev->events = ev->events | EPOLLOUT;
+	}
+	epoll_ctl(epfd, EPOLL_CTL_MOD, cli->fd, ev);
+}
+
 void do_read(int epfd, struct epoll_event *ev)
 {
 	struct client_t *cli = ev->data.ptr;
@@ -193,45 +209,25 @@ void do_read(int epfd, struct epoll_event *ev)
 		return;
 	}
 
-	ev->events = 0;
-	size = client_can_read_size(cli);
-	if (size > 0)
-	{
-		ev->events = ev->events | EPOLLIN;
-	}
-	size = client_can_write_size(cli);
-	if (size > 0)
-	{
-		ev->events = ev->events | EPOLLOUT;
-	}
-	epoll_ctl(epfd, EPOLL_CTL_MOD, fd, ev);
+	reset_client_events(epfd, ev, cli);
 }
 
 void do_write(int epfd, struct epoll_event *ev)
 {
 	struct client_t *cli = ev->data.ptr;
 	int fd = cli->fd;
+
 	int size = client_can_write_size(cli);
 	if (size == 0)
 	{
-		ev->events = ev->events & EPOLLIN;
+		ev->events = EPOLLIN;
 		epoll_ctl(epfd, EPOLL_CTL_MOD, fd, ev);
 		return;
 	}
 
 	client_write(cli);
-	ev->events = 0;
-	size = client_can_read_size(cli);
-	if (size > 0)
-	{
-		ev->events = ev->events | EPOLLIN;
-	}
-	size = client_can_write_size(cli);
-	if (size > 0)
-	{
-		ev->events = ev->events | EPOLLOUT;
-	}
-	epoll_ctl(epfd, EPOLL_CTL_MOD, fd, ev);
+
+	reset_client_events(epfd, ev, cli);
 }
 
 int main(int argc, char** argv)
