@@ -120,6 +120,19 @@ int do_listen(int epfd)
 	}
 
 	// epoll part
+	/*
+	* typedef union epoll_date {
+	* 		void 			*ptr;
+	* 		int 			fd;
+	* 		__uint32_t		u32;
+	* 		__uint64_t		u64;
+	* 	} epoll_data_t;
+	*
+	* 	struct epoll_event {
+	* 		__uint32_t		events; 
+	* 		epoll_data_t	data;
+	* 	}
+	*/
 	struct epoll_event ev;
 	ev.data.fd = fd;
 	ev.events = EPOLLIN;

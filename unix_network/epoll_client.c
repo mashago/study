@@ -1,3 +1,6 @@
+
+#define _POSIX_SOURCE
+
 #include <stdio.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -14,92 +17,63 @@
 #include <netdb.h>
 
 #define SERVER_IP	("127.0.0.1")
-#define SERVER_PORT 7711
-// #define SERVER_IP	("t3.17kapai.com")
-// #define SERVER_PORT 7710
+#define SERVER_PORT 7777
 
-/*
- * epoll io:
- * 1. int epollfd = epoll_create(int size);
- * 2. int epoll_ctl(int epollfd, int op, int fd, struct epoll_event *)
- * 		op: EPOLL_CTL_ADD, EPOLL_CTL_MOD, EPOLL_CTL_DEL
- * typedef union epoll_date {
- * 		void 			*ptr;
- * 		int 			fd;
- * 		__uint32_t		u32;
- * 		__uint64_t		u64;
- * 	} epoll_data_t;
- *
- * 	struct epoll_event {
- * 		__uint32_t		events; 
- * 		epoll_data_t	data;
- * 	}
- * 	epoll_event.events: EPOLLIN,EPOLLOUT,EPOLLERR,EPOLLHUP,EPOLLLT,EPOLLET
- *	3.num_ready = epoll_wait(epollfd, events_array, max_events, timeout);
- *
- */
+#define MAX_BUFFER 10
 
-int do_read(int fd)
+struct client_t
 {
-	int size;
-	const int BUFFER_SIZE = 500;
-	char buffer[BUFFER_SIZE+1];
+	int fd;
+	char buffer[MAX_BUFFER];
+	char* in_pos;
+	char* out_pos;
+};
 
-	size = read(fd, buffer, BUFFER_SIZE);
-	if (size == 0) {
-		if (errno == EAGAIN) {
-			printf("do_read:eagain\n");
-			return 0;
+struct client_t* new_client(int fd)
+{
+	struct client_t* cli = (struct client_t*)calloc(1, sizeof(struct client_t));
+	cli->fd = fd;
+	cli->in_pos = cli->buffer;
+	cli->out_pos = cli->buffer;
+	return cli;
+}
+
+int client_can_read_size(struct client_t *cli)
+{
+	return cli->buffer + MAX_BUFFER - cli->in_pos;
+}
+
+int client_can_write_size(struct client_t *cli)
+{
+	return cli->in_pos - cli->out_pos;
+}
+
+void client_write(struct client_t *cli)
+{
+	int count = write(cli->fd, cli->out_pos, client_can_write_size(cli));
+	if (count > 0)
+	{
+		cli->out_pos += count;
+		if (cli->out_pos == cli->in_pos)
+		{
+			cli->in_pos = cli->buffer;
+			cli->out_pos = cli->buffer;
 		}
-		printf("do_read:eof\n");
-		return -1;
 	}
-	if (size < 0) {
-		printf("do_read:error %d\n", errno);
-		return -1;
-	}
-	if (size > 0) {
-		buffer[size] = '\0';	
-		printf("do_read:buffer=[%s]\n", buffer);
-		return 0;
-	}
-
-	return 0;
 }
 
-int do_write(int fd)
-{
-	int size;
-	const int BUFFER_SIZE = 500;
-	char buffer[BUFFER_SIZE+1];
-
-	// fgets(buffer, BUFFER_SIZE, stdin);
-	size = read(fileno(stdin), buffer, BUFFER_SIZE);
-	buffer[size] = '\0';
-	printf("do_write:buffer=[%s]\n", buffer);
-
-	if (strcmp(buffer, "q\n") == 0) {
-		shutdown(fd, SHUT_WR);
-		return 0;
-	}
-
-	size = write(fd, buffer, sizeof(buffer));
-	if (size < 0) {
-		printf("do_write:error %d\n", errno);
-		return -1;
-	}
-	return 0;
-}
+/////////////////////////////////////////
 
 int prepare_addr(struct sockaddr_in *sin, const char *hostname, const int port)
 {
-	bzero(sin, sizeof(struct sockaddr_in));
+	memset(sin, 0, sizeof(struct sockaddr_in));
 	sin->sin_family = AF_INET;
 	sin->sin_port = htons(port);
 	
 	char **pptr;
 	struct hostent *hptr = gethostbyname(hostname);
-	if (hptr == NULL) {
+	if (hptr == NULL)
+	{
 		printf("prepare_addr:no_such_host %s\n", hostname);
 		return -1;
 	}
@@ -111,134 +85,166 @@ int prepare_addr(struct sockaddr_in *sin, const char *hostname, const int port)
 	return 0;
 }
 
-int main(int argc, char *argv[])
+int do_listen_stdin(int epfd)
 {
-	int ret;
+	int fd = fileno(stdin);
+	struct epoll_event ev;
+	ev.events = EPOLLIN;
+	ev.data.fd = fd;
+	epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev);
+	return fd;
+}
 
-	char host[50];
-	int port = 0;
-
-	if (argc >= 3) {
-		snprintf(host, 50, "%s", argv[1]);
-		port = atoi(argv[2]);
-	} else {
-		snprintf(host, 50, "%s", SERVER_IP);
-		port = SERVER_PORT;
-	}
-	printf("host=%s port=%d\n", host, port);
-
-	int nfds = 0;
-	int max_fd = getdtablesize();
-	printf("max_fd=%d\n", max_fd);
-
-	int epfd = epoll_create(max_fd);
-
-	/*
-	 * typedef union epoll_date {
-	 * 		void 			*ptr;
-	 * 		int 			fd;
-	 * 		__uint32_t		u32;
-	 * 		__uint64_t		u64;
-	 * 	} epoll_data_t;
-	 *
-	 * 	struct epoll_event {
-	 * 		__uint32_t		events;
-	 * 		epoll_data_t	data;
-	 * 	}
-	 *
-	 */
-
-	// fileno(stream) return stream's descriptor
-	int stdinfd = fileno(stdin);
-	// core logic
-	struct epoll_event stdin_event;
-	stdin_event.events = EPOLLIN;
-	stdin_event.data.fd = stdinfd;
-	epoll_ctl(epfd, EPOLL_CTL_ADD, stdinfd, &stdin_event);
-
-
-
-	/*
-	int fd = socket(AF_INET, SOCK_STREAM, 0);
+struct client_t* do_connect(int epfd)
+{
+	int fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 	struct sockaddr_in sin;
-	ret = prepare_addr(&sin, host, port);
+	int ret = prepare_addr(&sin, SERVER_IP, SERVER_PORT);
+	if (ret != 0)
+	{
+		return NULL;
+	}
 
 	ret = connect(fd, (struct sockaddr *)&sin, sizeof(sin));
-	if (ret < 0) {
-		printf("connect_refused errno=%d\n", errno);
-		exit(0);
+	if (ret != 0 && errno != EINPROGRESS)
+	{
+		printf("connect error %d\n", errno);
+		return NULL;
 	}
 
-	struct epoll_event sock_event;
-	stdin_event.events = EPOLLIN;
-	stdin_event.data.fd = fd;
-	epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &sock_event);
-	*/
+	struct client_t *cli = new_client(fd);
+	struct epoll_event ev;
+	ev.events = EPOLLIN | EPOLLOUT;
+	ev.data.ptr = cli;
+	epoll_ctl(epfd, EPOLL_CTL_ADD, fd, &ev);
 
+	return cli;
+}
+
+void do_stdin(int epfd, int stdin_fd, struct client_t *cli)
+{
+	int size = client_can_read_size(cli);
+	if (size == 0)
+	{
+		epoll_ctl(epfd, EPOLL_CTL_DEL, stdin_fd, NULL);
+		return;
+	}
+
+	int count = read(stdin_fd, cli->in_pos, size);
+	cli->in_pos += count;
+
+	size = client_can_read_size(cli);
+	if (size == 0)
+	{
+		epoll_ctl(epfd, EPOLL_CTL_DEL, stdin_fd, NULL);
+	}
 	
-	int num_ready;
-	int timeout = 10000;
-	struct epoll_event events[10];
+	struct epoll_event ev;
+	ev.events = EPOLLIN | EPOLLOUT;
+	ev.data.ptr = cli;
+	epoll_ctl(epfd, EPOLL_CTL_MOD, cli->fd, &ev);
+}
 
-	while (1) {
+int do_read(int epfd, struct epoll_event *ev)
+{
+	struct client_t *cli = ev->data.ptr;
+	int fd = cli->fd;
 
-		// int poll(struct pollfd fds[], nfds_t nfds, int timeout);	
-		num_ready = epoll_wait(epfd, events, 10, -1);
-		printf("epoll:errno=%d\n", errno);
+	char buffer[MAX_BUFFER+1];
 
-		printf("epoll:num_ready=%d\n", num_ready);
-		if (num_ready < 0) {
-			printf("epoll:errno=%d\n", errno);
+	int count = read(fd, buffer, MAX_BUFFER);
+	if (count == 0)
+	{
+		if (errno == EAGAIN)
+		{
+			return 0;
 		}
+		printf("do_read eof\n");
+		return -1;
+	}
+	if (count < 0)
+	{
+		printf("do_read error %d\n", errno);
+		return -1;
+	}
 
-		sleep(5);
+	buffer[count] = '\0';	
+	printf("%s", buffer);
 
-		for (int i=0; i<num_ready; i++) {
-			printf("events[%d].data.fd=%d\n", i, events[i].data.fd);
-			if (events[i].events & EPOLLIN) {
-				printf("EPOLLIN\n");
-			} else if (events[i].events & EPOLLOUT) {
-				printf("EPOLLOUT\n");
-			} else if (events[i].events & EPOLLERR) {
-				printf("EPOLLERR\n");
+	return 0;
+}
+
+void do_write(int epfd, struct epoll_event *ev)
+{
+	struct client_t *cli = ev->data.ptr;
+	int fd = cli->fd;
+	int size = client_can_write_size(cli);
+	if (size == 0)
+	{
+		ev->events = EPOLLIN;
+		epoll_ctl(epfd, EPOLL_CTL_MOD, fd, ev);
+		return;
+	}
+
+	client_write(cli);
+
+	size = client_can_read_size(cli);
+	if (size > 0)
+	{
+		do_listen_stdin(epfd);
+	}
+	size = client_can_write_size(cli);
+	if (size == 0)
+	{
+		ev->events = EPOLLIN;
+		epoll_ctl(epfd, EPOLL_CTL_MOD, fd, ev);
+	}
+}
+
+int main(int argc, char *argv[])
+{
+	printf("hello epoll client\n");
+
+	int epfd = epoll_create(1024);
+	if (epfd == -1)
+	{
+		printf("epoll_create error %d\n", errno);
+		return 0;
+	}
+
+	int stdin_fd = do_listen_stdin(epfd);
+
+	struct client_t *cli = do_connect(epfd);
+	if (!cli)
+	{
+		printf("do_connect error\n");
+		return 0;
+	}
+
+	const int maxevents = 2;
+	struct epoll_event events[maxevents];
+	while (1)
+	{
+		int nfds = epoll_wait(epfd, events, 10, -1);
+		for (int i = 0; i < nfds; ++i)
+		{
+			if (events[i].data.fd == stdin_fd)
+			{
+				do_stdin(epfd, stdin_fd, cli);
 			}
-
-			/*
-			*/
-			if (events[i].data.fd == stdinfd) {
-				char buffer[1024];
-				int size = read(events[i].data.fd, buffer, sizeof(buffer)-1);
-				buffer[size] = '\0';
-				printf("buffer=[%s]\n", buffer);
-			}
-
-
-			/*
-			if (events[i].data.fd == stdinfd 
-			&& (events[i].events & EPOLLIN)) {
-				printf("----stdin_fd\n");
-				ret = do_write(fd);
-				if (ret < 0) {
-					printf("do_write:close_client\n");
-					exit(0);				
+			else if (events[i].events & EPOLLIN)
+			{
+				int ret = do_read(epfd, &events[i]);
+				if (ret != 0)
+				{
+					return 0;
 				}
-
-				continue;
 			}
-
-			if (events[i].data.fd == fd
-			&& (events[i].events & EPOLLIN)) {
-				printf("----socket_fd\n");
-				ret = do_read(fd);
-				if (ret < 0) {
-					printf("do_read:close_client\n");
-					exit(0);				
-				}
-				continue;
+			else if (events[i].events & EPOLLOUT)
+			{
+				do_write(epfd, &events[i]);
 			}
-			*/
 		}
-
 	}
 
 	return 0;
