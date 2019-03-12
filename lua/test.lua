@@ -1676,6 +1676,195 @@ function test38()
 	return 0
 end
 
+function get_table_first_and_last(t)
+    return t[1], table.pack(table.unpack(t, 2))
+end
+
+function test39()
+    local t = {}
+    local a, b = get_table_first_and_last(t)
+    print(a, b)
+    for k, v in ipairs(b) do
+        print(k, v)
+    end
+    print()
+
+    local t = {1}
+    local a, b = get_table_first_and_last(t)
+    print(a, b)
+    for k, v in ipairs(b) do
+        print(k, v)
+    end
+    print()
+
+    local t = {1, 2}
+    local a, b = get_table_first_and_last(t)
+    print(a, b)
+    for k, v in ipairs(b) do
+        print(k, v)
+    end
+    print()
+
+    return 0
+end
+
+local _func_handlers = {}
+function _add_func_into_hander(func)
+    for _, v in ipairs(_func_handlers) do
+        if v == func then
+            print("same func", func)
+            return
+        end
+    end
+    print("add success", func)
+    table.insert(_func_handlers, func)
+end
+
+function _clear_handers()
+    _func_handlers = {}
+end
+
+function _call_handlers()
+    for _, func in ipairs(_func_handlers) do
+        func()
+    end
+end
+
+function _register_func_a()
+    _add_func_into_hander(function(...) print(...) end)
+end
+
+function _register_func_b(func)
+    _add_func_into_hander(func)
+end
+
+function _register_func_c()
+    local func = function (...) print(...) end
+    _add_func_into_hander(func)
+end
+
+function _register_func_d()
+    for i=1, 2 do
+        _add_func_into_hander(function(...) print(...) end)
+    end
+end
+
+function _register_func_e()
+    for i=1, 2 do
+        _add_func_into_hander(function(...) print(i, ...) end)
+    end
+end
+
+function _register_func_f()
+    for i=1, 2 do
+        local x = i
+        _add_func_into_hander(function(...) print(x, ...) end)
+    end
+end
+
+function _register_func_g(x)
+    for i=1, 2 do
+        _add_func_into_hander(function(...) print(x, ...) end)
+    end
+end
+
+function _register_func_h(x)
+    for i=1, 2 do
+        x = x + i
+        _add_func_into_hander(function(...) print(x, ...) end)
+    end
+end
+
+function test40()
+
+    print("a1")
+    _register_func_a()
+    print("a2")
+    _register_func_a()
+    _clear_handers()
+    print()
+
+    print("b1")
+    _register_func_b(function(...) print(...) end)
+    print("b2")
+    _register_func_b(function(...) print(...) end)
+    _clear_handers()
+    print()
+
+    local func = function(...) print(...) end
+    print("b3")
+    _register_func_b(func)
+    print("b4")
+    _register_func_b(func)
+    _clear_handers()
+    print()
+
+    print("c1")
+    _register_func_c(func)
+    print("c2")
+    _register_func_c(func)
+    _clear_handers()
+    print()
+
+    print("d1")
+    _register_func_d()
+    _register_func_d()
+    _clear_handers()
+    print()
+
+    print("e1")
+    _register_func_e()
+    _register_func_e()
+    _call_handlers()
+    _clear_handers()
+    print()
+
+    print("f1")
+    _register_func_f()
+    _register_func_f()
+    _call_handlers()
+    _clear_handers()
+    print()
+
+    print("g1")
+    _register_func_g(1)
+    _register_func_g(1)
+    _clear_handers()
+    _clear_handers()
+    print()
+
+    print("h1")
+    _register_func_h(1)
+    _register_func_h(1)
+    _call_handlers()
+    _clear_handers()
+    print()
+
+    return 0
+end
+
+function get_string_len(s)    
+    local count = 0
+    for p, c in utf8.codes(s) do
+        if c < 128 then
+            count = count + 1
+        else
+            count = count + 2
+        end
+    end
+    return count
+end
+
+function test41()
+    local str = "新的一年沒什麼好說的，就祝你新年暴富吧！"
+    print(str)
+    print("use codes", get_string_len(str))
+    print("use utf8.len", utf8.len(str))
+    print("use string.len", string.len(str))
+
+    return 0
+end
+
 test_list =
 {
 	test1
@@ -1716,6 +1905,9 @@ test_list =
 ,	test36
 ,	test37
 ,	test38
+,	test39
+,	test40
+,	test41
 }
 
 function do_main()
