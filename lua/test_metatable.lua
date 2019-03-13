@@ -111,7 +111,9 @@ function test4()
 	-- 5.if metatable.__index is a function, call the function, pass table and key
 
 	local content = {a=10, b=20}
-	local mt = {__index=content}
+	local mt = {c=5, __index=content}
+	local mt2 = {a=100, b=200}
+    mt2.__index = mt2
 
 	do
 		local t = {a=1}
@@ -125,9 +127,8 @@ function test4()
 
 		-- return setted table
 		local ret = setmetatable(t, mt)
-		if t.b then
-			log("t.b=%d", t.b)
-		end
+        log("t.b=%s", t.b)
+        log("t.c=%s", t.c)
 		print("t:", t)
 		print("ret:", ret)
 		log()
@@ -142,8 +143,14 @@ function test4()
 		print("t.c=", rawget(t, 'c'))
 		log()
 
-
 	end
+
+    do
+        local t2 = {a=1}
+        setmetatable(t2, mt2)
+        log("t2.a=%s", t2.a)
+        log("t2.b=%s", t2.b)
+    end
 
 	return 0
 end
