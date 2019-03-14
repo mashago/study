@@ -1,5 +1,6 @@
 #!/usr/local/bin/lua
 
+-- gcc -fPIC -shared lua_cmodule_a.c lua_cmodule_b.c -o cmodule.so
 function test1()
     local cmodule_a = require "cmodule.a"
     local t = cmodule_a.new()
