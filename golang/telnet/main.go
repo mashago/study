@@ -6,7 +6,7 @@ import (
     "os"
 )
 
-var BUFF_SIZE int = 5
+var BUFF_SIZE int = 512
 
 func HandleRead(conn net.Conn) {
     buff := make([]byte, BUFF_SIZE)
@@ -23,12 +23,23 @@ func HandleRead(conn net.Conn) {
 func main() {
     fmt.Println("hello telnet")
 
-    conn, err := net.Dial("tcp", "127.0.0.1:7710")
-    defer conn.Close()
+    argc := len(os.Args)
+    if argc != 3 {
+        fmt.Println("err input [ip] [port]")
+        return
+    }
+
+    ip := os.Args[1]
+    if ip == "0" {
+        ip = "0.0.0.0"
+    }
+
+    conn, err := net.Dial("tcp", fmt.Sprintf("%s:%s", ip, os.Args[2]))
     if err != nil {
         fmt.Println("net dial error", err)
         return
     }
+    defer conn.Close()
 
     go HandleRead(conn)
     buff := make([]byte, BUFF_SIZE)

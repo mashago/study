@@ -2,6 +2,7 @@ package main
 
 import (
     "fmt"
+    "flag"
     "net"
 )
 
@@ -22,17 +23,27 @@ func HandleConn(conn net.Conn) {
             return
         }
     }
+    fmt.Println("disconnect")
 }
 
 func main() {
     fmt.Println("hello simple server")
 
-    listener, err := net.Listen("tcp", ":7710")
-    defer listener.Close()
+    var port int
+    flag.IntVar(&port, "p", 0, "listen port")
+    flag.Parse()
+
+    if port == 0 {
+        fmt.Println("error port", port)
+        return
+    }
+
+    listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
     if err != nil {
         fmt.Println("net listen error", err)
         return
     }
+    defer listener.Close()
 
     for true {
         conn, err := listener.Accept()
