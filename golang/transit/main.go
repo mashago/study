@@ -7,6 +7,8 @@ import (
     "sync"
 )
 
+// nohup ./main -p 7710 -h 30.103.44.195:8251 > nohup.out 2>&1 &
+
 func Transit(in net.Conn, out net.Conn, wg *sync.WaitGroup) {
     defer wg.Done()
     defer in.Close()
