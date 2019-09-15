@@ -6,13 +6,18 @@
 #include <dlfcn.h>
 #endif
 
+#if __APPLE__
+const char *libname = "lib/libmylib.dylib";
+#else
+const char *libname = "lib/libmylib.so";
+#endif
+
 typedef void* (*dl_open_func)(void);
 
 int main(int argc, char** argv)
 {
     printf("hello cross\n");
 
-    const char *libname = "lib/libmylib.so";
     void *dl = dlopen(libname, RTLD_NOW | RTLD_GLOBAL);
     if (!dl)
     {
