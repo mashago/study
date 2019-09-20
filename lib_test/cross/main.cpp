@@ -112,7 +112,7 @@ int main(int argc, char** argv)
     }
     printf("load lib success\n");
 
-    dl_func open_func = dl_load_func(lib, "myopen2");
+    dl_func open_func = dl_load_func(lib, "myopen");
     if (!open_func)
     {
         printf("dl_load_func fail %s\n", dl_error(error_buffer, buffer_size));
