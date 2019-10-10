@@ -60,7 +60,8 @@ function makePerson() {
         job: 'coder',
         age: 10,
         print: function () {
-            console.log('name:' + person.name + ' job:' + person.job + ' age:' + person.age);
+            // console.log('name:' + person.name + ' job:' + person.job + ' age:' + person.age);
+            console.log('name:' + this.name + ' job:' + this.job + ' age:' + this.age);
         }
     }
     return person
@@ -79,6 +80,16 @@ function Person(name = 'no name', job = 'no job', age = 0) {
     this.print = function () {
         console.log('name:' + this.name + ' job:' + this.job + ' age:' + this.age);
     }
+}
+Person.tmpAttr1 = 111;
+Person.prototype.tmpAttr2 = 222;
+
+function objectFactory() {
+    let obj = {};
+    let Constructor = [].shift.call(arguments);
+    obj.__proto__ = Constructor.prototype;
+    let ret = Constructor.apply(obj, arguments);
+    return (typeof ret === 'object' || typeof ret === 'function') ? ret : obj;
 }
 
 function changePersonAge(person) {
@@ -110,6 +121,29 @@ function test3() {
     console.log(person3);
     changePersonAge(person3);
     person3.print();
+    console.log('tmpAttr1:' + person3.tmpAttr1);
+    console.log('tmpAttr2:' + person3.tmpAttr2);
+    person3.tmpAttr1 = 123;
+    person3.tmpAttr1 = 123;
+    console.log('tmpAttr1:' + person3.tmpAttr1);
+    console.log('tmpAttr2:' + person3.tmpAttr2);
+
+    // this way is call Person() by global, 'this' is global
+    // let person4 = Person();
+    // console.log(person4);
+
+    let person5 = objectFactory(Person, 'kelton');
+    person5.print();
+    console.log();
+
+    console.log('Person.name:' + Person.name);
+    console.log('Person.job:' + Person.job);
+    console.log('Person.tmpAttr2:' + Person.tmpAttr2);
+    console.log('Person.__proto__:' + Person.__proto__)
+    console.log('Person.prototype:' + Person.prototype)
+    console.log(Person.__proto__ == Function.prototype);
+    console.log(Function.prototype.__proto__ == Object.prototype);
+    console.log(Object.prototype.__proto__);
 }
 
 function test4() {
@@ -143,7 +177,10 @@ function test6() {
     cars[1] = 'toyota';
     cars[2] = 'mazda';
     for (let index in cars) {
-        console.log('car=' + cars[index]);
+        console.log('index=' + index);
+    }
+    for (let car of cars) {
+        console.log('car=' + car);
     }
     console.log()
 
@@ -181,6 +218,7 @@ function test7() {
     console.log(typeof true)
     console.log(typeof ['a', 'b'])
     console.log(typeof { name: 'masha', age: 100 })
+    console.log(typeof {})
     console.log(typeof null)
     console.log(typeof undefined)
     console.log(typeof function () {
@@ -212,18 +250,120 @@ function test8() {
         ] \
     }';
     let obj = JSON.parse(text);
-    console.log(obj.name + " " + obj.age + " " + obj.cars);
+    console.log(obj.name + ' ' + obj.age + ' ' + obj.cars);
 }
 
 function vaFunc() {
-    var i, a = arguments[0];
+    let i, a = arguments[0];
     console.log(arguments);
-    console.log(i + " " + a);
+    console.log(i + ' ' + a);
 }
 
 function test9() {
     vaFunc();
     vaFunc(1, 2, 3);
+}
+
+// closure
+function createCounter() {
+    let count = 0;
+    return function() {
+        return ++count;
+    }
+}
+
+function test10() {
+    let counter1 = createCounter();
+    console.log('counter1:' + counter1());
+    console.log('counter1:' + counter1());
+    console.log('counter1:' + counter1());
+
+    let counter2 = createCounter();
+    console.log('counter2:' + counter2());
+    console.log('counter1:' + counter1());
+    console.log('counter2:' + counter2());
+}
+
+function test11() {
+    let d = new Date();
+    console.log(d);
+    console.log(d.getTime());
+    console.log(new Date(2019, 10, 1, 8, 30, 0));
+    let localOffset = d.getTimezoneOffset();
+    console.log(localOffset);
+}
+
+function test12() {
+    let cars = ['honda', 'toyota', 'mazda'];
+    console.log(cars.length);
+    console.log(cars.indexOf('toyota'));
+    console.log(cars.indexOf('volvo'));
+
+    cars.splice(1, 1, 'volvo');
+    console.log(cars);
+
+    cars.splice(1, 1);
+    console.log(cars);
+
+    cars.splice(1, 0, 'bmw');
+    console.log(cars);
+
+    cars.push('benz');
+    console.log(cars);
+
+    cars.pop();
+    console.log(cars);
+
+    let cars2 = ['byd', 'hongqi'];
+    let cars3 = cars.concat(cars2);
+    console.log(cars3);
+
+    let c = [].shift.call(cars3);
+    console.log('c:' + c + ' cars3:' + cars3);
+}
+
+function test13() {
+    const f = (x, y) => x * y;
+    console.log(f(2, 3));
+
+    const f2 = () => 2 * 2;
+    console.log(f2());
+}
+
+function test14() {
+    let t = new Map();
+    t.set('apple', 1000);
+    t.set(1000, 'apple');
+    t.set('pear', 3000);
+    console.log(t);
+    console.log(t.has('apple'));
+    console.log(t.get('apple'));
+    t.set('apple', 2000);
+    console.log(t.get('apple'));
+    console.log(t.delete('apple'));
+    console.log(t.get('apple'));
+
+    let s = new Set();
+    s.add(1);
+    s.add(2);
+    s.add(3);
+    s.add(1);
+    console.log(s);
+    s.delete(1);
+    console.log(s);
+    console.log();
+
+    for (let p of t) {
+        console.log(p);
+        console.log(p[0]);
+        console.log(p[1]);
+    }
+    console.log();
+
+    for (let v of s) {
+        console.log(v);
+    }
+    console.log();
 }
 
 let funcList = [
@@ -237,10 +377,15 @@ let funcList = [
     test7,
     test8,
     test9,
+    test10,
+    test11,
+    test12,
+    test13,
+    test14,
 ];
 
 function main() {
-    var c = 9;
+    var c = 14;
     var func = funcList[c];
     func();
 }
