@@ -353,6 +353,13 @@ function test14() {
     console.log(s);
     console.log();
 
+    let a = new Array();
+    a.push('a');
+    a.push('b');
+    a.push('c');
+    console.log(a);
+    console.log();
+
     for (let p of t) {
         console.log(p);
         console.log(p[0]);
@@ -364,6 +371,27 @@ function test14() {
         console.log(v);
     }
     console.log();
+
+    for (let v of a) {
+        console.log(v);
+    }
+    console.log();
+
+    a.forEach((value, index, arr) => {
+        console.log('[' + index + ']:' + value);
+    });
+    console.log();
+
+    a.every((value, index, arr) => {
+        console.log('[' + index + ']:' + value);
+        if (value == 'b') return false; // false for break
+        return true; // true for continue
+    });
+    console.log();
+
+    console.log(a.some((value, index, arr) => {
+        return value == 'b';
+    }));
 }
 
 let funcList = [

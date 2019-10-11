@@ -8,6 +8,10 @@ function loop(): never {
     while (true) {}
 }
 
+function union(a: number|string): void {
+    console.log(a);
+}
+
 function test1(): void {
     let a: number = 1;
     let b: string = 'abc';
@@ -42,6 +46,14 @@ function test1(): void {
     let p = '1';
     let q:number = <number><any>p;
     console.log(typeof q);
+
+    let r: number|string;
+    r = 1;
+    r = 'abc';
+    console.log(r);
+
+    union(123);
+    union('jqk');
 }
 
 class Car {
@@ -68,14 +80,66 @@ function test2(): void {
     car.print();
 }
 
+function addNum(a: number, b: number): number {
+    return a + b;
+}
+
+function addNum2(a: number, b?: number): number {
+    if (b === undefined) b = 0;
+    return a + b;
+}
+
+function addNum3(a: number, b: number = 100): number {
+    return a + b;
+}
+
+function addNum4(...nums: number[]): number {
+    let n = 0;
+    for (let i = 0; i < nums.length; ++i) {
+        n = n + nums[i];
+    }
+    return n;
+}
+
+function addNum5(a: number = 0, ...nums: number[]): number {
+    let n = a;
+    for (let i = 0; i < nums.length; ++i) {
+        n = n + nums[i];
+    }
+    return n;
+}
+
+function factorial(num) {
+    if (num <= 0) {
+        return 1;
+    } else {
+        return (num * factorial(num - 1));
+    }
+}
+
+function test3() {
+    console.log(addNum(3, 4));
+    console.log(addNum2(3));
+    console.log(addNum3(3));
+    console.log(addNum4(1, 2, 3, 4));
+    console.log(addNum5(1, 2, 3, 4));
+
+    console.log((function(): number {
+        return 1;
+    })());
+    console.log(factorial(6));
+
+}
+
 let funcList: Function[] = [
     test0,
     test1,
     test2,
+    test3,
 ];
 
 function main(): void {
-    var c = 2;
+    var c = 3;
     var func = funcList[c];
     func();
 }
