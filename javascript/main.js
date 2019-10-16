@@ -394,6 +394,12 @@ function test14() {
     }));
 }
 
+function test15() {
+    let data = fs.readFileSync('skeleton.json');
+    let obj = JSON.parse(data);
+    console.log(obj);
+}
+
 let funcList = [
     test0,
     test1,
@@ -410,10 +416,11 @@ let funcList = [
     test12,
     test13,
     test14,
+    test15,
 ];
 
 function main() {
-    var c = 14;
+    var c = 15;
     var func = funcList[c];
     func();
 }

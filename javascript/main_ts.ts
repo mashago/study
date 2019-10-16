@@ -128,7 +128,102 @@ function test3() {
         return 1;
     })());
     console.log(factorial(6));
+}
 
+interface ICar {
+    brand: string;
+    price: number;
+    print: () => void;
+}
+
+function test4() {
+    let a: ICar = {
+        brand: 'honda',
+        price: 1000,
+        print: ():void => {
+            // not the way you think like javascript, will use global as this, so shit
+            console.log(`brand:${this.brand} price:${this.price}`);
+        }
+    }
+    a.print();
+}
+
+class Moto {
+    brand: string;
+    price: number;
+
+    constructor(brand: string, price: number)
+    {
+        this.brand = brand;
+        this.price = price;
+    }
+
+    print(): void {
+        console.log(`brand:${this.brand} price:${this.price}`);
+    }
+}
+
+class SuperMoto extends Moto {
+    power: number;
+
+    constructor(brand: string, price: number, power: number)
+    {
+        super(brand, price);
+        this.power = power;
+    }
+
+    print(): void {
+        super.print();
+        console.log(`power:${this.power}`);
+    }
+
+    static maxPower: number = 100000;
+    static printMaxPower(): void {
+        console.log( SuperMoto.maxPower);
+    }
+
+    attrA: number = 100;
+    public attrB: number = 200;
+    private attrC: number = 300;
+    getAttrC(): number {
+        return this.attrC;
+    }
+}
+
+interface IPlane {
+    maxSpeed: number;
+}
+
+class Plane implements IPlane {
+    maxSpeed: number;
+    speed: number;
+    constructor(maxSpeed: number, speed: number) {
+        this.maxSpeed = maxSpeed;
+        this.speed = speed;
+    }
+}
+
+function test5() {
+    let c = new Moto('honda', 1000);
+    c.print();
+    let d = new SuperMoto('honda', 2000, 999);
+    d.print();
+    console.log(SuperMoto.maxPower);
+    SuperMoto.printMaxPower();
+
+    console.log(c instanceof Moto);
+    console.log(d instanceof Moto);
+    console.log(d instanceof SuperMoto);
+    console.log();
+
+    console.log(d.attrA);
+    console.log(d.attrB);
+    // console.log(d.attrC);
+    console.log(d.getAttrC());
+    console.log();
+
+    let p = new Plane(1000, 999);
+    console.log(`speed:${p.speed} maxSpeed:${p.maxSpeed}`);
 }
 
 let funcList: Function[] = [
@@ -136,10 +231,12 @@ let funcList: Function[] = [
     test1,
     test2,
     test3,
+    test4,
+    test5,
 ];
 
 function main(): void {
-    var c = 3;
+    var c = 5;
     var func = funcList[c];
     func();
 }
