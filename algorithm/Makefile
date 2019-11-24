@@ -10,7 +10,7 @@ clean:
 	rm -rf test
 	rm -rf offer
 
-test:	test.cpp
+test:	test.cpp astar.cpp
 	g++ $(CFLAG) -o $@ $^
 
 offer:	offer.cpp

@@ -9,6 +9,7 @@
 #include <vector>
 #include <algorithm>
 #include <list>
+#include "astar.h"
 
 using std::cout;
 using std::endl;
@@ -1848,6 +1849,33 @@ int test12()
 	return 0;
 }
 
+int test13()
+{
+	int maze_array[MAP_SIZE][MAP_SIZE] =
+	{
+		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+		{ 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1},
+		{ 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1},
+		{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1},
+		{ 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1},
+		{ 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+		{ 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1},
+		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+	};
+	Maze *maze = new Maze(maze_array);
+	MazePoint *start = new MazePoint(1, 1);
+	MazePoint *end = new MazePoint(6, 10);
+	std::list<MazePath> path_list = maze->FindPath(start, end, false);
+	for (auto iter = path_list.begin(); iter!= path_list.end(); iter++)
+	{
+		MazePath path = *iter;
+		printf("(%d, %d)\n", path.x, path.y);
+	}
+	delete maze;
+
+	return 0;
+}
+
 typedef int (*testcase_t) ();
 testcase_t test_list[] =
 {
@@ -1864,6 +1892,7 @@ testcase_t test_list[] =
 ,	test10
 ,	test11
 ,	test12
+,	test13
 };
 
 int main(int argc, char *argv[])
