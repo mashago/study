@@ -9,6 +9,7 @@
 #include <vector>
 #include <algorithm>
 #include <list>
+#include <map>
 #include "astar.h"
 
 using std::cout;
@@ -1851,7 +1852,9 @@ int test12()
 
 int test13()
 {
-	int maze_array[MAP_SIZE][MAP_SIZE] =
+	const int MAX_X = 8;
+	const int MAX_Y = 12;
+	int maze[MAX_X][MAX_Y] =
 	{
 		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 		{ 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1},
@@ -1862,16 +1865,32 @@ int test13()
 		{ 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1},
 		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 	};
-	Maze *maze = new Maze(maze_array);
-	MazePoint *start = new MazePoint(1, 1);
-	MazePoint *end = new MazePoint(6, 10);
-	std::list<MazePath> path_list = maze->FindPath(start, end, false);
+	int *ptr = (int *)maze;
+	MazePath start = MazePath(1, 1);
+	MazePath end = MazePath(6, 10);
+	std::list<MazePath> path_list = MazeFindPath(ptr, MAX_X, MAX_Y, start, end, false);
+
+	std::map<int, bool> path_map;
 	for (auto iter = path_list.begin(); iter!= path_list.end(); iter++)
 	{
 		MazePath path = *iter;
-		printf("(%d, %d)\n", path.x, path.y);
+		path_map.insert(std::make_pair(path.x * MAX_Y + path.y, true));
 	}
-	delete maze;
+	for (int i=0; i<MAX_X; i++) {
+		for (int j=0; j<MAX_Y; j++) {
+			auto iter = path_map.find(i * MAX_Y + j);
+			if (iter != path_map.end())
+			{
+				printf("[%d]", maze[i][j]);
+			}
+			else
+			{
+				printf(" %d ", maze[i][j]);
+			}
+		}
+		printf("\n");
+	}
+
 
 	return 0;
 }
